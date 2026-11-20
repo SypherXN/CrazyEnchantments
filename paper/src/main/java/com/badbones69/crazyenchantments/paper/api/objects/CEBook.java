@@ -17,6 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class CEBook {
 
@@ -68,11 +69,30 @@ public class CEBook {
 
         this.glowing = config.getBoolean("Settings.Enchantment-Book-Glowing", true);
         int successMax = config.getInt("Settings.BlackScroll.SuccessChance.Max", 100);
-        int successMin = config.getInt("Settings.BlackScroll.SuccessChance.Min", 15);
+        int successMin = config.getInt("Settings.BlackScroll.SuccessChance.Min", 0);
         int destroyMax = config.getInt("Settings.BlackScroll.DestroyChance.Max", 100);
-        int destroyMin = config.getInt("Settings.BlackScroll.DestroyChance.Min", 15);
-        this.destroyRate = this.methods.percentPick(destroyMax, destroyMin);
-        this.successRate = this.methods.percentPick(successMax, successMin);
+        int destroyMin = config.getInt("Settings.BlackScroll.DestroyChance.Min", 0);
+        final Random random = new Random();
+        this.destroyRate = rollRate(destroyMin, destroyMax, random);
+        this.successRate = rollRate(successMin, successMax, random);
+    }
+
+    /**
+     * Rolls one rate from the configured bounds with both ends inclusive, so 0 and 100 are both reachable.
+     *
+     * <p>Bounds are clamped to 0-100 and swapped when inverted, so a hand-edited config cannot create
+     * an impossible rate. Each rate gets its own draw.</p>
+     *
+     * @param min The configured minimum percent.
+     * @param max The configured maximum percent.
+     * @param random The random source.
+     * @return A percent between the bounds, both ends inclusive.
+     */
+    static int rollRate(final int min, final int max, final Random random) {
+        final int low = Math.max(0, Math.min(100, Math.min(min, max)));
+        final int high = Math.max(0, Math.min(100, Math.max(min, max)));
+
+        return low + random.nextInt(high - low + 1);
     }
     
     /**

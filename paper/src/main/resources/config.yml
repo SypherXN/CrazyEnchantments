@@ -316,11 +316,11 @@ Settings:
       - '&7Black Scrolls allow you to'
       - '&7take off random enchantments.'
     SuccessChance: #Controls what the success chance will be when they get the book from the Black Scroll
-      Max: 75 #The Max percent
-      Min: 35 #The Minimum percent
+      Max: 100 #The Max percent
+      Min: 0 #The Minimum percent
     DestroyChance: #Controls what the destroy chance will be when they get the book from the Black Scroll
-      Max: 25 #The Max percent
-      Min: 5 #The Minimum percent
+      Max: 100 #The Max percent
+      Min: 0 #The Minimum percent
   WhiteScroll:
     Item: 'PAPER' #The item the white scroll is.
     # Item model settings
