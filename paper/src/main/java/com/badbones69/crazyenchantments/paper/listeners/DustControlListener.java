@@ -214,7 +214,9 @@ public class DustControlListener implements Listener {
                 inventory.setItemInOffHand(this.methods.removeItem(item));
             }
 
-            ItemStack item2 = pickDust().getDust(this.methods.percentPick(data.getChance() + 1, 1), 1);
+            // A tinkered reward may roll 0, which is a harmless no-boost dust; admin
+            // and older dust keep the legacy 1-based roll through getRollMinimum().
+            ItemStack item2 = pickDust().getDust(this.methods.percentPick(data.getChance() + 1, data.getRollMinimum()), 1);
 
             inventory.addItem(item2);
 

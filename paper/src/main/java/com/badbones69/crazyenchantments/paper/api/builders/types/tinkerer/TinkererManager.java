@@ -11,6 +11,7 @@ import com.badbones69.crazyenchantments.paper.api.objects.CEBook;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
 import com.badbones69.crazyenchantments.paper.api.objects.Category;
 import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
+import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -185,23 +186,87 @@ public class TinkererManager {
     }
 
     /**
-     * Path of the optional rarity-to-potency-cap table in Tinker.yml. Each key
-     * is a canonical rarity identity and each value the highest percent the
-     * Mystery Dust from a book of that rarity may roll.
+     * Path of the optional rarity-to-potency-cap overrides in Tinker.yml. Each
+     * key is a canonical rarity identity and each value the highest percent the
+     * Mystery Dust from a book of that rarity may roll (0..50). An explicit
+     * entry always wins; a missing or invalid entry scales by XP-point price.
      */
     private static final String TIER_CAP_PATH = "Settings.Tier-Potency-Cap";
 
     /** Potency is a percent; the dust consumption path clamps rates at 100. */
     private static final int MAX_DUST_PERCENT = 100;
 
+    /**
+     * The highest potency a tinkered book's Mystery Dust may roll. The price
+     * scale is relative to this value: the most expensive XP-point tier always
+     * caps here and cheaper tiers cap proportionally lower, down to zero.
+     */
+    private static final int MAX_PRICE_DUST = 50;
+
     public static int getMaxDustLevelFromBook(CEBook book, FileConfiguration config) {
         final List<String> identities = new ArrayList<>();
         for (final Category category : book.getEnchantment().getCategories()) identities.add(category.getIdentity());
 
-        // The tier cap wins before the legacy value is even read, so a malformed
-        // Book entry on a tiered book cannot break recycling for it.
-        return getMaxDustLevel(resolvedRarity(identities), getTierCaps(config), MAX_DUST_PERCENT,
+        // The rarity is resolved before any value is read, so a multi-category
+        // book cannot borrow the highest tier's dust.
+        return chooseTinkerDustCap(resolvedRarity(identities),
+                getTierCaps(config),
+                getPriceDustCaps(starter().getEnchantmentBookSettings().getCategories()),
                 () -> getLegacyMaxDustLevelFromBook(book, config, MAX_DUST_PERCENT));
+    }
+
+    /**
+     * Caps each canonical tier by its share of the highest XP-point shop price:
+     * {@code round(50 * price / highest)}. The shipped 400/800/2500/5000/25000
+     * prices therefore yield 1/2/5/10/50. Only XP-total prices take part: XP
+     * levels and Vault money are different units and never set the scale, and
+     * a tier without a positive XP-total price is left to the legacy formula.
+     */
+    static Map<String, Integer> getPriceDustCaps(final List<Category> categories) {
+        final Map<String, Integer> prices = new HashMap<>();
+
+        if (categories != null) {
+            for (final Category category : categories) {
+                if (category.getCurrency() != Currency.XP_TOTAL) continue;
+                if (category.getCost() <= 0) continue;
+                if (!TuningConfig.RARITIES.contains(category.getIdentity())) continue;
+
+                prices.merge(category.getIdentity(), category.getCost(), Math::max);
+            }
+        }
+
+        return capsFromPrices(prices);
+    }
+
+    /**
+     * Turns one price per rarity into its 0..50 potency cap. Half-up rounding
+     * keeps the requested endpoints: an equal-to-highest price caps at 50 and a
+     * price too small to round up caps at 0, which is a legal no-boost roll.
+     */
+    static Map<String, Integer> capsFromPrices(final Map<String, Integer> prices) {
+        final Map<String, Integer> caps = new HashMap<>();
+
+        if (prices == null) return caps;
+
+        long highest = 0;
+
+        for (final Integer price : prices.values()) {
+            if (price != null && price > highest) highest = price;
+        }
+
+        if (highest <= 0) return caps;
+
+        for (final Map.Entry<String, Integer> entry : prices.entrySet()) {
+            final Integer price = entry.getValue();
+
+            if (price == null || price <= 0) continue;
+
+            final long cap = (MAX_PRICE_DUST * (long) price + highest / 2) / highest;
+
+            caps.put(entry.getKey(), (int) Math.max(0, Math.min(MAX_PRICE_DUST, cap)));
+        }
+
+        return caps;
     }
 
     /**
@@ -215,26 +280,45 @@ public class TinkererManager {
     }
 
     /**
-     * The raw tabulated potency cap for a resolved rarity, or null when the
-     * rarity has no entry. Validation happens after the legacy choice.
+     * An explicit tier override wins, including an explicit 0. Without one the
+     * rarity's XP-point price sets the cap; failing that the legacy per-book
+     * formula is clamped to the same 0..50 ceiling so no fallback path can hand
+     * out dust stronger than the price policy allows.
      */
-    static Integer getTierDustCap(final String rarity, final Map<String, Integer> caps) {
-        return rarity == null ? null : caps.get(rarity);
+    static int chooseTinkerDustCap(final String rarity, final Map<String, Integer> tierCaps,
+                                   final Map<String, Integer> priceCaps, final IntSupplier legacyCap) {
+        final Integer tierCap = rarity == null ? null : tierCaps.get(rarity);
+
+        if (tierCap != null) return tierCap;
+
+        final Integer priceCap = rarity == null ? null : priceCaps.get(rarity);
+
+        if (priceCap != null) return priceCap;
+
+        return Math.min(MAX_PRICE_DUST, Math.max(0, legacyCap.getAsInt()));
     }
 
     /**
-     * Picks the tabulated tier cap and only asks for the legacy value when no
-     * tier applies, so the legacy read (and its parse) is deferred. Any value
-     * outside the supported 1..ceiling range becomes 1: it can be handed to
-     * {@code percentPick(chance + 1, 1)} without consuming dust on a throw.
+     * The value of one configured override, or null when it is not a whole
+     * number in 0..50. Null means "ignored", so a malformed or out-of-range
+     * entry falls through to the price cap instead of being coerced into an
+     * explicit zero. Fractional values are rejected rather than truncated.
      */
-    static int getMaxDustLevel(final String rarity, final Map<String, Integer> caps, final int ceiling, final IntSupplier legacyCap) {
-        final Integer tierCap = getTierDustCap(rarity, caps);
-        final int cap = tierCap != null ? tierCap : legacyCap.getAsInt();
+    static Integer parseTierCap(final Object raw) {
+        if (!(raw instanceof Number number)) return null;
 
-        return cap >= 1 && cap <= ceiling ? cap : 1;
+        final double value = number.doubleValue();
+
+        if (!Double.isFinite(value) || value != Math.rint(value)) return null;
+        if (value < 0 || value > MAX_PRICE_DUST) return null;
+
+        return (int) value;
     }
 
+    /**
+     * Only usable overrides are kept, so a missing key and an invalid one both
+     * mean "no explicit cap" rather than "cap at zero".
+     */
     private static Map<String, Integer> getTierCaps(final FileConfiguration config) {
         final Map<String, Integer> caps = new HashMap<>();
 
@@ -242,18 +326,9 @@ public class TinkererManager {
         if (section == null) return caps;
 
         for (final String tier : section.getKeys(false)) {
-            final Object raw = section.get(tier);
+            final Integer cap = parseTierCap(section.get(tier));
 
-            // Read as a long: getInt can wrap a huge YAML number into a small
-            // positive cap. Anything unusable is stored as an invalid entry so
-            // it falls back to 1 rather than silently reading as "no tier".
-            if (raw instanceof Number number) {
-                final long value = number.longValue();
-
-                caps.put(tier, value >= 1 && value <= MAX_DUST_PERCENT ? (int) value : 0);
-            } else {
-                caps.put(tier, 0);
-            }
+            if (cap != null) caps.put(tier, cap);
         }
 
         return caps;

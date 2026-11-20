@@ -92,11 +92,21 @@ public enum Dust {
     }
 
     public ItemStack getDust(final int percent, final int amount) {
+        return getDust(percent, amount, false);
+    }
+
+    /**
+     * @param percent      The highest potency this dust may roll.
+     * @param amount       Stack size.
+     * @param rollFromZero True for tinkered book rewards, whose potency range
+     *                     includes 0; false keeps the legacy 1..percent roll.
+     */
+    public ItemStack getDust(final int percent, final int amount, final boolean rollFromZero) {
         final ItemStack item = itemBuilderDust.get(this).addLorePlaceholder("%Percent%", String.valueOf(percent)).setAmount(amount).build();
 
         if (Objects.equals(getName(), FAILED_DUST.getName())) return item;
 
-        item.editPersistentDataContainer(container -> container.set(DataKeys.dust.getNamespacedKey(), PersistentDataType.STRING, Methods.getGson().toJson(new DustData(getConfigName(), this.min, this.max, percent))));
+        item.editPersistentDataContainer(container -> container.set(DataKeys.dust.getNamespacedKey(), PersistentDataType.STRING, Methods.getGson().toJson(new DustData(getConfigName(), this.min, this.max, percent, rollFromZero))));
 
         return item;
     }

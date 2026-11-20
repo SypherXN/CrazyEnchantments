@@ -1,11 +1,13 @@
 package com.badbones69.crazyenchantments.paper.api.builders.types.tinkerer;
 
+import com.badbones69.crazyenchantments.paper.api.enums.pdc.DustData;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,60 +17,124 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * A recycled book's Mystery Dust cap comes from Tinker.yml's
- * {@code Settings.Tier-Potency-Cap} when the book's enchant resolves to one of
- * the tabulated rarities; everything else keeps the legacy per-book formula.
- * Anything outside the server's supported 1..ceiling potency range becomes 1,
- * so the dust can always be opened.
+ * A recycled book's Mystery Dust cap is chosen as: an explicit
+ * {@code Settings.Tier-Potency-Cap} override (0..50), otherwise the rarity's
+ * XP-point shop price ({@code round(50 * price / highest price)}), otherwise
+ * the legacy per-book formula clamped to 50. Invalid overrides are ignored, so
+ * they fall through to price scaling instead of becoming an implicit zero. The
+ * opening roll is 0-based only for tinkered rewards.
  */
 class TinkerDustCapTest {
 
     private static final int CEILING = 100;
 
-    private static final Map<String, Integer> SHIPPED = Map.of(
-            "Simple", 5,
-            "Unique", 10,
-            "Elite", 15,
-            "Ultimate", 20,
-            "Legendary", 25);
+    private static final Map<String, Integer> SHIPPED_PRICES = new LinkedHashMap<>();
+
+    static {
+        SHIPPED_PRICES.put("Simple", 400);
+        SHIPPED_PRICES.put("Unique", 800);
+        SHIPPED_PRICES.put("Elite", 2500);
+        SHIPPED_PRICES.put("Ultimate", 5000);
+        SHIPPED_PRICES.put("Legendary", 25000);
+    }
+
+    private static final Map<String, Integer> SHIPPED_OVERRIDES = Map.of(
+            "Simple", 1,
+            "Unique", 2,
+            "Elite", 5,
+            "Ultimate", 10,
+            "Legendary", 50);
 
     @Test
-    void everyShippedTierOverridesTheLegacyValue() {
-        for (Map.Entry<String, Integer> tier : SHIPPED.entrySet()) {
-            assertEquals(tier.getValue().intValue(), TinkererManager.getMaxDustLevel(tier.getKey(), SHIPPED, CEILING, () -> 6), tier.getKey());
+    void shippedPricesMapToTheRequestedCaps() {
+        final Map<String, Integer> caps = TinkererManager.capsFromPrices(SHIPPED_PRICES);
+
+        for (Map.Entry<String, Integer> tier : SHIPPED_OVERRIDES.entrySet()) {
+            assertEquals(tier.getValue(), caps.get(tier.getKey()), tier.getKey());
         }
     }
 
     @Test
-    void unrecognizedRarityHasNoTierCap() {
-        assertNull(TinkererManager.getTierDustCap(null, SHIPPED), "no resolved rarity");
-        assertNull(TinkererManager.getTierDustCap("Mythical", SHIPPED), "custom rarity");
-        assertNull(TinkererManager.getTierDustCap("Simple", Map.of()), "no table at all");
+    void capsFollowLivePriceChanges() {
+        final Map<String, Integer> doubled = new LinkedHashMap<>(SHIPPED_PRICES);
+        doubled.put("Simple", 800);
+
+        assertEquals(2, TinkererManager.capsFromPrices(doubled).get("Simple"), "a changed price changes the cap");
+        assertEquals(50, TinkererManager.capsFromPrices(Map.of("Simple", 2000, "Legendary", 2000)).get("Simple"), "the scale is relative, not absolute");
+        assertEquals(50, TinkererManager.capsFromPrices(Map.of("Simple", 7)).get("Simple"), "a sole priced tier is its own maximum");
     }
 
     @Test
-    void configuredTierWinsWithoutReadingTheLegacyValue() {
-        // The supplier throws if the legacy value is touched, proving the tier
-        // is resolved before the legacy Book entry is parsed.
-        assertEquals(25, TinkererManager.getMaxDustLevel("Legendary", SHIPPED, CEILING, () -> {
-            throw new AssertionError("legacy value parsed despite a configured tier cap");
+    void theZeroAndFiftyEndpointsAreReachable() {
+        final Map<String, Integer> caps = TinkererManager.capsFromPrices(Map.of("Simple", 1, "Legendary", 25000));
+
+        assertEquals(0, caps.get("Simple"), "a price too small to round up caps at zero");
+        assertEquals(50, caps.get("Legendary"), "the highest price caps at fifty");
+    }
+
+    @Test
+    void everyCapStaysWithinTheTinkerRange() {
+        for (Map.Entry<String, Integer> tier : TinkererManager.capsFromPrices(SHIPPED_PRICES).entrySet()) {
+            final int cap = tier.getValue();
+
+            assertTrue(cap >= 0 && cap <= 50, tier.getKey() + '=' + cap);
+        }
+    }
+
+    @Test
+    void noPositivePriceMeansNoPriceCap() {
+        assertTrue(TinkererManager.capsFromPrices(Map.of()).isEmpty());
+        assertTrue(TinkererManager.capsFromPrices(null).isEmpty());
+        assertTrue(TinkererManager.capsFromPrices(Map.of("Simple", 0, "Legendary", -5)).isEmpty());
+    }
+
+    @Test
+    void explicitOverrideWinsOverPriceIncludingZero() {
+        // The supplier throws if the price or legacy path is touched, proving
+        // the explicit override wins outright.
+        assertEquals(50, TinkererManager.chooseTinkerDustCap("Legendary", Map.of("Legendary", 50), Map.of("Legendary", 10), () -> {
+            throw new AssertionError("price or legacy parsed despite an explicit override");
         }));
+        assertEquals(0, TinkererManager.chooseTinkerDustCap("Simple", Map.of("Simple", 0), Map.of("Simple", 50), () -> {
+            throw new AssertionError("price or legacy parsed despite an explicit zero override");
+        }), "an explicit zero is a real override, not a missing entry");
     }
 
     @Test
-    void missingTierFallsBackToTheLegacyValue() {
-        assertEquals(6, TinkererManager.getMaxDustLevel(null, SHIPPED, CEILING, () -> 6));
-        assertEquals(6, TinkererManager.getMaxDustLevel("Mythical", SHIPPED, CEILING, () -> 6));
-        assertEquals(6, TinkererManager.getMaxDustLevel("Simple", Map.of(), CEILING, () -> 6));
+    void missingOverrideScalesByPrice() {
+        assertEquals(2, TinkererManager.chooseTinkerDustCap("Unique", Map.of(), Map.of("Unique", 2), () -> {
+            throw new AssertionError("legacy parsed despite a price cap");
+        }));
+        assertEquals(50, TinkererManager.chooseTinkerDustCap("Legendary", Map.of("Simple", 1), Map.of("Legendary", 50), () -> {
+            throw new AssertionError("legacy parsed despite a price cap");
+        }), "another tier's override must not leak");
     }
 
     @Test
-    void invalidTierCapsFallBackToTheMinimum() {
-        for (Integer cap : List.of(0, -1, CEILING + 1, Integer.MAX_VALUE)) {
-            assertEquals(1, TinkererManager.getMaxDustLevel("Simple", Map.of("Simple", cap), CEILING, () -> {
-                throw new AssertionError("legacy value parsed despite a configured tier entry");
-            }), String.valueOf(cap));
+    void priceThenLegacyAndTheLegacyIsClampedToFifty() {
+        assertEquals(6, TinkererManager.chooseTinkerDustCap("Legendary", Map.of(), Map.of(), () -> 6));
+        assertEquals(6, TinkererManager.chooseTinkerDustCap(null, Map.of("Legendary", 50), Map.of("Legendary", 50), () -> 6));
+        assertEquals(6, TinkererManager.chooseTinkerDustCap("Mythical", Map.of(), Map.of(), () -> 6));
+        assertEquals(50, TinkererManager.chooseTinkerDustCap("Legendary", Map.of(), Map.of(), () -> 80));
+        assertEquals(0, TinkererManager.chooseTinkerDustCap("Legendary", Map.of(), Map.of(), () -> -5), "never negative");
+    }
+
+    @Test
+    void parseTierCapAcceptsWholeNumbersInRange() {
+        assertEquals(0, TinkererManager.parseTierCap(0), "an explicit zero is valid");
+        assertEquals(Integer.valueOf(0), TinkererManager.parseTierCap(0.0));
+        assertEquals(1, TinkererManager.parseTierCap(1));
+        assertEquals(50, TinkererManager.parseTierCap(50));
+        assertEquals(25, TinkererManager.parseTierCap(25L));
+    }
+
+    @Test
+    void parseTierCapIgnoresInvalidValuesInsteadOfCoercingZero() {
+        for (Object invalid : List.<Object>of(-1, 51, 0.5, 5.5, "5", Long.MAX_VALUE, Double.NaN, Double.POSITIVE_INFINITY)) {
+            assertNull(TinkererManager.parseTierCap(invalid), String.valueOf(invalid));
         }
+
+        assertNull(TinkererManager.parseTierCap(null), "no value");
     }
 
     @Test
@@ -117,26 +183,46 @@ class TinkerDustCapTest {
     }
 
     @Test
-    void shippedTinkerYmlCarriesTheFiveTierTable() throws IOException {
+    void tinkerRewardsRollFromZeroWhileAdminDustKeepsOne() throws IOException {
+        assertEquals(1, new DustData("Mystery-Dust", 30, 30, 5).getRollMinimum(), "old and admin dust stay 1-based");
+        assertEquals(0, new DustData("Mystery-Dust", 30, 30, 5, true).getRollMinimum());
+
+        final String listener = Files.readString(Path.of(
+                "src/main/java/com/badbones69/crazyenchantments/paper/listeners/DustControlListener.java"));
+
+        assertTrue(listener.contains("getRollMinimum()"), "the open roll honours the per-dust minimum");
+    }
+
+    @Test
+    void shippedTinkerYmlCarriesTheNewDefaultOverrides() throws IOException {
         final Map<String, Object> root = new Yaml().load(Files.readString(Path.of("src/main/resources/Tinker.yml")));
         final Map<String, Object> settings = asMap(root.get("Settings"));
         final Map<String, Object> caps = asMap(settings.get("Tier-Potency-Cap"));
 
-        assertEquals(SHIPPED.size(), caps.size());
-
-        for (Map.Entry<String, Integer> tier : SHIPPED.entrySet()) {
-            assertEquals(tier.getValue(), ((Number) caps.get(tier.getKey())).intValue(), tier.getKey());
-        }
+        assertEquals(5, caps.size());
+        assertEquals(1, ((Number) caps.get("Simple")).intValue());
+        assertEquals(2, ((Number) caps.get("Unique")).intValue());
+        assertEquals(5, ((Number) caps.get("Elite")).intValue());
+        assertEquals(10, ((Number) caps.get("Ultimate")).intValue());
+        assertEquals(50, ((Number) caps.get("Legendary")).intValue());
     }
 
     @Test
-    void productionMethodResolvesRarityInsteadOfTheHighestCategory() throws IOException {
+    void productionMethodUsesOverrideThenPriceThenLegacy() throws IOException {
         final String source = Files.readString(Path.of(
                 "src/main/java/com/badbones69/crazyenchantments/paper/api/builders/types/tinkerer/TinkererManager.java"));
 
         assertTrue(source.contains("resolvedRarity("), "the book's rarity is resolved before the cap lookup");
-        assertTrue(source.contains("() -> getLegacyMaxDustLevelFromBook"), "the legacy read is deferred");
-        assertTrue(source.contains("number.longValue()"), "tier caps are read without int truncation");
+        assertTrue(source.contains("parseTierCap("), "configured overrides are validated");
+        assertTrue(source.contains("getPriceDustCaps("), "the cap scales by shop price when no override exists");
+        assertTrue(source.contains("Currency.XP_TOTAL"), "only XP-point prices set the scale");
+        assertTrue(source.contains("TuningConfig.RARITIES"), "only the five canonical tiers set the scale");
+        assertTrue(source.contains("getLegacyMaxDustLevelFromBook"), "the legacy fallback is kept");
+
+        final int tierLookup = source.indexOf("tierCaps.get(rarity)");
+        final int priceLookup = source.indexOf("priceCaps.get(rarity)");
+
+        assertTrue(tierLookup >= 0 && priceLookup > tierLookup, "the explicit override is consulted before the price");
         assertFalse(source.contains("getHighestEnchantmentCategory"), "the highest category is not the rarity");
     }
 

@@ -24,17 +24,21 @@ Settings:
     Lore: #Lore of the Bottle
       - '&a&lRecycled &6%total%XP'
       - '&7&l(&6&l!&7&l) &7Throw to get XP.'
-  # Highest percent a Mystery Dust rolled from a recycled book may reach,
-  # keyed by the enchantment's resolved rarity. A book counts for a tier only
-  # when it resolves to exactly that one rarity. Missing tiers use the old
-  # formula from Tinker.Crazy-Enchantments.<name>.Book. Invalid caps fall back
-  # to 1%; valid caps are 1–100 and independent of natural Mystery Dust rolls.
+  # Mystery Dust from a tinkered book is capped per rarity. Every entry here is
+  # an explicit override and wins over the XP-point shop price; use any whole
+  # number from 0 to 50. Remove an entry (or the whole section) to let that
+  # rarity scale by price instead: round(50 * tier price / highest XP_Total
+  # tier price). Malformed, fractional or out-of-range entries are ignored and
+  # also scale by price. Only XP_Total shop prices set the scale; XP levels and
+  # Vault money never do. If a rarity has no positive XP_Total price either,
+  # the old Tinker.Crazy-Enchantments.<name>.Book value is used, clamped to 50.
+  # The shipped defaults match the shipped 400/800/2500/5000/25000 prices.
   Tier-Potency-Cap:
-    Simple: 5
-    Unique: 10
-    Elite: 15
-    Ultimate: 20
-    Legendary: 25
+    Simple: 1
+    Unique: 2
+    Elite: 5
+    Ultimate: 10
+    Legendary: 50
 Tinker:
   Vanilla-Enchantments:
     #Armor Enchantments

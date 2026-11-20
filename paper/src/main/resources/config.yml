@@ -219,7 +219,7 @@ Settings:
         Key: ""
       Name: '&7Mystery Dust' #Name of the dust
       Lore: #Use %percent% to set the percent
-        - '&a1-%percent%% &7will be on a'
+        - '&aUp to %percent%% &7will be on a'
         - '&aMagical AngelDust &7or &eMagical Fixing &7Dust'
         - '&7&l(&6&l!&7&l) &7Right click'
       Firework:
@@ -231,7 +231,7 @@ Settings:
         Failed: true #Toggle whether you can get failed dust from Mystery Dust.
       PercentRange: #Range the mystery rate will be.
         Max: 30 #Max percent
-        #Min will always be 1.
+        #Non-tinkered Mystery Dust rolls from 1. Tinkered book rewards use their own range.
     SuccessDust:
       InGUI: false #If you can buy it in the /CE GUI
       GUIName: '&aMagical Angel Dust' #Name of the item in the GUI

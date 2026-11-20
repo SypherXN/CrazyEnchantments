@@ -80,6 +80,9 @@ without renaming their keys. To switch to the new keys, migrate the
 `Enchantments.yml` rarity and category entries and the `config.yml`
 category keys together, then enable `Rarity-Format: 2` before reloading.
 
-To enable the new Tinkerer book rewards on an existing server, copy
-`Settings.Tier-Potency-Cap` from the shipped `Tinker.yml` into your live
-`Tinker.yml`. Without it, the old per-book potency formula still applies.
+Tinkered books grant Mystery Dust that rolls from 0% to the cap for the book's
+rarity. To adopt the new default caps (1/2/5/10/50), copy
+`Settings.Tier-Potency-Cap` from the shipped `Tinker.yml` into your live file.
+Existing caps from 0 to 50 remain in effect. Missing or invalid caps
+(including values above 50) scale by the tier's XP-point shop price. If there
+is no eligible price, the legacy per-book formula applies, capped at 50%.

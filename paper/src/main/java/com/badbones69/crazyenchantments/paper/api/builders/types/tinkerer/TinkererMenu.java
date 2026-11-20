@@ -153,7 +153,7 @@ public class TinkererMenu extends InventoryBuilder {
                 } else { // Clicking in their inventory.
                     if (!hasRoomFor(player, current, topInventory)) return;
 
-                    final ItemStack dust = Dust.MYSTERY_DUST.getDust(TinkererManager.getMaxDustLevelFromBook(book, this.configuration), 1);
+                    final ItemStack dust = Dust.MYSTERY_DUST.getDust(TinkererManager.getMaxDustLevelFromBook(book, this.configuration), 1, true);
 
                     // Only take the book once its reward exists, so a bad value cannot eat it.
                     event.setCurrentItem(null);
