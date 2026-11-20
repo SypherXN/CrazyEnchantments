@@ -5,10 +5,13 @@ import com.badbones69.crazyenchantments.paper.api.builders.types.MenuManager;
 import com.badbones69.crazyenchantments.paper.api.economy.Currency;
 import com.badbones69.crazyenchantments.paper.api.enums.Messages;
 import com.badbones69.crazyenchantments.paper.api.enums.keys.FileKeys;
+import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
 import com.badbones69.crazyenchantments.paper.api.objects.enchants.EnchantmentType;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.EventUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.NumberUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
+import com.badbones69.crazyenchantments.paper.enchantments.ToolEnchantments;
 import com.badbones69.crazyenchantments.paper.support.SupportUtils;
 import com.google.gson.Gson;
 import com.ryderbelserion.fusion.paper.builders.folia.FoliaScheduler;
@@ -38,8 +41,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class Methods {
 
@@ -328,11 +333,27 @@ public class Methods {
         item.setData(DataComponentTypes.DAMAGE, newDamage);
     }
 
+    /**
+     * Applies vanilla durability wear (including Unbreaking and PlayerItemDamageEvent).
+     * Call on the player's region and use the returned stack, which may be empty.
+     */
+    public static ItemStack wearArmor(@NotNull final Player player, @NotNull final ItemStack item, final int amount) {
+        if (amount <= 0 || !Bukkit.isOwnedByCurrentRegion(player) || item.isEmpty()) return item;
+
+        return player.damageItemStack(item, amount);
+    }
+
     public void removeDurability(@NotNull ItemStack item, @NotNull Player player) {
+        removeDurability(item, player, null);
+    }
+
+    /** Reuses the held item's parsed enchants for one mass break, but rolls Reforged on each point of wear. */
+    public void removeDurability(@NotNull ItemStack item, @NotNull Player player, @Nullable Map<CEnchantment, Integer> enchantments) {
         final int maxDurability = getMaxDurability(item);
         final int durability = getDurability(item);
 
         if (maxDurability == 0 || item.hasData(DataComponentTypes.UNBREAKABLE)) return;
+        if (ToolEnchantments.preventsWear(player, item, this.plugin.getStarter().getEnchantmentBookSettings(), enchantments)) return;
 
         if (item.hasData(DataComponentTypes.ENCHANTMENTS)) {
             final boolean hasUnbreaking = item.getEnchantments().containsKey(Enchantment.UNBREAKING);
@@ -407,12 +428,13 @@ public class Methods {
     }
 
     public void explode(@NotNull Entity shooter, @NotNull Entity arrow) {
+        final var settings = TuningConfig.fork().boom();
         final Location location = arrow.getLocation();
         final Vector vector = location.toVector();
 
         spawnExplodeParticles(shooter.getWorld(), location);
 
-        for (final Entity entity : getNearbyEntities(3D, arrow)) {
+        for (final Entity entity : getNearbyEntities(settings.radius(), arrow)) {
             final Location entityLocation = entity.getLocation();
 
             if (!this.support.isCombatEnabled(entityLocation)) continue;
@@ -427,15 +449,16 @@ public class Methods {
 
             if (this.support.isFriendly(shooter, livingEntity)) continue;
 
-            final EntityDamageEvent event = new EntityDamageEvent(livingEntity, EntityDamageEvent.DamageCause.ENTITY_EXPLOSION, DamageSource.builder(DamageType.EXPLOSION).withCausingEntity(shooter).withDirectEntity(arrow).build(), 5D);
+            final EntityDamageEvent event = new EntityDamageEvent(livingEntity, EntityDamageEvent.DamageCause.ENTITY_EXPLOSION, DamageSource.builder(DamageType.EXPLOSION).withCausingEntity(shooter).withDirectEntity(arrow).build(), settings.damageHp());
 
             this.pluginManager.callEvent(event);
 
             if (event.isCancelled()) continue;
 
-            livingEntity.damage(5D);
+            livingEntity.damage(settings.damageHp());
 
-            livingEntity.setVelocity(livingEntity.getLocation().toVector().subtract(vector).normalize().multiply(1).setY(.5));
+            livingEntity.setVelocity(livingEntity.getLocation().toVector().subtract(vector).normalize()
+                    .multiply(settings.knockbackStrength()).setY(settings.knockbackUpward()));
         }
     }
 
@@ -547,6 +570,16 @@ public class Methods {
      * @return If the event was cancelled.
      */
     public boolean playerBreakBlock(@NotNull Player player, @NotNull Block block, @NotNull ItemStack tool, boolean hasDrops) {
+        return playerBreakBlock(player, block, tool, hasDrops, null);
+    }
+
+    /**
+     * Same as {@link #playerBreakBlock(Player, Block, ItemStack, boolean)}, with an optional hook that receives the
+     * exact {@link BlockDropItemEvent} this call creates, synchronously on the breaking thread, after construction
+     * and before dispatch. It exists so a caller can recognise its own drop event by identity; it is not a way to
+     * alter the break. A null hook leaves every break, drop and XP path unchanged.
+     */
+    public boolean playerBreakBlock(@NotNull Player player, @NotNull Block block, @NotNull ItemStack tool, boolean hasDrops, @Nullable Consumer<BlockDropItemEvent> dropEventHook) {
         // My favorite chain of methods I created. Feel free to ask if there are problems. -TDL
         BlockBreakEvent blockBreak = new BlockBreakEvent(block, player);
         Collection<ItemStack> dropItems = !tool.isEmpty() ? block.getDrops(tool, player) : block.getDrops();
@@ -559,7 +592,7 @@ public class Methods {
 
         if (blockBreak.isCancelled()) return true;
 
-        if (blockBreak.isDropItems() && hasDrops) blockDropItems(player, block, dropItems);
+        if (blockBreak.isDropItems() && hasDrops) blockDropItems(player, block, dropItems, dropEventHook);
         dropXP(block, blockBreak.getExpToDrop()); //This will always try to drop xp when the event is not cancelled, as apposed to relying on isDropItems().
 
         block.setType(Material.AIR);
@@ -585,12 +618,14 @@ public class Methods {
      * @param block The block that was broken.
      * @param items The items that will be dropped from the broken block.
      */
-    private void blockDropItems(@NotNull Player player, @NotNull Block block, @NotNull Collection<ItemStack> items) {
+    private void blockDropItems(@NotNull Player player, @NotNull Block block, @NotNull Collection<ItemStack> items, @Nullable Consumer<BlockDropItemEvent> dropEventHook) {
         List<Item> dropItems = new ArrayList<>();
 
         items.forEach(item -> dropItems.add(block.getWorld().dropItemNaturally(block.getLocation(), item)));
 
         BlockDropItemEvent event = new BlockDropItemEvent(block, block.getState(), player, dropItems);
+
+        if (dropEventHook != null) dropEventHook.accept(event);
 
         this.plugin.getServer().getPluginManager().callEvent(event);
 

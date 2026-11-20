@@ -12,3 +12,8 @@ run/
 
 ### Output
 jars/
+
+### Local only
+plans/
+opencode-usage.json
+/enchants-dump2.txt

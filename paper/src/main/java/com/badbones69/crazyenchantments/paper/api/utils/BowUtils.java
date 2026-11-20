@@ -24,8 +24,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BowUtils {
+
+    // Plan S06: a shot snapshot lives 60 s at most and a shooter may hold 64.
+    private static final long ARROW_TTL_MILLIS = 60_000L;
+
+    private static final int MAX_ARROWS_PER_SHOOTER = 64;
 
     private final CrazyEnchantments plugin = JavaPlugin.getPlugin(CrazyEnchantments.class);
 
@@ -42,20 +50,55 @@ public class BowUtils {
     // Sticky Shot
     private final List<Block> webBlocks = new ArrayList<>();
 
-    private final List<EnchantedArrow> enchantedArrows = new ArrayList<>();
+    // S06: per-shot records are read-mostly and written once at shoot time, so
+    // they are keyed by projectile UUID instead of a list that has to be scanned
+    // and can be left behind when the arrow never reports a hit.
+    private final Map<UUID, TrackedArrow> enchantedArrows = new ConcurrentHashMap<>();
 
-    public void addArrow(Arrow arrow, ItemStack bow, Map<CEnchantment, Integer> enchantments) {
+    private final AtomicLong lastArrowSweep = new AtomicLong(Long.MIN_VALUE);
+
+    /**
+     * A snapshot plus the two facts the sweep and the S06 cap need. The arrow
+     * itself cannot carry the timestamp: {@link EnchantedArrow} is a public
+     * record this class does not own.
+     */
+    private record TrackedArrow(EnchantedArrow arrow, UUID shooter, long expiresAtMillis) {
+
+        boolean expired(final long nowMillis) {
+            return nowMillis >= this.expiresAtMillis;
+        }
+    }
+
+    public void addArrow(AbstractArrow arrow, ItemStack bow, Map<CEnchantment, Integer> enchantments) {
         if (arrow == null) return;
 
-        EnchantedArrow enchantedArrow = new EnchantedArrow(arrow, bow, enchantments);
+        final long now = nowMillis();
 
-        this.enchantedArrows.add(enchantedArrow);
+        sweep(now);
+
+        final UUID shooter = shooterId(arrow);
+
+        if (shooter != null) makeRoom(shooter, now);
+
+        this.enchantedArrows.put(arrow.getUniqueId(),
+                new TrackedArrow(new EnchantedArrow(arrow, bow, enchantments), shooter, now + ARROW_TTL_MILLIS));
     }
 
     public void removeArrow(EnchantedArrow enchantedArrow) {
-        if (!this.enchantedArrows.contains(enchantedArrow) || enchantedArrow == null) return;
+        if (enchantedArrow == null || enchantedArrow.arrow() == null) return;
 
-        this.enchantedArrows.remove(enchantedArrow);
+        this.enchantedArrows.remove(enchantedArrow.arrow().getUniqueId());
+    }
+
+    /**
+     * Drops the snapshot of a projectile that leaves the world without a hit:
+     * despawn, void, chunk unload or shooter quit. Without this the only removal
+     * would be a {@code ProjectileHitEvent} that never comes.
+     */
+    public void removeArrow(UUID projectileId) {
+        if (projectileId == null) return;
+
+        this.enchantedArrows.remove(projectileId);
     }
 
     public boolean isBowEnchantActive(CEnchantments customEnchant, EnchantedArrow enchantedArrow) {
@@ -68,34 +111,105 @@ public class BowUtils {
         return this.support.isCombatEnabled(entity.getLocation());
     }
 
-    public EnchantedArrow getEnchantedArrow(Arrow arrow) {
-        return this.enchantedArrows.stream().filter((enchArrow) -> enchArrow != null && enchArrow.arrow() != null && enchArrow.arrow().equals(arrow)).findFirst().orElse(null);
+    public EnchantedArrow getEnchantedArrow(AbstractArrow arrow) {
+        if (arrow == null) return null;
+
+        final UUID projectileId = arrow.getUniqueId();
+        final TrackedArrow tracked = this.enchantedArrows.get(projectileId);
+
+        if (tracked == null) return null;
+
+        // A missed record must never be handed out even if no sweep has run yet.
+        if (tracked.expired(nowMillis())) {
+            this.enchantedArrows.remove(projectileId, tracked);
+
+            return null;
+        }
+
+        return tracked.arrow();
+    }
+
+    /**
+     * Removes expired records, at most once per second so a lookup never turns
+     * into a scan.
+     */
+    private void sweep(final long now) {
+        final long previous = this.lastArrowSweep.get();
+
+        if (previous != Long.MIN_VALUE && now - previous < 1_000L) return;
+        if (!this.lastArrowSweep.compareAndSet(previous, now)) return;
+
+        this.enchantedArrows.values().removeIf(tracked -> tracked.expired(now));
+    }
+
+    /**
+     * S06's per-shooter limit: the oldest live record of that shooter frees the
+     * slot, so spamming arrows never disables the newest one.
+     */
+    private void makeRoom(final UUID shooter, final long now) {
+        UUID oldest = null;
+        long oldestExpiry = Long.MAX_VALUE;
+        int live = 0;
+
+        // ponytail: O(n) over live snapshots per shot; bounded by 64 per shooter.
+        for (final Map.Entry<UUID, TrackedArrow> entry : this.enchantedArrows.entrySet()) {
+            final TrackedArrow tracked = entry.getValue();
+
+            if (!shooter.equals(tracked.shooter())) continue;
+
+            if (tracked.expired(now)) {
+                this.enchantedArrows.remove(entry.getKey(), tracked);
+
+                continue;
+            }
+
+            live++;
+
+            if (tracked.expiresAtMillis() < oldestExpiry) {
+                oldestExpiry = tracked.expiresAtMillis();
+                oldest = entry.getKey();
+            }
+        }
+
+        if (live >= MAX_ARROWS_PER_SHOOTER && oldest != null) this.enchantedArrows.remove(oldest);
+    }
+
+    private static UUID shooterId(final AbstractArrow arrow) {
+        return arrow.getShooter() instanceof Entity shooter ? shooter.getUniqueId() : null;
+    }
+
+    private static long nowMillis() {
+        return System.nanoTime() / 1_000_000L;
     }
 
     // Multi Arrow Start!
 
-    public void spawnArrows(LivingEntity shooter, Entity projectile, ItemStack bow) {
+    public AbstractArrow spawnArrows(LivingEntity shooter, AbstractArrow projectile, ItemStack bow) {
         Arrow spawnedArrow = shooter.getWorld().spawn(projectile.getLocation(), Arrow.class);
 
-        EnchantedArrow enchantedMultiArrow = new EnchantedArrow(spawnedArrow, bow, enchantmentBookSettings.getEnchantments(bow));
-
-        this.enchantedArrows.add(enchantedMultiArrow);
+        // A spawned arrow has no weapon of its own, so every bow enchant that
+        // reads getWeapon() would skip it. The shot came from this bow.
+        spawnedArrow.setWeapon(bow);
 
         spawnedArrow.setShooter(shooter);
 
-        Vector vector = new Vector(randomSpread(), 0, randomSpread());
+        final float spread = TuningConfig.fork().multiArrow().spread();
+        Vector vector = new Vector(randomSpread(spread), 0, randomSpread(spread));
 
         spawnedArrow.setVelocity(projectile.getVelocity().add(vector));
 
-        if (((Arrow) projectile).isCritical()) spawnedArrow.setCritical(true);
+        if (projectile.isCritical()) spawnedArrow.setCritical(true);
 
         if (projectile.getFireTicks() > 0) spawnedArrow.setFireTicks(projectile.getFireTicks());
 
         spawnedArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+
+        addArrow(spawnedArrow, bow, this.enchantmentBookSettings.getEnchantments(bow));
+
+        return spawnedArrow;
     }
 
-    private float randomSpread() {
-        float spread = (float) .2;
+    private float randomSpread(float spread) {
         return -spread + (float) (Math.random() * (spread * 2));
     }
     // Multi Arrow End!
@@ -108,10 +222,11 @@ public class BowUtils {
     public void spawnWebs(Entity hitEntity, EnchantedArrow enchantedArrow) {
         if (enchantedArrow == null) return;
 
-        Arrow arrow = enchantedArrow.getArrow();
+        AbstractArrow arrow = enchantedArrow.getArrow();
 
         if (!(EnchantUtils.isEventActive(CEnchantments.STICKY_SHOT, enchantedArrow.getShooter(), enchantedArrow.arrow().getWeapon(), enchantedArrow.getEnchantments()))) return;
 
+        final int durationTicks = TuningConfig.fork().stickyShotDurationTicks();
         if (hitEntity == null) {
             Location entityLocation = arrow.getLocation();
 
@@ -126,15 +241,15 @@ public class BowUtils {
                     entityLocation.getBlock().setType(Material.AIR);
                     webBlocks.remove(entityLocation.getBlock());
                 }
-            }.runDelayed(5 * 20);
+            }.runDelayed(durationTicks);
         } else {
-            setWebBlocks(hitEntity);
+            setWebBlocks(hitEntity, durationTicks);
         }
 
         arrow.remove();
     }
 
-    private void setWebBlocks(Entity hitEntity) {
+    private void setWebBlocks(Entity hitEntity, int durationTicks) {
         final Location location = hitEntity.getLocation();
 
         new FoliaScheduler(this.plugin, location) {
@@ -154,7 +269,7 @@ public class BowUtils {
                                 webBlocks.remove(block);
                             }
                         }
-                    }.runDelayed(5 * 20);
+                    }.runDelayed(durationTicks);
                 }
             }
         }.execute();

@@ -15,7 +15,9 @@ import com.badbones69.crazyenchantments.paper.api.objects.LostBook;
 import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.EnchantUtils;
-import com.google.common.collect.Lists;
+import com.badbones69.crazyenchantments.paper.api.utils.NumberUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.RegistrySnapshot;
+import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
 import com.ryderbelserion.fusion.core.api.enums.Level;
 import com.ryderbelserion.fusion.paper.FusionPaper;
 import io.papermc.paper.datacomponent.DataComponentTypes;
@@ -38,6 +40,8 @@ import java.util.Map;
 
 public class EnchantmentBookSettings {
 
+    private static final String SNIPER_ID = "Sniper";
+
     private final CrazyEnchantments plugin = JavaPlugin.getPlugin(CrazyEnchantments.class);
 
     private final CrazyPlatform platform = this.plugin.getPlatform();
@@ -46,9 +50,9 @@ public class EnchantmentBookSettings {
 
     private ItemBuilder enchantmentBook;
 
-    private final List<Category> categories = Lists.newArrayList();
+    private record Registry(RegistrySnapshot<CEnchantment> enchantments, List<Category> categories) {}
 
-    private final List<CEnchantment> registeredEnchantments = Lists.newArrayList();
+    private volatile Registry registry = new Registry(new RegistrySnapshot<>(CEnchantment::getName), List.of());
 
     /**
      *
@@ -138,11 +142,29 @@ public class EnchantmentBookSettings {
 
     /**
      *
-     * @return A list of all active enchantments.
+     * @return The current immutable registry snapshot.
      */
     @NotNull
     public List<CEnchantment> getRegisteredEnchantments() {
-        return this.registeredEnchantments;
+        return this.registry.enchantments().entries();
+    }
+
+    public CEnchantment getRegisteredEnchantment(final String name) {
+        return this.registry.enchantments().byName(name);
+    }
+
+    public synchronized void publishRegistry(final List<CEnchantment> enchantments, final List<Category> categories) {
+        final var next = new RegistrySnapshot<>(CEnchantment::getName);
+        next.publish(enchantments);
+        this.registry = new Registry(next, List.copyOf(categories));
+    }
+
+    public synchronized void registerEnchantment(final CEnchantment enchantment) {
+        this.registry.enchantments().add(enchantment);
+    }
+
+    public synchronized void unregisterEnchantment(final CEnchantment enchantment) {
+        this.registry.enchantments().remove(enchantment);
     }
 
     /**
@@ -180,8 +202,6 @@ public class EnchantmentBookSettings {
 
         final PersistentDataContainerView view = item.getPersistentDataContainer();
 
-        final Map<CEnchantment, Integer> enchantments = new HashMap<>();
-
         final String data = view.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING);
 
         if (data == null) return Collections.emptyMap();
@@ -189,6 +209,8 @@ public class EnchantmentBookSettings {
         final Enchant enchants = Methods.getGson().fromJson(data, Enchant.class);
 
         if (enchants.isEmpty()) return Collections.emptyMap();
+
+        final Map<CEnchantment, Integer> enchantments = new HashMap<>();
 
         for (final CEnchantment enchantment : getRegisteredEnchantments()) {
             if (!enchantment.isActivated()) continue;
@@ -224,13 +246,31 @@ public class EnchantmentBookSettings {
      */
     @NotNull
     public List<Category> getCategories() {
-        return this.categories;
+        return this.registry.categories();
     }
 
     /**
      * Loads in all config options.
      */
-    public void populateMaps() {
+    public synchronized void populateMaps() {
+        this.registry = new Registry(this.registry.enchantments(), List.copyOf(buildCategories(rarities())));
+    }
+
+    /**
+     * @return The vocabulary one load reads both files with.
+     */
+    public TuningConfig.Rarities rarities() {
+        return new TuningConfig.Rarities(
+                FileKeys.ENCHANTMENTS.getConfiguration().get(TuningConfig.RARITY_FORMAT),
+                message -> this.fusion.log(Level.WARNING, message));
+    }
+
+    /**
+     * @param rarities The vocabulary of this load, shared with the enchant
+     *                 loader so the two can never disagree or warn twice.
+     * @return The categories config.yml declares.
+     */
+    public List<Category> buildCategories(final TuningConfig.Rarities rarities) {
         final FileConfiguration config = FileKeys.CONFIG.getConfiguration();
 
         final ConfigurationSection section = config.getConfigurationSection("Categories");
@@ -238,11 +278,18 @@ public class EnchantmentBookSettings {
         if (section == null) {
             this.fusion.log(Level.WARNING, "The categories section cannot be found in config.yml, It's possible the file is badly formatted!");
 
-            return;
+            return List.of();
         }
 
+        final List<Category> categories = new ArrayList<>();
         for (String category : section.getKeys(false)) {
             String path = "Categories." + category;
+
+            final String identity = rarities.category(category, path);
+
+            // A name this Rarity-Format does not know was warned about; keeping
+            // it would publish a tier no loader could resolve.
+            if (identity == null) continue;
 
             LostBook lostBook = new LostBook(
                     config.getInt(path + ".LostBook.Slot", -1),
@@ -261,8 +308,9 @@ public class EnchantmentBookSettings {
                     config.getBoolean(path + ".LostBook.Sound-Toggle", false),
                     config.getString(path + ".LostBook.Sound", "BLOCK_ANVIL_PLACE"));
 
-            this.categories.add(new Category(
+            categories.add(new Category(
                     category,
+                    identity,
                     config.getInt(path + ".Slot"),
                     config.getBoolean(path + ".InGUI", true),
                     new ItemBuilder()
@@ -284,16 +332,24 @@ public class EnchantmentBookSettings {
                     config.getInt(path + ".EnchOptions.LvlRange.Max"),
                     config.getInt(path + ".EnchOptions.LvlRange.Min")));
         }
+        return categories;
     }
 
     /**
-     * @param name The name of the category you want.
+     * @param name The name of the category you want, in either the file's
+     *             spelling or the canonical rarity name.
      * @return The category object.
      */
     @Nullable
     public Category getCategory(String name) {
-        for (Category category : this.categories) {
+        for (Category category : getCategories()) {
             if (category.getName().equalsIgnoreCase(name)) return category;
+        }
+
+        // The file's own spelling wins, so a persisted category name such as a
+        // lost book's "Legendary" still means the tier it was written for.
+        for (Category category : getCategories()) {
+            if (category.getIdentity().equalsIgnoreCase(name)) return category;
         }
 
         return null;
@@ -322,58 +378,52 @@ public class EnchantmentBookSettings {
     }
 
     /**
+     * G9: Sniper was renamed to Poison Shot. Items written before the rename
+     * still carry the old label, so removal matches both spellings. This is a
+     * single rename exception, not a general alias system.
+     */
+    public static boolean matchesLore(final Component line, final CEnchantment enchant, final Enchant stored) {
+        final String plain = ColorUtils.toPlainText(line);
+
+        if (plain.contains(ColorUtils.stripStringColour(enchant.getCustomName()))) return true;
+
+        return SNIPER_ID.equals(enchant.getName()) && isLegacySniperLine(plain, stored.getLevel(SNIPER_ID));
+    }
+
+    private static boolean isLegacySniperLine(final String plain, final Integer storedLevel) {
+        return storedLevel != null && plain.equals(SNIPER_ID + " " + NumberUtils.convertLevelString(storedLevel));
+    }
+
+    private boolean rewriteLegacySniperLore(final List<Component> lore, final Enchant stored) {
+        final Integer level = stored.getLevel(SNIPER_ID);
+        if (level == null) return false;
+
+        final CEnchantment sniper = getRegisteredEnchantment(SNIPER_ID);
+        if (sniper == null) return false;
+
+        boolean changed = false;
+        for (int i = 0; i < lore.size(); i++) {
+            if (!isLegacySniperLine(ColorUtils.toPlainText(lore.get(i)), level)) continue;
+            lore.set(i, ColorUtils.legacyTranslateColourCodes(sniper.getCustomName() + " " + NumberUtils.convertLevelString(level)));
+            changed = true;
+        }
+        return changed;
+    }
+
+    /**
      * @param itemStack Item you want to remove the enchantment from.
      * @param enchant Enchantment you want removed.
      * @return Item without the enchantment.
      */
     public @NotNull ItemStack removeEnchantment(@NotNull final ItemStack itemStack, @NotNull final CEnchantment enchant) {
-        final PersistentDataContainerView view = itemStack.getPersistentDataContainer();
-
-        final List<Component> lore = itemStack.lore();
-
-        if (lore != null) {
-            lore.removeIf(loreComponent -> ColorUtils.toPlainText(loreComponent).contains(ColorUtils.stripStringColour(enchant.getCustomName())));
-
-            itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(lore).build());
-        }
-
-        Enchant data;
-
-        if (view.has(DataKeys.enchantments.getNamespacedKey())) {
-            data = Methods.getGson().fromJson(view.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING), Enchant.class);
-        } else {
-            data = new Enchant(new HashMap<>());
-        }
-
-        data.removeEnchantment(enchant.getName());
-
-        if (data.isEmpty() && view.has(DataKeys.enchantments.getNamespacedKey())) {
-            itemStack.editPersistentDataContainer(container -> {
-                container.remove(DataKeys.enchantments.getNamespacedKey());
-            });
-        } else {
-            itemStack.editPersistentDataContainer(container -> {
-                container.set(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING, Methods.getGson().toJson(data));
-            });
-        }
-
+        removeEnchantments(itemStack, List.of(enchant));
         return itemStack;
     }
 
     public void removeEnchantments(@NotNull ItemStack itemStack, @NotNull List<CEnchantment> enchants) {
         final PersistentDataContainerView view = itemStack.getPersistentDataContainer();
 
-        final List<Component> lore = itemStack.lore();
-
-        if (lore != null) {
-            for (final CEnchantment enchant : enchants) {
-                lore.removeIf(loreComponent -> ColorUtils.toPlainText(loreComponent).contains(ColorUtils.stripStringColour(enchant.getCustomName())));
-
-                itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(lore).build());
-            }
-        }
-
-        Enchant data;
+        final Enchant data;
 
         if (view.has(DataKeys.enchantments.getNamespacedKey())) {
             data = Methods.getGson().fromJson(view.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING), Enchant.class);
@@ -381,7 +431,15 @@ public class EnchantmentBookSettings {
             data = new Enchant(new HashMap<>());
         }
 
-        enchants.forEach(enchant -> data.removeEnchantment(enchant.getName()));
+        final List<Component> lore = itemStack.lore();
+        boolean loreChanged = false;
+        for (final CEnchantment enchant : enchants) {
+            if (lore != null) loreChanged |= lore.removeIf(line -> matchesLore(line, enchant, data));
+            data.removeEnchantment(enchant.getName());
+        }
+        if (lore != null && (rewriteLegacySniperLore(lore, data) || loreChanged)) {
+            itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(lore).build());
+        }
 
         if (data.isEmpty() && view.has(DataKeys.enchantments.getNamespacedKey())) {
             itemStack.editPersistentDataContainer(container -> {

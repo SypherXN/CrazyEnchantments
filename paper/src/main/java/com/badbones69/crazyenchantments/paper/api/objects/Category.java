@@ -9,6 +9,7 @@ import java.util.List;
 public class Category {
     
     private final String name;
+    private final String identity;
     private final int slot;
     private final boolean inGUI;
     private final ItemBuilder displayItem;
@@ -26,9 +27,10 @@ public class Category {
     private final List<CEnchantment> enchantmentList;
     private final List<CEnchantment> enabledEnchantments;
     
-    public Category(String name, int slot, boolean inGUI, ItemBuilder displayItem, int cost, Currency currency, int rarity, LostBook lostBook,
+    public Category(String name, String identity, int slot, boolean inGUI, ItemBuilder displayItem, int cost, Currency currency, int rarity, LostBook lostBook,
     int maxSuccessRate, int minSuccessRate, int maxDestroyRate, int minDestroyRate, boolean useMaxLevel, int maxLevel, int minLevel) {
         this.name = name;
+        this.identity = identity;
         this.slot = slot - 1;
         this.inGUI = inGUI;
         this.displayItem = displayItem;
@@ -49,6 +51,17 @@ public class Category {
     
     public String getName() {
         return this.name;
+    }
+
+    /**
+     * The canonical rarity name both loaders match on: always one of
+     * {@code Simple, Unique, Elite, Ultimate, Legendary}, whatever spelling the
+     * config.yml section key used.
+     *
+     * @return The canonical rarity name.
+     */
+    public String getIdentity() {
+        return this.identity;
     }
     
     public int getSlot() {

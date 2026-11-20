@@ -10,6 +10,8 @@ import com.badbones69.crazyenchantments.paper.api.objects.AllyMob.AllyType;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
 import com.badbones69.crazyenchantments.paper.api.utils.EnchantUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.EventUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.SyntheticHit;
+import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import com.badbones69.crazyenchantments.paper.support.SupportUtils;
 import org.bukkit.entity.Entity;
@@ -54,7 +56,7 @@ public class AllyEnchantments implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAllySpawn(EntityDamageByEntityEvent event) {
-        if (EventUtils.isIgnoredEvent(event)) return;
+        if (SyntheticHit.isBleedTick() || EventUtils.isIgnoredEvent(event)) return;
 
         if (event.getEntity() instanceof Player player && event.getDamager() instanceof LivingEntity enemy) { // Player gets attacked
             if (!inCoolDown(player)) {
@@ -93,9 +95,10 @@ public class AllyEnchantments implements Listener {
     }
 
     private void checkAllyType(LivingEntity enemy, Player player, Map<CEnchantment, Integer> enchants, ItemStack item) {
+        final var settings = TuningConfig.fork();
         if (EnchantUtils.isEventActive(CEnchantments.TAMER, player, item, enchants)) {
             int power = enchants.get(CEnchantments.TAMER.getEnchantment());
-            spawnAllies(player, enemy, AllyType.WOLF, power);
+            spawnAllies(player, enemy, AllyType.WOLF, power * settings.tamer().countPerLevel(), settings.tamer().durationSeconds());
         }
 
         if (EnchantUtils.isEventActive(CEnchantments.GUARDS, player, item, enchants)) {
@@ -105,7 +108,7 @@ public class AllyEnchantments implements Listener {
 
         if (EnchantUtils.isEventActive(CEnchantments.BEEKEEPER, player, item, enchants)) {
             int power = enchants.get(CEnchantments.BEEKEEPER.getEnchantment());
-            spawnAllies(player, enemy, AllyType.BEE, power);
+            spawnAllies(player, enemy, AllyType.BEE, power * settings.beeKeeper().countPerLevel(), settings.beeKeeper().durationSeconds());
         }
 
         if (EnchantUtils.isEventActive(CEnchantments.NECROMANCER, player, item, enchants)) {
@@ -115,8 +118,9 @@ public class AllyEnchantments implements Listener {
 
         if (EnchantUtils.isEventActive(CEnchantments.INFESTATION, player, item, enchants)) {
             int power = enchants.get(CEnchantments.INFESTATION.getEnchantment());
-            spawnAllies(player, enemy, AllyType.ENDERMITE, power * 3);
-            spawnAllies(player, enemy, AllyType.SILVERFISH, power * 3);
+            final int count = power * settings.infestation().countPerLevel();
+            spawnAllies(player, enemy, AllyType.ENDERMITE, count, settings.infestation().durationSeconds());
+            spawnAllies(player, enemy, AllyType.SILVERFISH, count, settings.infestation().durationSeconds());
         }
     }
 
@@ -178,6 +182,10 @@ public class AllyEnchantments implements Listener {
     }
 
     private void spawnAllies(Player player, LivingEntity enemy, AllyType allyType, int amount) {
+        spawnAllies(player, enemy, allyType, amount, 60);
+    }
+
+    private void spawnAllies(Player player, LivingEntity enemy, AllyType allyType, int amount, int durationSeconds) {
         Calendar coolDown = Calendar.getInstance();
         coolDown.add(Calendar.MINUTE, 2);
 
@@ -185,7 +193,7 @@ public class AllyEnchantments implements Listener {
 
         for (int i = 0; i < amount; i++) {
             AllyMob ally = new AllyMob(player, allyType);
-            ally.spawnAlly(60);
+            ally.spawnAlly(durationSeconds);
             ally.attackEnemy(enemy);
         }
     }

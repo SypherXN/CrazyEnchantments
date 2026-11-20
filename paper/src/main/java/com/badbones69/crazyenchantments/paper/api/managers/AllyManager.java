@@ -61,7 +61,7 @@ public class AllyManager {
             UUID owner = allyMob.getOwner().getUniqueId();
 
             if (this.allyOwners.containsKey(owner)) {
-                this.allyOwners.get(owner).add(allyMob);
+                this.allyOwners.get(owner).remove(allyMob);
 
                 if (this.allyOwners.get(owner).isEmpty()) this.allyOwners.remove(owner);
             }

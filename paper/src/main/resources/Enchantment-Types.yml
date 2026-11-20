@@ -261,6 +261,7 @@ Types:
         - '&a- All Shovels'
         - '&a- All Hoes'
         - '&a- Shears'
+        - '&a- Fishing Rods'
     Enchantable-Items:
       - 'WOODEN_PICKAXE'
       - 'STONE_PICKAXE'
@@ -287,6 +288,43 @@ Types:
       - 'DIAMOND_HOE'
       - 'NETHERITE_HOE'
       - 'SHEARS'
+      - 'FISHING_ROD'
+  Weapons:
+    Display-Item:
+      Item: 'IRON_SWORD'
+      # Item model settings
+      Model:
+        # minecraft, or nexo, or oraxen
+        Namespace: ""
+        # diamond_helmet
+        Key: ""
+      Slot: 10
+      Name: '&e&lWeapon Enchantments'
+      Lore:
+        - '&7Enchantable Items:'
+        - '&a- All Swords'
+        - '&a- All Axes'
+        - '&a- Bows'
+        - '&a- Crossbows'
+        - '&a- Tridents'
+        - '&a- Maces'
+    Enchantable-Items:
+      - 'WOODEN_SWORD'
+      - 'STONE_SWORD'
+      - 'IRON_SWORD'
+      - 'GOLDEN_SWORD'
+      - 'DIAMOND_SWORD'
+      - 'NETHERITE_SWORD'
+      - 'WOODEN_AXE'
+      - 'STONE_AXE'
+      - 'IRON_AXE'
+      - 'GOLDEN_AXE'
+      - 'DIAMOND_AXE'
+      - 'NETHERITE_AXE'
+      - 'BOW'
+      - 'CROSSBOW'
+      - 'TRIDENT'
+      - 'MACE'
   Damaged-Items:
     Display-Item:
       Item: 'DAMAGED_ANVIL'
@@ -364,3 +402,158 @@ Types:
       - 'BOW'
       - 'FISHING_ROD'
       - 'TURTLE_HELMET'
+  Chestplate:
+    Display-Item:
+      Item: 'GOLDEN_CHESTPLATE'
+      Model:
+        Namespace: ""
+        Key: ""
+      Slot: 12
+      Name: '&e&lChestplate Enchantments'
+      Lore:
+        - '&7Enchantable Items:'
+        - '&a- Leather Chestplate'
+        - '&a- Chain Chestplate'
+        - '&a- Gold Chestplate'
+        - '&a- Iron Chestplate'
+        - '&a- Diamond Chestplate'
+        - '&a- Netherite Chestplate'
+    Enchantable-Items:
+      - 'LEATHER_CHESTPLATE'
+      - 'CHAINMAIL_CHESTPLATE'
+      - 'GOLDEN_CHESTPLATE'
+      - 'IRON_CHESTPLATE'
+      - 'DIAMOND_CHESTPLATE'
+      - 'NETHERITE_CHESTPLATE'
+  Leggings:
+    Display-Item:
+      Item: 'GOLDEN_LEGGINGS'
+      Model:
+        Namespace: ""
+        Key: ""
+      Slot: 13
+      Name: '&e&lLeggings Enchantments'
+      Lore:
+        - '&7Enchantable Items:'
+        - '&a- Leather Leggings'
+        - '&a- Chain Leggings'
+        - '&a- Gold Leggings'
+        - '&a- Iron Leggings'
+        - '&a- Diamond Leggings'
+        - '&a- Netherite Leggings'
+    Enchantable-Items:
+      - 'LEATHER_LEGGINGS'
+      - 'CHAINMAIL_LEGGINGS'
+      - 'GOLDEN_LEGGINGS'
+      - 'IRON_LEGGINGS'
+      - 'DIAMOND_LEGGINGS'
+      - 'NETHERITE_LEGGINGS'
+  Helmet-and-Boots:
+    Display-Item:
+      Item: 'GOLDEN_HELMET'
+      Model:
+        Namespace: ""
+        Key: ""
+      Slot: 15
+      Name: '&e&lHelmet and Boot Enchantments'
+      Lore:
+        - '&7Enchantable Items:'
+        - '&a- All Helmets'
+        - '&a- All Boots'
+    Enchantable-Items:
+      - 'LEATHER_HELMET'
+      - 'CHAINMAIL_HELMET'
+      - 'GOLDEN_HELMET'
+      - 'IRON_HELMET'
+      - 'DIAMOND_HELMET'
+      - 'NETHERITE_HELMET'
+      - 'TURTLE_HELMET'
+      - 'LEATHER_BOOTS'
+      - 'CHAINMAIL_BOOTS'
+      - 'GOLDEN_BOOTS'
+      - 'IRON_BOOTS'
+      - 'DIAMOND_BOOTS'
+      - 'NETHERITE_BOOTS'
+  Sword-and-Axe:
+    Display-Item:
+      Item: 'GOLDEN_SWORD'
+      Model:
+        Namespace: ""
+        Key: ""
+      Slot: 16
+      Name: '&e&lSword and Axe Enchantments'
+      Lore:
+        - '&7Enchantable Items:'
+        - '&a- All Swords'
+        - '&a- All Axes'
+    Enchantable-Items:
+      - 'WOODEN_SWORD'
+      - 'STONE_SWORD'
+      - 'IRON_SWORD'
+      - 'GOLDEN_SWORD'
+      - 'DIAMOND_SWORD'
+      - 'NETHERITE_SWORD'
+      - 'WOODEN_AXE'
+      - 'STONE_AXE'
+      - 'IRON_AXE'
+      - 'GOLDEN_AXE'
+      - 'DIAMOND_AXE'
+      - 'NETHERITE_AXE'
+  Weapons-and-Tools:
+    Display-Item:
+      Item: 'IRON_SWORD'
+      Model:
+        Namespace: ""
+        Key: ""
+      Slot: 11
+      Name: '&e&lWeapon and Tool Enchantments'
+      Lore:
+        - '&7Enchantable Items:'
+        - '&a- All Swords'
+        - '&a- All Axes'
+        - '&a- Bows'
+        - '&a- Crossbows'
+        - '&a- Tridents'
+        - '&a- Maces'
+        - '&a- All Pickaxes'
+        - '&a- All Shovels'
+        - '&a- All Hoes'
+        - '&a- Shears'
+        - '&a- Fishing Rods'
+    Enchantable-Items:
+      - 'WOODEN_SWORD'
+      - 'STONE_SWORD'
+      - 'IRON_SWORD'
+      - 'GOLDEN_SWORD'
+      - 'DIAMOND_SWORD'
+      - 'NETHERITE_SWORD'
+      - 'WOODEN_AXE'
+      - 'STONE_AXE'
+      - 'IRON_AXE'
+      - 'GOLDEN_AXE'
+      - 'DIAMOND_AXE'
+      - 'NETHERITE_AXE'
+      - 'BOW'
+      - 'CROSSBOW'
+      - 'TRIDENT'
+      - 'MACE'
+      - 'WOODEN_PICKAXE'
+      - 'STONE_PICKAXE'
+      - 'IRON_PICKAXE'
+      - 'GOLDEN_PICKAXE'
+      - 'DIAMOND_PICKAXE'
+      - 'NETHERITE_PICKAXE'
+      - 'WOODEN_SHOVEL'
+      - 'STONE_SHOVEL'
+      - 'IRON_SHOVEL'
+      - 'GOLDEN_SHOVEL'
+      - 'DIAMOND_SHOVEL'
+      - 'NETHERITE_SHOVEL'
+      - 'WOODEN_HOE'
+      - 'STONE_HOE'
+      - 'IRON_HOE'
+      - 'GOLDEN_HOE'
+      - 'DIAMOND_HOE'
+      - 'NETHERITE_HOE'
+      - 'SHEARS'
+      - 'FISHING_ROD'

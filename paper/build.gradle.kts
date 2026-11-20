@@ -7,16 +7,6 @@ project.group = "${rootProject.group}.paper"
 repositories {
     exclusiveContent {
         forRepository {
-            maven("https://dependency.download/releases")
-        }
-
-        filter {
-            includeGroup("dev.kitteh")
-        }
-    }
-
-    exclusiveContent {
-        forRepository {
             maven("https://repo.essentialsx.net/releases")
         }
 
@@ -38,6 +28,11 @@ repositories {
     maven("https://repo.triumphteam.dev/snapshots/")
 
     maven("https://maven.enginehub.org/repo/")
+
+    // EconomyShopGUI-API is only published through JitPack.
+    maven("https://jitpack.io") {
+        content { includeGroup("com.github.Gypopo") }
+    }
 }
 
 dependencies {
@@ -51,7 +46,8 @@ dependencies {
     }
 
     compileOnly(libs.bundles.protection)
-    compileOnly(libs.bundles.factions)
+    // SaberFactions ships its own Factions API; pinned local jar, not a Maven dependency.
+    compileOnly(files(rootProject.file("libs/SaberFactions.jar")))
     compileOnly(libs.bundles.skyblock)
     compileOnly(libs.bundles.parties)
     compileOnly(libs.bundles.vanish)
@@ -59,6 +55,12 @@ dependencies {
     compileOnly(libs.bundles.plot)
 
     compileOnly(libs.bundles.shared)
+    compileOnly(libs.wildstacker)
+    // FORK: EconomyShopGUI pricing for Auto Sell; jitpack.io/Gypopo/EconomyShopGUI-API.
+    compileOnly(libs.economyshopgui)
+
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks {
@@ -85,6 +87,10 @@ tasks {
     }
 
     runPaper.folia.registerTask()
+
+    test {
+        useJUnitPlatform()
+    }
 
     runServer {
         jvmArgs("-Dnet.kyori.ansi.colorLevel=truecolor")

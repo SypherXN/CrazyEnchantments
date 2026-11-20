@@ -15,13 +15,14 @@ oraxen = "1.211.0" # https://github.com/oraxen
 mcmmo = "2.2.049" # https://repo.codemc.io/service/rest/repository/browse/maven-public/com/gmail/nossr50/mcMMO/mcMMO/
 vault = "1.7.1" # https://github.com/milkbowl/Vault
 nexo = "1.21.0" # https://github.com/Nexo-MC
+wildstacker = "2026.3"
+economyshopgui = "1.11.0" # https://github.com/Gypopo/EconomyShopGUI-API/releases (jitpack)
 
 # Protection API
 worldguard = "7.0.15" # https://dev.bukkit.org/projects/worldguard/files
 worldedit = "7.4.0" # https://modrinth.com/plugin/worldedit/versions?l=bukkit
 griefprevention = "18.0.0" # https://jitpack.io/#GriefPrevention/GriefPrevention
 towny = "0.102.0.0" # https://github.com/TownyAdvanced/Towny?tab=readme-ov-file#current-recommended-versions
-factions = "4.5.1" # https://www.spigotmc.org/resources/factionsuuid.1035/
 lands = "7.25.14" # https://github.com/Angeschossen/LandsAPI/wiki
 skyblock = "2025.1" # https://bg-software.com/superiorskyblock/
 plotsquared = "7.5.11" # https://intellectualsites.gitbook.io/plotsquared/api/api-documentation
@@ -33,6 +34,8 @@ essentials = "2.21.2" # https://essentialsx.net
 triumph-cmds = "2.0.0-BETA-4" # https://github.com/TriumphTeam/triumph-cmds
 fusion = "4.32.0" # https://github.com/ryderbelserion/Fusion
 bStats = "3.2.1" # https://github.com/Bastian/bStats
+junit = "5.11.4" # https://junit.org/junit5/
+junitPlatform = "1.11.4" # launcher/runtime, must match the Jupiter minor
 
 ## Gradle Plugins
 fix-javadoc = "1.19" # https://github.com/mfnalex/gradle-fix-javadoc-plugin
@@ -78,6 +81,8 @@ itemsadder = { module = "dev.lone:api-itemsadder", version.ref = "itemsadder" }
 oraxen = { module = "io.th0rgal:oraxen", version.ref = "oraxen" }
 # https://github.com/Nexo-MC
 nexo = { module = "com.nexomc:nexo", version.ref = "nexo" }
+wildstacker = { module = "com.bgsoftware:WildStackerAPI", version.ref = "wildstacker" }
+economyshopgui = { module = "com.github.Gypopo:EconomyShopGUI-API", version.ref = "economyshopgui" }
 
 # https://github.com/KyoriPowered/adventure
 kyori-logger = { module = "net.kyori:adventure-text-logger-slf4j", version.ref = "adventure" }
@@ -101,9 +106,6 @@ kingdoms = { module = "com.github.cryptomorin:kingdoms", version.ref = "kingdoms
 towny = { module = "com.palmergames.bukkit.towny:towny", version.ref = "towny" }
 lands = { module = "com.incredibleplugins:lands-api", version.ref = "lands" }
 
-## Faction Plugins
-factionsuuid = { module = "dev.kitteh:factions", version.ref = "factions" }
-
 ## Skyblock Plugins
 superiorskyblock = { module = "com.bgsoftware:SuperiorSkyblockAPI", version.ref = "skyblock" }
 
@@ -120,6 +122,10 @@ essentialsx = { module = "net.essentialsx:EssentialsX", version.ref = "essential
 
 # https://github.com/Bastian/bStats
 metrics = { module = "org.bstats:bstats-bukkit", version.ref = "bStats" }
+
+# https://junit.org/junit5/
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitPlatform" }
 
 [bundles]
 adventure = [
@@ -141,10 +147,6 @@ protection = [
     "griefprevention",
     "worldguard",
     "worldedit"
-]
-
-factions = [
-    "factionsuuid"
 ]
 
 claims = [

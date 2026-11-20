@@ -19,6 +19,7 @@ public class AttributeUtils {
 
     private static final FusionPaper fusion = platform.getFusion();
 
+    /** Reads and writes the max-health attribute; call on the entity's owning region. */
     public static void setHealth(final LivingEntity entity, final int health) {
         Optional.ofNullable(entity.getAttribute(Attribute.MAX_HEALTH)).ifPresentOrElse(attribute -> {
             if (health > 0) {

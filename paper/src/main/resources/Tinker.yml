@@ -24,6 +24,17 @@ Settings:
     Lore: #Lore of the Bottle
       - '&a&lRecycled &6%total%XP'
       - '&7&l(&6&l!&7&l) &7Throw to get XP.'
+  # Highest percent a Mystery Dust rolled from a recycled book may reach,
+  # keyed by the enchantment's resolved rarity. A book counts for a tier only
+  # when it resolves to exactly that one rarity. Missing tiers use the old
+  # formula from Tinker.Crazy-Enchantments.<name>.Book. Invalid caps fall back
+  # to 1%; valid caps are 1–100 and independent of natural Mystery Dust rolls.
+  Tier-Potency-Cap:
+    Simple: 5
+    Unique: 10
+    Elite: 15
+    Ultimate: 20
+    Legendary: 25
 Tinker:
   Vanilla-Enchantments:
     #Armor Enchantments
@@ -80,16 +91,16 @@ Tinker:
     Glowing: #Enchantment name (Not custom name)
       Items: '20, 1' #Amount of Xp(Lvl/Total) or Money
       Book: '5, 1' #Max percent on Success/Destroy Dust
-    BurnShield:
+    Obsidianshield:
       Items: '20, 1'
       Book: '5, 1'
     Piercing:
       Items: '20, 1'
       Book: '5, 1'
-    OverLoad:
+    Overload:
       Items: '20, 1'
       Book: '5, 1'
-    SelfDestruct:
+    Self Destruct:
       Items: '20, 1'
       Book: '5, 1'
     Springs:
@@ -101,7 +112,7 @@ Tinker:
     Hulk:
       Items: '20, 1'
       Book: '5, 1'
-    Mermaid:
+    Aquatic:
       Items: '20, 1'
       Book: '5, 1'
     Ninja:
@@ -110,10 +121,10 @@ Tinker:
     Vampire:
       Items: '20, 1'
       Book: '5, 1'
-    LifeSteal:
+    Lifesteal:
       Items: '20, 1'
       Book: '5, 1'
-    Doctor:
+    Healing:
       Items: '20, 1'
       Book: '5, 1'
     Boom:
@@ -122,34 +133,28 @@ Tinker:
     Venom:
       Items: '20, 1'
       Book: '5, 1'
-    DoubleDamage:
+    Ice Aspect:
       Items: '20, 1'
       Book: '5, 1'
-    SlowMo:
+    Blind:
       Items: '20, 1'
       Book: '5, 1'
-    Blindness:
+    Poison:
       Items: '20, 1'
       Book: '5, 1'
-    Viper:
+    Anti Gravity:
       Items: '20, 1'
       Book: '5, 1'
-    AntiGravity:
+    Fast Turn:
       Items: '20, 1'
       Book: '5, 1'
-    FastTurn:
-      Items: '20, 1'
-      Book: '5, 1'
-    LightWeight:
+    Featherweight:
       Items: '20, 1'
       Book: '5, 1'
     Blessed:
       Items: '20, 1'
       Book: '5, 1'
-    FeedMe:
-      Items: '20, 1'
-      Book: '5, 1'
-    Dizzy:
+    Ravenous:
       Items: '20, 1'
       Book: '5, 1'
     Berserk:
@@ -161,31 +166,28 @@ Tinker:
     Rekt:
       Items: '20, 1'
       Book: '5, 1'
-    TreeFeller:
+    Tree Feller:
       Items: '20, 1'
       Book: '5, 1'
     Enlightened:
       Items: '20, 1'
       Book: '5, 1'
-    Freeze:
-      Items: '20, 1'
-      Book: '5, 1'
-    Fortify:
+    Frozen:
       Items: '20, 1'
       Book: '5, 1'
     Molten:
       Items: '20, 1'
       Book: '5, 1'
-    PainGiver:
+    Poisoned:
       Items: '20, 1'
       Book: '5, 1'
-    Savior:
+    Diminish:
       Items: '20, 1'
       Book: '5, 1'
     Nursery:
       Items: '20, 1'
       Book: '5, 1'
-    AutoSmelt:
+    Auto Smelt:
       Items: '20, 1'
       Book: '5, 1'
     Experience:
@@ -200,9 +202,6 @@ Tinker:
     Oxygenate:
       Items: '20, 1'
       Book: '5, 1'
-    IceFreeze:
-      Items: '20, 1'
-      Book: '5, 1'
     Lightning:
       Items: '20, 1'
       Book: '5, 1'
@@ -210,9 +209,6 @@ Tinker:
       Items: '20, 1'
       Book: '5, 1'
     Confusion:
-      Items: '20, 1'
-      Book: '5, 1'
-    Disarmer:
       Items: '20, 1'
       Book: '5, 1'
     Execute:
@@ -236,7 +232,7 @@ Tinker:
     Paralyze:
       Items: '20, 1'
       Book: '5, 1'
-    SkillSwipe:
+    Skill Swipe:
       Items: '20, 1'
       Book: '5, 1'
     Snare:
@@ -254,7 +250,7 @@ Tinker:
     Valor:
       Items: '20, 1'
       Book: '5, 1'
-    SmokeBomb:
+    Smoke Bomb:
       Items: '20, 1'
       Book: '5, 1'
     Drunk:
@@ -263,7 +259,7 @@ Tinker:
     Voodoo:
       Items: '20, 1'
       Book: '5, 1'
-    MultiArrow:
+    Multi Arrow:
       Items: '20, 1'
       Book: '5, 1'
     Recover:
@@ -272,22 +268,22 @@ Tinker:
     Cactus:
       Items: '20, 1'
       Book: '5, 1'
-    Rocket:
+    Rocket Escape:
       Items: '20, 1'
       Book: '5, 1'
-    Adrenaline:
+    Ender Shift:
       Items: '20, 1'
       Book: '5, 1'
-    Angel:
+    Protection:
       Items: '20, 1'
       Book: '5, 1'
-    HellForged:
+    Hell Forged:
       Items: '20, 1'
       Book: '5, 1'
     Commander:
       Items: '20, 1'
       Book: '5, 1'
-    StormCaller:
+    Stormcaller:
       Items: '20, 1'
       Book: '5, 1'
     Leadership:
@@ -299,22 +295,19 @@ Tinker:
     Wings:
       Items: '20, 1'
       Book: '5, 1'
-    VeinMiner:
+    Vein Miner:
       Items: '20, 1'
       Book: '5, 1'
-    Blast:
-      Items: '20, 1'
-      Book: '5, 1'
-    Furnace:
+    Detonate:
       Items: '20, 1'
       Book: '5, 1'
     Blizzard:
       Items: '20, 1'
       Book: '5, 1'
-    AcidRain:
+    Acid Rain:
       Items: '20, 1'
       Book: '5, 1'
-    SandStorm:
+    Sand Storm:
       Items: '20, 1'
       Book: '5, 1'
     Radiant:
@@ -329,16 +322,16 @@ Tinker:
     Tamer:
       Items: '20, 1'
       Book: '5, 1'
-    Guards:
+    Guardians:
       Items: '20, 1'
       Book: '5, 1'
-    Necromancer:
+    Undead Ruse:
       Items: '20, 1'
       Book: '5, 1'
-    BeeKeeper:
+    Bee Keeper:
       Items: '20, 1'
       Book: '5, 1'
-    Maneuver:
+    Dodge:
       Items: '20, 1'
       Book: '5, 1'
     Crouch:
@@ -347,13 +340,10 @@ Tinker:
     Shockwave:
       Items: '20, 1'
       Book: '5, 1'
-    SystemReboot:
+    Death God:
       Items: '20, 1'
       Book: '5, 1'
-    Sticky-Shot:
-      Items: '20, 1'
-      Book: '5, 1'
-    Disorder:
+    Sticky Shot:
       Items: '20, 1'
       Book: '5, 1'
     Charge:
@@ -362,16 +352,16 @@ Tinker:
     Revenge:
       Items: '20, 1'
       Book: '5, 1'
-    BattleCry:
+    Battle Cry:
       Items: '20, 1'
       Book: '5, 1'
-    DemonForged:
+    Demon Forged:
       Items: '20, 1'
       Book: '5, 1'
     Famished:
       Items: '20, 1'
       Book: '5, 1'
-    GreenThumb:
+    Green Thumb:
       Items: '20, 1'
       Book: '5, 1'
     Harvester:

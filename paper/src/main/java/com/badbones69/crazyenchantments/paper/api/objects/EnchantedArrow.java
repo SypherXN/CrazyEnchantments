@@ -1,13 +1,13 @@
 package com.badbones69.crazyenchantments.paper.api.objects;
 
 import com.badbones69.crazyenchantments.paper.api.enums.CEnchantments;
-import org.bukkit.entity.Arrow;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-public record EnchantedArrow(Arrow arrow, ItemStack bow, Map<CEnchantment, Integer> enchantments) {
+public record EnchantedArrow(AbstractArrow arrow, ItemStack bow, Map<CEnchantment, Integer> enchantments) {
 
     public Entity getShooter() {
         return (Entity) this.arrow.getShooter();
@@ -29,7 +29,7 @@ public record EnchantedArrow(Arrow arrow, ItemStack bow, Map<CEnchantment, Integ
         return this.enchantments;
     }
 
-    public Arrow getArrow() {
+    public AbstractArrow getArrow() {
         return this.arrow;
     }
 }

@@ -6,6 +6,7 @@ import com.badbones69.crazyenchantments.paper.Starter;
 import com.badbones69.crazyenchantments.paper.api.CrazyManager;
 import com.badbones69.crazyenchantments.paper.api.builders.types.MenuManager;
 import com.badbones69.crazyenchantments.paper.api.builders.types.ShopMenu;
+import com.badbones69.crazyenchantments.paper.api.economy.Currency;
 import com.badbones69.crazyenchantments.paper.api.economy.CurrencyAPI;
 import com.badbones69.crazyenchantments.paper.api.enums.Dust;
 import com.badbones69.crazyenchantments.paper.api.enums.Scrolls;
@@ -31,6 +32,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.logging.Level;
 
 public class ShopListener implements Listener {
 
@@ -87,29 +90,18 @@ public class ShopListener implements Listener {
 
                 if (this.methods.isInventoryFull(player)) return;
 
-                if (category.getCurrency() != null && player.getGameMode() != GameMode.CREATIVE) {
-                    if (this.currencyAPI.canBuy(player, category)) {
-                        this.currencyAPI.takeCurrency(player, category);
-                    } else {
-                        String needed = String.valueOf(category.getCost() - this.currencyAPI.getCurrency(player, category.getCurrency()));
-                        this.methods.switchCurrency(player, category.getCurrency(), "%Money_Needed%", "%XP%", needed);
-                        return;
-                    }
-                }
-
-                CEBook book = crazyManager.getRandomEnchantmentBook(category);
-
-                if (book != null) {
-                    this.crazyManager.getCEPlayer(player).ifPresent(cePlayer -> {
-                        BuyBookEvent buyBookEvent = new BuyBookEvent(cePlayer, category.getCurrency(), category.getCost(), book);
-
-                        this.plugin.getServer().getPluginManager().callEvent(buyBookEvent);
-
-                        player.getInventory().addItem(book.buildBook());
-                    });
-                } else {
+                CEBook book = this.crazyManager.getRandomEnchantmentBook(category);
+                if (book == null) {
                     player.sendMessage(ColorUtils.getPrefix("&cThe category &6" + category.getName() + " &chas no enchantments assigned to it."));
+                    return;
                 }
+
+                this.crazyManager.getCEPlayer(player).ifPresent(cePlayer -> {
+                    if (buyBook(player, category.getCurrency(), category.getCost(), book.buildBook())) {
+                        this.plugin.getServer().getPluginManager().callEvent(
+                                new BuyBookEvent(cePlayer, category.getCurrency(), category.getCost(), book));
+                    }
+                });
 
                 return;
             }
@@ -119,17 +111,7 @@ public class ShopListener implements Listener {
             if (lostBook.isInGUI() && item.isSimilar(lostBook.getDisplayItem().build())) {
                 if (this.methods.isInventoryFull(player)) return;
 
-                if (lostBook.getCurrency() != null && player.getGameMode() != GameMode.CREATIVE) {
-                    if (this.currencyAPI.canBuy(player, lostBook)) {
-                        this.currencyAPI.takeCurrency(player, lostBook);
-                    } else {
-                        String needed = String.valueOf(lostBook.getCost() - this.currencyAPI.getCurrency(player, lostBook.getCurrency()));
-                        this.methods.switchCurrency(player, lostBook.getCurrency(), "%Money_Needed%", "%XP%", needed);
-                        return;
-                    }
-                }
-
-                player.getInventory().addItem(lostBook.getLostBook(category).build());
+                buyBook(player, lostBook.getCurrency(), lostBook.getCost(), lostBook.getLostBook(category).build());
                 return;
             }
         }
@@ -187,6 +169,63 @@ public class ShopListener implements Listener {
                 return;
             }
         }
+    }
+
+    private boolean buyBook(Player player, Currency currency, int cost, ItemStack reward) {
+        if (reward.isEmpty() || reward.getAmount() != 1) return false;
+
+        boolean charge = currency != null && player.getGameMode() != GameMode.CREATIVE && cost != 0;
+        if (charge) {
+            if (cost < 0) return false;
+            int balance = this.currencyAPI.getCurrency(player, currency);
+            if (balance < cost) {
+                String needed = String.valueOf((long) cost - balance);
+                this.methods.switchCurrency(player, currency, "%Money_Needed%", "%XP%", needed);
+                return false;
+            }
+            try {
+                if (!this.currencyAPI.withdrawCurrency(player, currency, cost)) return false;
+            } catch (RuntimeException | NoClassDefFoundError failure) {
+                this.plugin.getLogger().log(Level.SEVERE, "Book withdrawal outcome unknown; no delivery for " + player.getUniqueId()
+                        + " (attempted charge " + cost + " " + currency + ")", failure);
+                return false;
+            }
+        }
+
+        ItemStack leftover;
+        try {
+            // addItem keys leftovers by input index; there is exactly one input and one book.
+            leftover = player.getInventory().addItem(reward).get(0);
+        } catch (RuntimeException failure) {
+            // Insertion may already have succeeded. Refunding or dropping here could duplicate value.
+            this.plugin.getLogger().log(Level.SEVERE, "Book insertion outcome unknown; no automatic refund or drop for "
+                    + player.getUniqueId() + " (charged " + (charge ? cost + " " + currency : "nothing") + ")", failure);
+            return false;
+        }
+        if (leftover == null) return true;
+        if (!charge) return false;
+
+        try {
+            if (this.currencyAPI.depositCurrency(player, currency, cost)) return false;
+        } catch (RuntimeException | NoClassDefFoundError failure) {
+            this.plugin.getLogger().log(Level.SEVERE, "Book refund outcome unknown; no drop for " + player.getUniqueId()
+                    + " (charged " + cost + " " + currency + ")", failure);
+            return false;
+        }
+
+        // Only a known rejection and a known leftover can use the drop fallback.
+        if (currency == Currency.VAULT) {
+            try {
+                if (player.getWorld().dropItem(player.getLocation(), leftover, item -> item.setOwner(player.getUniqueId())).isValid()) return true;
+            } catch (RuntimeException failure) {
+                this.plugin.getLogger().log(Level.SEVERE, "Book drop outcome unknown after rejected refund for " + player.getUniqueId()
+                        + " (charged " + cost + " " + currency + ")", failure);
+                return false;
+            }
+        }
+        this.plugin.getLogger().severe("Book delivery and refund failed for " + player.getUniqueId()
+                + " (charged " + cost + " " + currency + ")");
+        return false;
     }
 
     @EventHandler(ignoreCancelled = true)

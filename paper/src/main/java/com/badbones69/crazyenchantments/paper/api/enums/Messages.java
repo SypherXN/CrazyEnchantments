@@ -85,7 +85,6 @@ public enum Messages {
     SPAWNED_BOOK("Spawned-Book", "&7You have spawned a book at &6%World%, %X%, %Y%, %Z%&7."),
     RESET_GKIT("Reset-GKit", "&7You have reset %player%'s %GKit% GKit cool-down."),
     GKIT_NOT_ENABLED("GKitz-Not-Enabled", "&cGKitz is currently not enabled."),
-    DISORDERED_ENEMY_HOT_BAR("Disordered-Enemy-Hot-Bar", "&7Disordered enemies hot bar."),
     ENCHANTMENT_UPGRADE_SUCCESS("Enchantment-Upgrade.Success", "&7You have just upgraded &6%Enchantment%&7 to level &6%Level%&7."),
     ENCHANTMENT_UPGRADE_DESTROYED("Enchantment-Upgrade.Destroyed", "&cYour upgrade failed and the lower level enchantment was lost."),
     ENCHANTMENT_UPGRADE_FAILED("Enchantment-Upgrade.Failed", "&cThe book failed to upgrade to the item."),

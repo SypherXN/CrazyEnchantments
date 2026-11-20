@@ -1,19 +1,18 @@
 package com.badbones69.crazyenchantments.paper.support.factions.uuid;
 
 import com.badbones69.crazyenchantments.paper.support.api.interfaces.factions.FactionsSupport;
-import dev.kitteh.factions.FLocation;
-import dev.kitteh.factions.FPlayer;
-import dev.kitteh.factions.FPlayers;
-import dev.kitteh.factions.Faction;
-import dev.kitteh.factions.Factions;
-import dev.kitteh.factions.permissible.PermissibleActions;
-import dev.kitteh.factions.permissible.Relation;
-import dev.kitteh.factions.permissible.Role;
-import dev.kitteh.factions.protection.Protection;
-import dev.kitteh.factions.util.WorldUtil;
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.listeners.FactionsBlockListener;
+import com.massivecraft.factions.listeners.FactionsPlayerListener;
+import com.massivecraft.factions.struct.Relation;
+import com.massivecraft.factions.struct.Role;
+import com.massivecraft.factions.util.WorldUtil;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -22,12 +21,19 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction, BlockState, Location> {
 
-    private final FPlayers instance = FPlayers.fPlayers();
-    private final Factions factions = Factions.factions();
+    private final FPlayers players = FPlayers.getInstance();
 
     @Override
     public String getPluginName() {
         return "Factions";
+    }
+
+    private FPlayer resolve(final Player player) {
+        return this.players.getByPlayer(player);
+    }
+
+    private Faction resolveFaction(final Location location) {
+        return Board.getInstance().getFactionAt(new FLocation(location));
     }
 
     // faction unique methods
@@ -37,7 +43,9 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return true;
         }
 
-        return player.faction().isWilderness();
+        final Faction faction = player.getFaction();
+
+        return faction == null || faction.isWilderness();
     }
 
     @Override
@@ -46,7 +54,9 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return false;
         }
 
-        return player.faction().isSafeZone();
+        final Faction faction = player.getFaction();
+
+        return faction != null && faction.isSafeZone();
     }
 
     @Override
@@ -55,7 +65,9 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return false;
         }
 
-        return player.faction().isWarZone();
+        final Faction faction = player.getFaction();
+
+        return faction != null && faction.isWarZone();
     }
 
     @Override
@@ -64,7 +76,13 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return false;
         }
 
-        return !WorldUtil.isEnabled(player.getWorld()) || this.instance.get(player.getUniqueId()).faction().id() == faction.id();
+        if (!WorldUtil.isParticipating(player.getWorld())) {
+            return true;
+        }
+
+        final FPlayer fPlayer = resolve(player);
+
+        return fPlayer != null && fPlayer.getFactionId().equals(faction.getId());
     }
 
     // generic methods
@@ -74,7 +92,7 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return false;
         }
 
-        return WorldUtil.isEnabled(location) && !new FLocation(location).faction().isWilderness();
+        return WorldUtil.isParticipating(location.getWorld()) && !resolveFaction(location).isWilderness();
     }
 
     @Override
@@ -85,11 +103,11 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
 
         final World world = blockState.getWorld();
 
-        return !WorldUtil.isEnabled(world) || !Protection.denyBuildOrDestroyBlock(
+        return !WorldUtil.isParticipating(world) || FactionsBlockListener.playerCanBuildDestroyBlock(
                 player,
                 blockState.getLocation(),
-                PermissibleActions.DESTROY,
-                false
+                "destroy",
+                true
         );
     }
 
@@ -101,11 +119,11 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
 
         final World world = blockState.getWorld();
 
-        return !WorldUtil.isEnabled(world) || !Protection.denyBuildOrDestroyBlock(
+        return !WorldUtil.isParticipating(world) || FactionsBlockListener.playerCanBuildDestroyBlock(
                 player,
                 blockState.getLocation(),
-                PermissibleActions.BUILD,
-                false
+                "build",
+                true
         );
     }
 
@@ -115,10 +133,21 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return true;
         }
 
-        final Block block = location.getBlock();
-        final BlockState blockState = block.getState(false);
+        if (!WorldUtil.isParticipating(location.getWorld())) {
+            return true;
+        }
 
-        return !WorldUtil.isEnabled(blockState.getWorld()) || !Protection.denyExplode(entity, new FLocation(blockState.getLocation()));
+        final Faction faction = resolveFaction(location);
+
+        if (faction.isWilderness()) {
+            return true;
+        }
+
+        if (faction.isSafeZone()) {
+            return false;
+        }
+
+        return !faction.noExplosionsInTerritory();
     }
 
     @Override
@@ -127,7 +156,11 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return true;
         }
 
-        return !WorldUtil.isEnabled(blockState.getWorld()) || !Protection.denyUseBlock(player, blockState.getType(), blockState.getLocation(), false);
+        if (!WorldUtil.isParticipating(blockState.getWorld())) {
+            return true;
+        }
+
+        return FactionsPlayerListener.canPlayerUseBlock(player, blockState.getBlock(), true);
     }
 
     @Override
@@ -136,7 +169,11 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return true;
         }
 
-        return !WorldUtil.isEnabled(location) || !Protection.denyInteract(player, location, false);
+        if (!WorldUtil.isParticipating(location.getWorld())) {
+            return true;
+        }
+
+        return FactionsPlayerListener.canPlayerUseBlock(player, location.getBlock(), true);
     }
 
     @Override
@@ -144,23 +181,30 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
         if (!isPluginReady() ||
                 !(damager instanceof Player player) ||
                 !(target instanceof Player receiver) ||
-                !WorldUtil.isEnabled(damager.getWorld())
+                !WorldUtil.isParticipating(damager.getWorld())
         ) {
             return false;
         }
 
-        final FPlayer source = this.instance.get(player.getUniqueId());
+        final FPlayer source = resolve(player);
 
-        final FPlayer output = this.instance.get(receiver.getUniqueId());
-
-        final Faction sourceFaction = source.faction();
-        final Faction outputFaction = output.faction();
-
-        if (sourceFaction.isWilderness() || outputFaction.isWilderness()) {
+        if (source == null) {
             return false;
         }
 
-        return outputFaction.relationWish(sourceFaction).isAtLeast(Relation.ALLY) || outputFaction.relationWish(sourceFaction).isAtLeast(Relation.MEMBER);
+        final FPlayer output = resolve(receiver);
+
+        if (output == null) {
+            return false;
+        }
+
+        final Faction sourceFaction = source.getFaction();
+
+        if (sourceFaction == null || sourceFaction.isWilderness() || sourceFaction.isSafeZone() || sourceFaction.isWarZone()) {
+            return false;
+        }
+
+        return sourceFaction.getRelationTo(output).isAtLeast(Relation.ALLY);
     }
 
     @Override
@@ -174,16 +218,22 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
             return false;
         }
 
-        return !WorldUtil.isEnabled(player.getWorld()) || this.instance.get(player.getUniqueId()).isInOwnTerritory();
+        if (!WorldUtil.isParticipating(player.getWorld())) {
+            return true;
+        }
+
+        final FPlayer fPlayer = resolve(player);
+
+        return fPlayer != null && fPlayer.isInOwnTerritory();
     }
 
     @Override
     public boolean isCombatEnabled(final Location location) {
-        if (!isPluginReady() || !WorldUtil.isEnabled(location)) {
+        if (!isPluginReady() || !WorldUtil.isParticipating(location.getWorld())) {
             return true;
         }
 
-        final Faction faction = this.factions.getAt(location);
+        final Faction faction = resolveFaction(location);
 
         if (faction.isSafeZone()) {
             return false;
@@ -194,11 +244,11 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
 
     @Override
     public boolean isMember(final Player player) {
-        if (!isPluginReady() || !WorldUtil.isEnabled(player.getWorld())) {
+        if (!isPluginReady() || !WorldUtil.isParticipating(player.getWorld())) {
             return false;
         }
 
-        final Faction faction = this.factions.getAt(player.getLocation());
+        final Faction faction = resolveFaction(player.getLocation());
 
         if (faction.isWilderness() || faction.isWarZone() || faction.isSafeZone()) {
             return false;
@@ -209,16 +259,22 @@ public final class FactionsUUIDSupport extends FactionsSupport<FPlayer, Faction,
 
     @Override
     public boolean isOwner(final Player player) {
-        if (!isPluginReady() || !WorldUtil.isEnabled(player.getWorld())) {
+        if (!isPluginReady() || !WorldUtil.isParticipating(player.getWorld())) {
             return false;
         }
 
-        final FPlayer fPlayer = this.instance.get(player.getUniqueId());
+        final FPlayer fPlayer = resolve(player);
+
+        if (fPlayer == null) {
+            return false;
+        }
 
         if (isWilderness(fPlayer) || isWarzone(fPlayer) || isSafezone(fPlayer)) {
             return false;
         }
 
-        return fPlayer.faction().defaultRole().isAtLeast(Role.ADMIN);
+        final Role role = fPlayer.getRole();
+
+        return role != null && role.isAtLeast(Role.COLEADER);
     }
 }

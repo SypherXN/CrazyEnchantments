@@ -201,7 +201,7 @@ public class ScrollListener implements Listener {
         List<Component> enchantLore = newEnchantmentOrder.stream().map(i ->
                 ColorUtils.legacyTranslateColourCodes("%s %s".formatted(i.getCustomName(), NumberUtils.toRoman(data.getLevel(i.getName()))))).collect(Collectors.toList());
 
-        List<Component> normalLore = stripNonNormalLore(lore == null ? new ArrayList<>() : lore, newEnchantmentOrder);
+        List<Component> normalLore = stripNonNormalLore(lore == null ? new ArrayList<>() : lore, newEnchantmentOrder, data);
 
         List<Component> protectionLore = getAllProtectionLore(container);
 
@@ -252,13 +252,13 @@ public class ScrollListener implements Listener {
         return lore;
     }
 
-    private List<Component> stripNonNormalLore(List<Component> lore, List<CEnchantment> enchantments) {
+    private List<Component> stripNonNormalLore(List<Component> lore, List<CEnchantment> enchantments, Enchant stored) {
         // Remove blank lines
         lore.removeIf(loreComponent -> ColorUtils.toPlainText(loreComponent).replaceAll(" ", "").isEmpty());
 
         // Remove CE enchantment lore
         enchantments.forEach(enchant -> lore.removeIf(loreComponent ->
-                ColorUtils.toPlainText(loreComponent).contains(ColorUtils.stripStringColour(enchant.getCustomName()))
+                EnchantmentBookSettings.matchesLore(loreComponent, enchant, stored)
         ));
 
         // Remove white-scroll protection lore

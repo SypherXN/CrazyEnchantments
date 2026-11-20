@@ -9,6 +9,7 @@ import com.badbones69.crazyenchantments.paper.api.enums.CEnchantments;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
 import com.badbones69.crazyenchantments.paper.api.utils.EnchantUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.EventUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import com.badbones69.crazyenchantments.paper.support.SupportUtils;
 import com.badbones69.crazyenchantments.paper.support.api.interfaces.CropSupport;
@@ -84,7 +85,10 @@ public class HoeEnchantments implements Listener {
                     && !this.cropSupport.isCropGrown(block.getState(false))
                     && EnchantUtils.isEventActive(CEnchantments.GREENTHUMB, player, hoe, enchantments)) {
                 fullyGrowPlant(block);
-                if (player.getGameMode() != GameMode.CREATIVE) this.methods.removeDurability(hoe, player);
+                if (player.getGameMode() != GameMode.CREATIVE) {
+                    final int points = TuningConfig.fork().greenThumbDurabilityPoints();
+                    for (int point = 0; point < points; point++) this.methods.removeDurability(hoe, player);
+                }
             }
 
             if (block.getType() == Material.GRASS_BLOCK || block.getType() == Material.DIRT || block.getType() == Material.SOUL_SAND || block.getType() == Material.FARMLAND) {

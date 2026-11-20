@@ -2,6 +2,7 @@ package com.badbones69.crazyenchantments.paper.support.factions.uuid;
 
 import com.badbones69.crazyenchantments.paper.api.constants.Support;
 import com.ryderbelserion.fusion.core.api.registry.mods.objects.Mod;
+import org.bukkit.Bukkit;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -9,6 +10,12 @@ public final class FactionsUUIDImpl extends Mod {
 
     public FactionsUUIDImpl() {
         super(Support.factions_uuid);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // SaberFactions registers its plugin name as "Factions", so the FactionsUUID key never matches.
+        return Bukkit.getPluginManager().isPluginEnabled("Factions");
     }
 
     @Override

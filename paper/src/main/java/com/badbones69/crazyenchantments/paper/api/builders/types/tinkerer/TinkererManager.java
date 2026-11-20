@@ -5,12 +5,15 @@ import com.badbones69.crazyenchantments.paper.Methods;
 import com.badbones69.crazyenchantments.paper.Starter;
 import com.badbones69.crazyenchantments.paper.api.economy.Currency;
 import com.badbones69.crazyenchantments.paper.api.economy.CurrencyAPI;
+import com.badbones69.crazyenchantments.paper.api.enums.keys.FileKeys;
 import com.badbones69.crazyenchantments.paper.api.enums.pdc.DataKeys;
 import com.badbones69.crazyenchantments.paper.api.objects.CEBook;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
+import com.badbones69.crazyenchantments.paper.api.objects.Category;
 import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -19,25 +22,29 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntSupplier;
 
 public class TinkererManager {
 
-    @NotNull
-    private static final CrazyEnchantments plugin = JavaPlugin.getPlugin(CrazyEnchantments.class);
+    private static CrazyEnchantments plugin() {
+        return JavaPlugin.getPlugin(CrazyEnchantments.class);
+    }
 
-    @NotNull
-    private static final Starter starter = plugin.getStarter();
+    private static Starter starter() {
+        return plugin().getStarter();
+    }
 
-    @NotNull
-    private static final Methods methods = starter.getMethods();
+    private static Methods methods() {
+        return starter().getMethods();
+    }
 
-    @NotNull
-    private static final CurrencyAPI currencyAPI = starter.getCurrencyAPI();
+    private static CurrencyAPI currencyAPI() {
+        return starter().getCurrencyAPI();
+    }
 
     public static boolean useExperience(Player player, PlayerInteractEvent event, boolean mainHand, FileConfiguration configuration) {
         PlayerInventory inventory = player.getInventory();
@@ -55,13 +62,13 @@ public class TinkererManager {
         event.setCancelled(true);
 
         if (mainHand) {
-            inventory.setItemInMainHand(methods.removeItem(item));
+            inventory.setItemInMainHand(methods().removeItem(item));
         } else {
-            inventory.setItemInOffHand(methods.removeItem(item));
+            inventory.setItemInOffHand(methods().removeItem(item));
         }
 
         if (Currency.isCurrency(configuration.getString("Settings.Currency"))) {
-            currencyAPI.giveCurrency(player, Currency.getCurrency(configuration.getString("Settings.Currency")), amount);
+            currencyAPI().giveCurrency(player, Currency.getCurrency(configuration.getString("Settings.Currency")), amount);
         }
 
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
@@ -88,7 +95,7 @@ public class TinkererManager {
     public static int getTotalXP(ItemStack item, final FileConfiguration config) {
         int total = 0;
 
-        Map<CEnchantment, Integer> ceEnchants = starter.getEnchantmentBookSettings().getEnchantments(item);
+        Map<CEnchantment, Integer> ceEnchants = starter().getEnchantmentBookSettings().getEnchantments(item);
 
         if (!ceEnchants.isEmpty()) { // CrazyEnchantments
             for (Map.Entry<CEnchantment, Integer> enchantment : ceEnchants.entrySet()) {
@@ -177,15 +184,110 @@ public class TinkererManager {
 
     }
 
+    /**
+     * Path of the optional rarity-to-potency-cap table in Tinker.yml. Each key
+     * is a canonical rarity identity and each value the highest percent the
+     * Mystery Dust from a book of that rarity may roll.
+     */
+    private static final String TIER_CAP_PATH = "Settings.Tier-Potency-Cap";
+
+    /** Potency is a percent; the dust consumption path clamps rates at 100. */
+    private static final int MAX_DUST_PERCENT = 100;
+
     public static int getMaxDustLevelFromBook(CEBook book, FileConfiguration config) {
+        final List<String> identities = new ArrayList<>();
+        for (final Category category : book.getEnchantment().getCategories()) identities.add(category.getIdentity());
+
+        // The tier cap wins before the legacy value is even read, so a malformed
+        // Book entry on a tiered book cannot break recycling for it.
+        return getMaxDustLevel(resolvedRarity(identities), getTierCaps(config), MAX_DUST_PERCENT,
+                () -> getLegacyMaxDustLevelFromBook(book, config, MAX_DUST_PERCENT));
+    }
+
+    /**
+     * The rarity a book's enchantment resolves to: the single canonical tier it
+     * was registered under, or null when its categories are ambiguous. The
+     * highest category is deliberately never used, so a book listed in several
+     * tiers cannot cash in the top tier's dust.
+     */
+    static String resolvedRarity(final List<String> categoryIdentities) {
+        return categoryIdentities != null && categoryIdentities.size() == 1 ? categoryIdentities.get(0) : null;
+    }
+
+    /**
+     * The raw tabulated potency cap for a resolved rarity, or null when the
+     * rarity has no entry. Validation happens after the legacy choice.
+     */
+    static Integer getTierDustCap(final String rarity, final Map<String, Integer> caps) {
+        return rarity == null ? null : caps.get(rarity);
+    }
+
+    /**
+     * Picks the tabulated tier cap and only asks for the legacy value when no
+     * tier applies, so the legacy read (and its parse) is deferred. Any value
+     * outside the supported 1..ceiling range becomes 1: it can be handed to
+     * {@code percentPick(chance + 1, 1)} without consuming dust on a throw.
+     */
+    static int getMaxDustLevel(final String rarity, final Map<String, Integer> caps, final int ceiling, final IntSupplier legacyCap) {
+        final Integer tierCap = getTierDustCap(rarity, caps);
+        final int cap = tierCap != null ? tierCap : legacyCap.getAsInt();
+
+        return cap >= 1 && cap <= ceiling ? cap : 1;
+    }
+
+    private static Map<String, Integer> getTierCaps(final FileConfiguration config) {
+        final Map<String, Integer> caps = new HashMap<>();
+
+        final ConfigurationSection section = config.getConfigurationSection(TIER_CAP_PATH);
+        if (section == null) return caps;
+
+        for (final String tier : section.getKeys(false)) {
+            final Object raw = section.get(tier);
+
+            // Read as a long: getInt can wrap a huge YAML number into a small
+            // positive cap. Anything unusable is stored as an invalid entry so
+            // it falls back to 1 rather than silently reading as "no tier".
+            if (raw instanceof Number number) {
+                final long value = number.longValue();
+
+                caps.put(tier, value >= 1 && value <= MAX_DUST_PERCENT ? (int) value : 0);
+            } else {
+                caps.put(tier, 0);
+            }
+        }
+
+        return caps;
+    }
+
+    private static int getLegacyMaxDustLevelFromBook(CEBook book, FileConfiguration config, final int ceiling) {
         String path = "Tinker.Crazy-Enchantments." + book.getEnchantment().getName() + ".Book";
         if (!config.contains(path)) return 1;
 
-        String[] values = config.getString(path, "0").replaceAll(" ", "").split(",");
-        int baseAmount = Integer.parseInt(values[0]);
-        int multiplier = values.length < 2 ? 0 : Integer.parseInt(values[1]);
+        return parseLegacyDustCap(config.getString(path, "0"), book.getLevel(), ceiling);
+    }
 
-        return baseAmount + book.getLevel() * multiplier;
+    /**
+     * The old per-book formula, kept in long arithmetic. A delimiter-only or
+     * otherwise malformed value, a result outside the supported range, or an
+     * overflowing result falls back to the minimum instead of throwing or
+     * handing the dust an unusable potency.
+     */
+    static int parseLegacyDustCap(final String raw, final int level, final int ceiling) {
+        if (raw == null) return 1;
+
+        String[] values = raw.replaceAll(" ", "").split(",", -1);
+
+        if (values.length > 2) return 1;
+
+        try {
+            long baseAmount = Long.parseLong(values[0]);
+            long multiplier = values.length < 2 ? 0L : Long.parseLong(values[1]);
+            long result = Math.addExact(baseAmount, Math.multiplyExact(multiplier, (long) level));
+
+            return result >= 1 && result <= ceiling ? (int) result : 1;
+        } catch (final NumberFormatException | ArithmeticException e) {
+            return 1;
+        }
     }
 
     public static Map<Integer, Integer> getSlots() {

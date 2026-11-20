@@ -23,10 +23,13 @@ softdepend:
   - Factions
   - Lands
   - StackMob
+  - WildStacker
   - Vault
   - Oraxen
-  - MCMMO
+  - mcMMO
   - YardWatch
+  - EconomyShopGUI
+  - EconomyShopGUI-Premium
 
 permissions:
   crazyenchantments.blacksmith.others:

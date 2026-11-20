@@ -60,7 +60,6 @@ Messages:
   Spawned-Book: '&7You have spawned a book at &6%world%, %x%, %y%, %z%&7.'
   Reset-GKit: '&7You have reset %player%''s %gkit% GKit cool-down.'
   GKitz-Not-Enabled: '&cGKitz is currently not enabled.'
-  Disordered-Enemy-Hot-Bar: '&7Disordered enemies hot bar.'
   Invalid-Item-String: '&cInvalid item string supplied.'
   Show-Enchants-Format: # Messages used for /ce check-enchants
     Main: '%item% %itemEnchants%'

@@ -156,10 +156,10 @@ public class EnchantCommand extends com.badbones69.crazyenchantments.paper.comma
     }
 
     @Command(value = "info")
-    @Permission(value = "crazyenchantments.info", def = PermissionDefault.OP)
-    @Syntax("/crazyenchantments info <enchantment>")
+    @Permission(value = "crazyenchantments.info", def = PermissionDefault.TRUE)
+    @Syntax("/crazyenchantments info [enchantment]")
     public void info(final Player player, @dev.triumphteam.cmd.core.annotations.Optional @Suggestion("enchantments_info") final String enchantment) {
-        if (enchantment.isBlank()) {
+        if (enchantment == null || enchantment.isBlank()) {
             MenuManager.openInfoMenu(player);
 
             return;

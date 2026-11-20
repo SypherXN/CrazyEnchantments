@@ -4,10 +4,12 @@ import com.badbones69.crazyenchantments.paper.CrazyEnchantments;
 import com.badbones69.crazyenchantments.paper.Methods;
 import com.badbones69.crazyenchantments.paper.Starter;
 import com.badbones69.crazyenchantments.paper.api.CrazyManager;
+import com.badbones69.crazyenchantments.paper.api.enums.CEnchantments;
 import com.badbones69.crazyenchantments.paper.api.events.RegisteredCEnchantmentEvent;
 import com.badbones69.crazyenchantments.paper.api.events.UnregisterCEnchantmentEvent;
 import com.badbones69.crazyenchantments.paper.api.objects.enchants.EnchantmentType;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.DamageModifiers;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -183,12 +185,15 @@ public class CEnchantment {
     }
 
     public boolean chanceSuccessful(int enchantmentLevel, double multiplier) {
-        int newChance = this.chance + (this.chanceIncrease * (enchantmentLevel - 1));
+        final int unscaledChance = this.chance + (this.chanceIncrease * (enchantmentLevel - 1));
         int pickedChance = this.methods.getRandomNumber (0, 100);
 
-        newChance = (int) (newChance * multiplier);
+        final int scaledChance = (int) (unscaledChance * multiplier);
 
-        return newChance >= 100 || newChance <= 0 || pickedChance <= newChance;
+        if (CEnchantments.DEATHBRINGER.getName().equals(this.name)) return DamageModifiers.exactChance(scaledChance, pickedChance);
+        if (unscaledChance > 0 && scaledChance <= 0 && CEnchantments.BLOODLUST.getName().equals(this.name)) return false;
+
+        return scaledChance >= 100 || scaledChance <= 0 || pickedChance <= scaledChance;
     }
 
     public List<String> getInfoDescription() {
@@ -213,6 +218,22 @@ public class CEnchantment {
 
     public List<Category> getCategories() {
         return this.categories;
+    }
+
+    /**
+     * Pins this enchant's tier to one category, replacing the Categories read
+     * from Enchantments.yml. Used by the optional Rarity override.
+     *
+     * @param category The category the enchant now counts as; null is ignored.
+     * @return This enchantment.
+     */
+    public CEnchantment setRarity(Category category) {
+        if (category == null) return this;
+
+        this.categories.clear();
+        this.categories.add(category);
+
+        return this;
     }
 
     public CEnchantment setCategories(List<String> categories) {

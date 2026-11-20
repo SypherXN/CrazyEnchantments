@@ -108,8 +108,12 @@ public class TinkererMenu extends InventoryBuilder {
                     ItemStack reward = inventory.getItem(slot.getValue());
 
                     if (reward != null) {
-                        if (currency == Currency.VAULT) {
-                            total = TinkererManager.getTotalXP(inventory.getItem(slot.getKey()), this.configuration);
+                        final ItemStack source = inventory.getItem(slot.getKey());
+
+                        // Vault pays equipment in currency. A book's reward is the dust itself, so
+                        // hand it back instead of letting the previewed dust vanish with the book.
+                        if (currency == Currency.VAULT && source != null && !this.enchantmentBookSettings.isEnchantmentBook(source)) {
+                            total = TinkererManager.getTotalXP(source, this.configuration);
                         } else {
                             bottomInventory.addItem(reward).values().forEach(item -> player.getWorld().dropItem(player.getLocation(), item));
                         }
@@ -147,9 +151,13 @@ public class TinkererMenu extends InventoryBuilder {
                     bottomInventory.addItem(current);
                     inventory.setItem(this.slots.get(event.getRawSlot()), null);
                 } else { // Clicking in their inventory.
-                    if (isFirstEmpty(event, player, current, topInventory)) return;
+                    if (!hasRoomFor(player, current, topInventory)) return;
 
-                    inventory.setItem(this.slots.get(inventory.firstEmpty()), Dust.MYSTERY_DUST.getDust(TinkererManager.getMaxDustLevelFromBook(book, this.configuration), 1));
+                    final ItemStack dust = Dust.MYSTERY_DUST.getDust(TinkererManager.getMaxDustLevelFromBook(book, this.configuration), 1);
+
+                    // Only take the book once its reward exists, so a bad value cannot eat it.
+                    event.setCurrentItem(null);
+                    inventory.setItem(this.slots.get(inventory.firstEmpty()), dust);
                     inventory.setItem(inventory.firstEmpty(), current);
                 }
 
@@ -170,9 +178,13 @@ public class TinkererMenu extends InventoryBuilder {
                     }
                 } else {
                     // Clicking in their inventory.
-                    if (isFirstEmpty(event, player, current, topInventory)) return;
+                    if (!hasRoomFor(player, current, topInventory)) return;
 
-                    inventory.setItem(this.slots.get(inventory.firstEmpty()), TinkererManager.getXPBottle(String.valueOf(totalXP), this.configuration));
+                    final ItemStack bottle = TinkererManager.getXPBottle(String.valueOf(totalXP), this.configuration);
+
+                    // Only take the item once its reward exists.
+                    event.setCurrentItem(null);
+                    inventory.setItem(this.slots.get(inventory.firstEmpty()), bottle);
                     inventory.setItem(inventory.firstEmpty(), current);
                 }
 
@@ -180,22 +192,20 @@ public class TinkererMenu extends InventoryBuilder {
             }
         }
 
-        private boolean isFirstEmpty(InventoryClickEvent event, Player player, ItemStack current, Inventory topInventory) {
+        private boolean hasRoomFor(Player player, ItemStack current, Inventory topInventory) {
             if (topInventory.firstEmpty() == -1) {
                 player.sendMessage(Messages.TINKER_INVENTORY_FULL.getMessage());
 
-                return true;
+                return false;
             }
 
             if (current.getAmount() > 1) {
                 player.sendMessage(Messages.NEED_TO_UNSTACK_ITEM.getMessage());
 
-                return true;
+                return false;
             }
 
-            event.setCurrentItem(null);
-
-            return false;
+            return true;
         }
 
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

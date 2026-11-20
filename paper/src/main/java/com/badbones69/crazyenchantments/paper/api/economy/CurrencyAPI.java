@@ -36,7 +36,7 @@ public class CurrencyAPI {
             return switch (currency) {
                 case VAULT -> (int) this.starter.getVaultSupport().getVault().getBalance(player);
                 case XP_LEVEL -> player.getLevel();
-                case XP_TOTAL -> getTotalExperience(player);
+                case XP_TOTAL -> player.calculateTotalExperiencePoints();
             };
         } catch (Exception | NoClassDefFoundError ignored) {}
         return 0;
@@ -76,13 +76,33 @@ public class CurrencyAPI {
      * @param amount The amount you want to take.
      */
     public void takeCurrency(Player player, Currency currency, int amount) {
+        tryTakeCurrency(player, currency, amount);
+    }
+
+    /**
+     * Attempts a withdrawal and reports whether it succeeded.
+     */
+    public boolean tryTakeCurrency(Player player, Currency currency, int amount) {
         try {
-            switch (currency) {
-                case VAULT -> this.starter.getVaultSupport().getVault().withdrawPlayer(player, amount);
-                case XP_LEVEL -> player.setLevel(player.getLevel() - amount);
-                case XP_TOTAL -> takeTotalExperience(player, amount);
-            }
+            return withdrawCurrency(player, currency, amount);
         } catch (Exception | NoClassDefFoundError ignored) {}
+        return false;
+    }
+
+    /**
+     * Debits currency, returning false on rejection and propagating errors with an unknown outcome.
+     */
+    public boolean withdrawCurrency(Player player, Currency currency, int amount) {
+        return switch (currency) {
+            case VAULT -> this.starter.getVaultSupport().getVault().withdrawPlayer(player, amount).transactionSuccess();
+            case XP_LEVEL -> {
+                int level = player.getLevel();
+                if (level < amount) yield false;
+                player.setLevel(level - amount);
+                yield true;
+            }
+            case XP_TOTAL -> changeExperiencePoints(player, -(long) amount);
+        };
     }
     
     /**
@@ -92,13 +112,31 @@ public class CurrencyAPI {
      * @param amount The amount you are giving to the player.
      */
     public void giveCurrency(Player player, Currency currency, int amount) {
+        tryGiveCurrency(player, currency, amount);
+    }
+
+    /**
+     * Attempts a deposit and reports whether it succeeded.
+     */
+    public boolean tryGiveCurrency(Player player, Currency currency, int amount) {
         try {
-            switch (currency) {
-                case VAULT -> this.starter.getVaultSupport().getVault().depositPlayer(player, amount);
-                case XP_LEVEL -> player.setLevel(player.getLevel() + amount);
-                case XP_TOTAL -> takeTotalExperience(player, -amount);
-            }
+            return depositCurrency(player, currency, amount);
         } catch (Exception | NoClassDefFoundError ignored) {}
+        return false;
+    }
+
+    /**
+     * Credits currency, returning false on rejection and propagating errors with an unknown outcome.
+     */
+    public boolean depositCurrency(Player player, Currency currency, int amount) {
+        return switch (currency) {
+            case VAULT -> this.starter.getVaultSupport().getVault().depositPlayer(player, amount).transactionSuccess();
+            case XP_LEVEL -> {
+                player.setLevel(player.getLevel() + amount);
+                yield true;
+            }
+            case XP_TOTAL -> changeExperiencePoints(player, amount);
+        };
     }
     
     /**
@@ -142,45 +180,47 @@ public class CurrencyAPI {
         return getCurrency(player, currency) >= cost;
     }
     
-    private void takeTotalExperience(Player player, int amount) {
-        int total = getTotalExperience(player) - amount;
-        player.setTotalExperience(0);
-        player.setTotalExperience(total);
-        player.setLevel(0);
-        player.setExp(0);
+    static boolean changeExperiencePoints(Player player, long delta) {
+        long remaining = player.calculateTotalExperiencePoints() + delta;
+        if (remaining < 0 || remaining > Integer.MAX_VALUE) return false;
 
-        while (total > player.getExpToLevel()) {
-            total -= player.getExpToLevel();
-            player.setLevel(player.getLevel() + 1);
-        }
-
-        float xp = (float) total / (float) player.getExpToLevel();
-        player.setExp(xp);
+        int points = (int) remaining;
+        player.setExperienceLevelAndProgress(points);
+        // Keep the legacy counter in sync, but never use it as the balance.
+        player.setTotalExperience(points);
+        return true;
     }
-    
-    private int getTotalExperience(Player player) { // https://www.spigotmc.org/threads/72804
-        int experience;
-        int level = player.getLevel();
 
-        if (level >= 0 && level <= 15) {
-            experience = (int) Math.ceil(Math.pow(level, 2) + (6 * level));
-            int requiredExperience = 2 * level + 7;
-            double currentExp = Double.parseDouble(Float.toString(player.getExp()));
-            experience += (int) Math.ceil(currentExp * requiredExperience);
-            return experience;
-        } else if (level > 15 && level <= 30) {
-            experience = (int) Math.ceil((2.5 * Math.pow(level, 2) - (40.5 * level) + 360));
-            int requiredExperience = 5 * level - 38;
-            double currentExp = Double.parseDouble(Float.toString(player.getExp()));
-            experience += (int) Math.ceil(currentExp * requiredExperience);
-            return experience;
-        } else {
-            experience = (int) Math.ceil((4.5 * Math.pow(level, 2) - (162.5 * level) + 2220));
-            int requiredExperience = 9 * level - 158;
-            double currentExp = Double.parseDouble(Float.toString(player.getExp()));
-            experience += (int) Math.ceil(currentExp * requiredExperience);
-            return experience;
+    /**
+     * Moves up to the requested raw XP, limited by both players' balances.
+     * The caller must own both players on the current region thread.
+     */
+    public static int transferExperiencePoints(Player from, Player to, int limit) {
+        if (from == to || limit <= 0) return 0;
+
+        int available = from.calculateTotalExperiencePoints();
+        int received = to.calculateTotalExperiencePoints();
+        if (available <= 0 || received < 0) return 0;
+        int amount = Math.min(limit, Math.min(available, Integer.MAX_VALUE - received));
+        if (amount == 0) return 0;
+
+        try {
+            from.setExperienceLevelAndProgress(available - amount);
+            to.setExperienceLevelAndProgress(received + amount);
+        } catch (RuntimeException failure) {
+            try {
+                // Undo any partial credit before restoring the debit, so a failed credit cannot duplicate XP.
+                if (to.calculateTotalExperiencePoints() != received) to.setExperienceLevelAndProgress(received);
+                if (from.calculateTotalExperiencePoints() != available) from.setExperienceLevelAndProgress(available);
+            } catch (RuntimeException rollbackFailure) {
+                failure.addSuppressed(rollbackFailure);
+            }
+            throw failure;
         }
+
+        from.setTotalExperience(available - amount);
+        to.setTotalExperience(received + amount);
+        return amount;
     }
 
     /**

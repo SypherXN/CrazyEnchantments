@@ -7,25 +7,39 @@ import com.badbones69.crazyenchantments.paper.api.CrazyPlatform;
 import com.badbones69.crazyenchantments.paper.api.enums.CEnchantments;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
 import com.badbones69.crazyenchantments.paper.api.utils.EnchantUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import com.badbones69.crazyenchantments.paper.support.SupportUtils;
 import com.ryderbelserion.fusion.core.api.enums.Level;
 import com.ryderbelserion.fusion.paper.FusionPaper;
 import com.ryderbelserion.fusion.paper.builders.folia.FoliaScheduler;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ArmorProcessor extends PoolProcessor {
+/**
+ * Movement-driven armor checks.
+ *
+ * <p>Every pass reads the player's inventory, attributes and health, so it must run
+ * on the region thread that owns the player. Movement fires once per block, so the
+ * pass is also coalesced: at most one pass per player is queued at a time.</p>
+ */
+public class ArmorProcessor {
 
     private final CrazyEnchantments plugin = JavaPlugin.getPlugin(CrazyEnchantments.class);
 
@@ -41,10 +55,39 @@ public class ArmorProcessor extends PoolProcessor {
 
     private final EnchantmentBookSettings enchantmentBookSettings = this.starter.getEnchantmentBookSettings();
 
+    // One queued pass per player. The entry is dropped when the pass runs, when the
+    // player is gone or when the scheduler refuses the task.
+    private final Set<UUID> pending = ConcurrentHashMap.newKeySet();
+
     public ArmorProcessor() {}
 
     public void add(UUID id){
-        add(() -> process(id));
+        if (!this.pending.add(id)) return;
+
+        final Player player = this.plugin.getServer().getPlayer(id);
+
+        if (player == null) {
+            this.pending.remove(id);
+
+            return;
+        }
+
+        // Paper's entity scheduler runs the task on the region that owns the player and
+        // retires it when that player is gone, which is the only supported way to reach
+        // the owning thread.
+        try {
+            final ScheduledTask task = player.getScheduler().run(this.plugin, scheduled -> {
+                this.pending.remove(id);
+
+                process(id);
+            }, () -> this.pending.remove(id));
+
+            if (task == null) this.pending.remove(id);
+        } catch (final IllegalPluginAccessException exception) {
+            this.pending.remove(id);
+
+            if (this.plugin.isEnabled()) throw exception;
+        }
     }
 
     public void process(UUID playerId) {
@@ -65,17 +108,15 @@ public class ArmorProcessor extends PoolProcessor {
                 final double attribute = action.getValue();
 
                 if (attribute > health && health > 0) {
-                    checkNursery(armor, player, enchantments, 1, attribute);
+                    checkNursery(armor, player, enchantments, attribute);
                 }
             }, () -> this.fusion.log(Level.WARNING, "Player %s did not have the MAX_HEALTH attribute!", player.getName()));
 
-            if (player.getFoodLevel() < 20) {
-                checkImplants(armor, player, enchantments);
-            }
+            // Implants runs on its own interval in ArmorEnchantments, not on movement.
 
             checkCommander(armor, player, enchantments);
 
-            checkAngel(armor, player, enchantments, 4 + enchantments.get(CEnchantments.ANGEL.getEnchantment()));
+            checkAngel(armor, player, enchantments);
 
             useHellForge(player, armor, enchantments);
         }
@@ -113,36 +154,36 @@ public class ArmorProcessor extends PoolProcessor {
 
     }
 
-    private void checkAngel(ItemStack armor, Player player, Map<CEnchantment, Integer> enchantments, int radius) {
+    /**
+     * Angel. Nothing is collected here: every target's regeneration is applied by a task
+     * on that target's own region, after re-checking it there. A piece without Angel is
+     * not a level 0 proc, it is simply no proc, so the level is read before anything else
+     * and the rest of the pass keeps running.
+     */
+    private void checkAngel(ItemStack armor, Player player, Map<CEnchantment, Integer> enchantments) {
+        final Integer angel = enchantments.get(CEnchantments.ANGEL.getEnchantment());
+
+        if (angel == null || angel < 1) return;
+
         if (!EnchantUtils.isMoveEventActive(CEnchantments.ANGEL, player, enchantments)) return;
+
+        final int radius = 4 + angel;
 
         new FoliaScheduler(this.plugin, null, player) {
             @Override
             public void run() {
                 if (!EnchantUtils.normalEnchantEvent(CEnchantments.ANGEL, player, armor)) return;
 
-                final List<Player> players = new ArrayList<>();
-
-                for (final Entity entity : player.getNearbyEntities(radius, radius, radius)) {
-                    new FoliaScheduler(plugin, null, entity) {
-                        @Override
-                        public void run() {
-                            if (entity instanceof Player otherPlayer && support.isFriendly(player, otherPlayer)) {
-                                players.add(otherPlayer);
-                            }
-                        }
-                    }.runNextTick();
-                }
-
-                if (players.isEmpty()) return;
-
                 final PotionEffect regeneration = new PotionEffect(PotionEffectType.REGENERATION, 3 * 20, 0);
 
-                for (final Player target : players) {
-                    new FoliaScheduler(plugin, null, target) {
+                for (final Entity entity : player.getNearbyEntities(radius, radius, radius)) {
+                    if (!(entity instanceof Player otherPlayer)) continue;
+
+                    new FoliaScheduler(plugin, null, otherPlayer) {
                         @Override
                         public void run() {
-                            target.addPotionEffect(regeneration);
+                            if (!otherPlayer.isOnline() || otherPlayer.isDead()) return;
+                            if (support.isFriendly(player, otherPlayer)) otherPlayer.addPotionEffect(regeneration);
                         }
                     }.runNextTick();
                 }
@@ -150,23 +191,12 @@ public class ArmorProcessor extends PoolProcessor {
         }.runNextTick();
     }
 
-    private void checkImplants(ItemStack armor, Player player, Map<CEnchantment, Integer> enchantments) {
-        if (!EnchantUtils.isMoveEventActive(CEnchantments.IMPLANTS, player, enchantments)) return;
-
-        new FoliaScheduler(this.plugin, null, player) {
-            @Override
-            public void run() {
-                if (EnchantUtils.normalEnchantEvent(CEnchantments.IMPLANTS, player, armor)) {
-                    player.setFoodLevel(Math.min(20, player.getFoodLevel() + enchantments.get(CEnchantments.IMPLANTS.getEnchantment())));
-                }
-            }
-        }.runNextTick();
-    }
-
-    private void checkNursery(ItemStack armor, Player player, Map<CEnchantment, Integer> enchantments, int heal, double maxHealth) {
-        if (!EnchantUtils.isMoveEventActive(CEnchantments.NURSERY, player, enchantments)) return;
+    private void checkNursery(ItemStack armor, Player player, Map<CEnchantment, Integer> enchantments, double maxHealth) {
+        final var settings = TuningConfig.fork().nursery();
+        if (!EnchantUtils.isMoveEventActive(CEnchantments.NURSERY, player, enchantments, settings.intervalTicks())) return;
 
         final double health = player.getHealth();
+        final double heal = settings.healHp();
 
         new FoliaScheduler(this.plugin, null, player) {
             @Override
