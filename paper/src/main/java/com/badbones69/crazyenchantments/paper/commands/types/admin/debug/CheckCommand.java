@@ -8,9 +8,12 @@ import dev.triumphteam.cmd.core.annotations.Suggestion;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionDefault;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,7 +23,13 @@ public class CheckCommand extends EnchantCommand {
     @Permission(value = "crazyenchantments.check", def = PermissionDefault.OP)
     @Syntax("/crazyenchantments check [player]")
     public void execute(final CommandSender sender, @Suggestion("players") final Player player) {
-        Arrays.stream(player.getEquipment().getArmorContents()).filter(Objects::nonNull).forEach(item -> {
+        // The held item matters as much as the armour: a weapon can look enchanted
+        // through its lore while its stored enchantment data is what the handlers read.
+        final List<ItemStack> items = new ArrayList<>(Arrays.asList(player.getEquipment().getArmorContents()));
+
+        items.add(player.getInventory().getItemInMainHand());
+
+        items.stream().filter(Objects::nonNull).filter(item -> !item.getType().isAir()).forEach(item -> {
             final StringBuilder enchantmentsString = new StringBuilder();
 
             String main = Messages.MAIN_UPDATE_ENCHANTS.getMessageNoPrefix();
