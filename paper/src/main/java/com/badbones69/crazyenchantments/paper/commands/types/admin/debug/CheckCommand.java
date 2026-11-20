@@ -1,15 +1,19 @@
 package com.badbones69.crazyenchantments.paper.commands.types.admin.debug;
 
 import com.badbones69.crazyenchantments.paper.api.enums.Messages;
+import com.badbones69.crazyenchantments.paper.api.enums.pdc.DataKeys;
+import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
 import com.badbones69.crazyenchantments.paper.commands.EnchantCommand;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Suggestion;
 import dev.triumphteam.cmd.core.annotations.Syntax;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,6 +51,13 @@ public class CheckCommand extends EnchantCommand {
             main = main.replace("%itemEnchants%", enchantmentsString.toString());
 
             sender.sendMessage(main);
+
+            // The plain list above cannot tell a missing key from a key whose stored
+            // names no longer match a registered enchantment, so show the raw value.
+            final NamespacedKey key = DataKeys.enchantments.getNamespacedKey();
+            final String raw = item.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+
+            sender.sendMessage(ColorUtils.color("&8> &7" + item.getType() + " &8raw=" + (raw == null ? "&cnone" : "&a" + raw)));
         });
     }
 }
