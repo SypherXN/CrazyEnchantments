@@ -385,6 +385,10 @@ public class CrazyManager {
 
                 if (enchants.contains(path + ".Enchantment-Type")) enchantment.setEnchantmentType(this.methods.getFromName(enchants.getString(path + ".Enchantment-Type")));
 
+                // After the tier is settled, so the book name and the gear lore
+                // line both wear the tier colour.
+                enchantment.applyRarityColour();
+
                 if (cEnchantment.hasChanceSystem()) {
                     if (enchants.contains(path + ".Chance-System.Base")) {
                         enchantment.setChance(enchants.getInt(path + ".Chance-System.Base"));

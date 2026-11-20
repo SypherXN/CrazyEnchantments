@@ -126,6 +126,22 @@ public class CEnchantment {
         return this;
     }
 
+    /**
+     * Recolours the display name to the enchant's tier colour, so the book name
+     * and the gear lore line match the category. The colour is taken from the
+     * category's own GUI name in config.yml, so a renamed or custom tier follows
+     * automatically.
+     *
+     * @return This enchantment.
+     */
+    public CEnchantment applyRarityColour() {
+        final String colour = this.categories.isEmpty() ? null : ColorUtils.firstColour(this.categories.get(0).getName());
+
+        if (colour == null) return this;
+
+        return setCustomName(colour + ColorUtils.stripStringColour(this.customName));
+    }
+
     public boolean isActivated() {
         return this.activated;
     }

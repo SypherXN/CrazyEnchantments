@@ -139,6 +139,23 @@ public class ColorUtils {
     }
 
     public static String stripStringColour(String s) {
-        return s.replaceAll("([&§]?#[0-9a-fA-F]{6}|[&§][1-9a-fA-Fk-or])", "");
+        return s.replaceAll("([&§]?#[0-9a-fA-F]{6}|[&§][0-9a-fA-Fk-or])", "");
+    }
+
+    private static final Pattern COLOUR_CODE = Pattern.compile("(?i)[&§](#[0-9a-f]{6}|[0-9a-f])");
+
+    /**
+     * The first colour code in the text, ignoring formatting codes such as
+     * {@code &l}, or null when the text carries no colour.
+     *
+     * @param text Text to inspect.
+     * @return e.g. {@code &f}, {@code §b} or {@code &#ff0000}.
+     */
+    public static String firstColour(String text) {
+        if (text == null) return null;
+
+        final Matcher matcher = COLOUR_CODE.matcher(text);
+
+        return matcher.find() ? matcher.group() : null;
     }
 }
