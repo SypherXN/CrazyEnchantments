@@ -519,6 +519,10 @@ public class CrazyManager {
         return this.checkVanillaLimit;
     }
 
+    public boolean checkMaxEnchantments() {
+        return this.maxEnchantmentCheck;
+    }
+
     /**
      * Check if the gkitz option is enabled.
      * @return True if it is on and false if it is off.

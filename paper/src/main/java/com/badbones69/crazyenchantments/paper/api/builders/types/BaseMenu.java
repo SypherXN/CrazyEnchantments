@@ -5,7 +5,9 @@ import com.badbones69.crazyenchantments.paper.api.builders.InventoryBuilder;
 import com.badbones69.crazyenchantments.paper.api.builders.types.gkitz.KitsManager;
 import com.badbones69.crazyenchantments.paper.api.enums.pdc.DataKeys;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
+import com.badbones69.crazyenchantments.paper.api.objects.Category;
 import com.badbones69.crazyenchantments.paper.api.objects.enchants.EnchantmentType;
+import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
 import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import io.papermc.paper.persistence.PersistentDataContainerView;
@@ -17,6 +19,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,11 +54,10 @@ public class BaseMenu extends InventoryBuilder {
 
             ItemBuilder book = this.bookSettings.getNormalBook().setGlow(true);
 
-            for (CEnchantment enchantment : enchantments) {
-                if (enchantment.isActivated()) {
-                    getInventory().addItem(book.setName(enchantment.getInfoName()).setLore(enchantment.getInfoDescription()).build());
-                }
-            }
+            enchantments.stream().filter(CEnchantment::isActivated)
+                    // Sort is stable, so books sharing a tier keep registration order.
+                    .sorted(Comparator.comparingInt(BaseMenu::rarityRank).reversed())
+                    .forEach(enchantment -> getInventory().addItem(book.setName(enchantment.getInfoName()).setLore(enchantment.getInfoDescription()).build()));
 
             getInventory().setItem(getSize() - 1, KitsManager.getBackRight());
         } else {
@@ -64,6 +66,21 @@ public class BaseMenu extends InventoryBuilder {
         }
 
         return this;
+    }
+
+    /**
+     * How high an enchantment's tier sits in {@link TuningConfig#RARITIES}, or
+     * {@code -1} when it has no canonical tier. The highest tier an enchantment
+     * is listed under wins, so a book in several tiers sorts as its best one.
+     */
+    private static int rarityRank(final CEnchantment enchantment) {
+        int rank = -1;
+
+        for (final Category category : enchantment.getCategories()) {
+            rank = Math.max(rank, TuningConfig.RARITIES.indexOf(category.getIdentity()));
+        }
+
+        return rank;
     }
 
     public static class InfoMenuListener implements Listener {
