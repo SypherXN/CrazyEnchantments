@@ -138,7 +138,12 @@ public class BowEnchantments implements Listener {
 
         final ItemStack bow = event.getBow();
 
-        if (!this.support.isCombatEnabled(player)) return;
+        // Deliberately not gated on isCombatEnabled here: that check belongs to
+        // the impact, not the shot. Gating the shot meant every bow enchant went
+        // silently dead whenever the archer stood somewhere combat is disabled
+        // (own faction land, a WorldGuard region, a safezone), including the
+        // harmless ones like Multi Arrow. Each damaging path still checks the
+        // impact location before it hurts anyone.
 
         Map<CEnchantment, Integer> enchants = this.enchantmentBookSettings.getEnchantments(bow);
         if (enchants.isEmpty()) return;
