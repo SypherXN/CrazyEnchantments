@@ -27,7 +27,9 @@ public enum DataKeys {
 
     trade_button("trade_button", PersistentDataType.STRING),
     back_left("back_left", PersistentDataType.STRING),
-    back_right("back_right", PersistentDataType.STRING);
+    back_right("back_right", PersistentDataType.STRING),
+    next_page("next_page", PersistentDataType.STRING),
+    previous_page("previous_page", PersistentDataType.STRING);
 
     @NotNull
     private final CrazyEnchantments plugin = JavaPlugin.getPlugin(CrazyEnchantments.class);

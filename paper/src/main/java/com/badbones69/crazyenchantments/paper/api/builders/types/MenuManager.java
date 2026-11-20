@@ -69,12 +69,19 @@ public class MenuManager {
     }
 
     public static void openInfoMenu(Player player, EnchantmentType type) {
-        List<CEnchantment> enchantments = type.getEnchantments();
-        int slots = 9;
+        openInfoMenu(player, type, 0);
+    }
 
-        for (int size = enchantments.size() + 1; size > 9; size -= 9) slots += 9;
+    public static void openInfoMenu(Player player, EnchantmentType type, int page) {
+        // Size from the books the page actually shows: a page gathers matching
+        // enchantments from every type, not just its own declared list. The
+        // bottom row is navigation, so each page holds size - 9 books.
+        final int books = BaseMenu.matchedEnchantments(type).size();
+        int slots = 18;
 
-        player.openInventory(new BaseMenu(player, slots, ColorUtils.toLegacy(KitsManager.getInventoryName())).setEnchantmentType(type).build().getInventory());
+        while (books > slots - 9 && slots < 54) slots += 9;
+
+        player.openInventory(new BaseMenu(player, slots, ColorUtils.toLegacy(KitsManager.getInventoryName()), page).setEnchantmentType(type).build().getInventory());
     }
 
     public static void openBlackSmithMenu(Player player) {

@@ -32,40 +32,86 @@ public class BaseMenu extends InventoryBuilder {
     @NotNull
     private final EnchantmentBookSettings bookSettings = this.starter.getEnchantmentBookSettings();
 
+    private final int page;
+
+    public int getPage() {
+        return this.page;
+    }
+
     public BaseMenu(Player player, int size, String title) {
+        this(player, size, title, 0);
+    }
+
+    public BaseMenu(Player player, int size, String title, int page) {
         super(player, size, title);
+
+        this.page = page;
     }
 
     @Override
     public InventoryBuilder build() {
-        final EnchantmentType page = getEnchantmentType();
+        final EnchantmentType type = getEnchantmentType();
 
-        if (page != null) {
-            final List<Material> materials = page.getEnchantableMaterials();
-            final Set<CEnchantment> enchantments = new LinkedHashSet<>();
+        if (type != null) {
+            final List<CEnchantment> books = matchedEnchantments(type);
+            final int perPage = Math.max(1, getSize() - 9);
+            final int lastPage = Math.max(0, (books.size() - 1) / perPage);
+            final int current = Math.min(this.page, lastPage);
+            final ItemBuilder book = this.bookSettings.getNormalBook().setGlow(true);
 
-            // Match on the materials a page covers, so a Sword-and-Axe enchant
-            // shows up on both the Sword page and the Axe page.
-            for (EnchantmentType type : MenuManager.getEnchantmentTypes()) {
-                if (Collections.disjoint(type.getEnchantableMaterials(), materials)) continue;
+            for (int index = current * perPage; index < books.size() && index < (current + 1) * perPage; index++) {
+                final CEnchantment enchantment = books.get(index);
 
-                enchantments.addAll(type.getEnchantments());
+                getInventory().setItem(index - current * perPage, book.setName(enchantment.getInfoName()).setLore(enchantment.getInfoDescription()).build());
             }
 
-            ItemBuilder book = this.bookSettings.getNormalBook().setGlow(true);
-
-            enchantments.stream().filter(CEnchantment::isActivated)
-                    // Sort is stable, so books sharing a tier keep registration order.
-                    .sorted(Comparator.comparingInt(BaseMenu::rarityRank).reversed())
-                    .forEach(enchantment -> getInventory().addItem(book.setName(enchantment.getInfoName()).setLore(enchantment.getInfoDescription()).build()));
-
             getInventory().setItem(getSize() - 1, KitsManager.getBackRight());
+
+            // The bottom row is reserved for navigation, so a full page never
+            // pushes its books into the arrows.
+            if (current > 0) getInventory().setItem(getSize() - 9, navigation(DataKeys.previous_page, "ARROW", "&c&lPrevious Page"));
+
+            if (current < lastPage) getInventory().setItem(getSize() - 5, navigation(DataKeys.next_page, "ARROW", "&a&lNext Page"));
         } else {
             MenuManager.getEnchantmentTypes().stream().filter(EnchantmentType::isInMenu)
                     .forEach(key -> getInventory().setItem(key.getSlot(), key.getDisplayItem()));
         }
 
         return this;
+    }
+
+    /**
+     * The books a page shows: every activated enchantment from any type whose
+     * enchantable materials overlap the page's, so a Sword-and-Axe enchant
+     * appears on both the Sword page and the Axe page. Highest tier first, and
+     * the sort is stable, so books sharing a tier keep registration order.
+     */
+    public static List<CEnchantment> matchedEnchantments(final EnchantmentType page) {
+        final List<Material> materials = page.getEnchantableMaterials();
+        final Set<CEnchantment> enchantments = new LinkedHashSet<>();
+
+        for (EnchantmentType type : MenuManager.getEnchantmentTypes()) {
+            if (Collections.disjoint(type.getEnchantableMaterials(), materials)) continue;
+
+            enchantments.addAll(type.getEnchantments());
+        }
+
+        return enchantments.stream()
+                .filter(CEnchantment::isActivated)
+                .sorted(Comparator.comparingInt(BaseMenu::rarityRank).reversed())
+                .toList();
+    }
+
+    /**
+     * A page arrow. The key is what the click listener matches on, so the page
+     * is re-opened with the arrow that was clicked.
+     */
+    private static ItemStack navigation(final DataKeys key, final String material, final String name) {
+        return new ItemBuilder()
+                .setMaterial(material)
+                .setName(name)
+                .addKey(key.getNamespacedKey(), "")
+                .build();
     }
 
     /**
@@ -101,6 +147,14 @@ public class BaseMenu extends InventoryBuilder {
 
             if (view.has(DataKeys.back_left.getNamespacedKey()) || view.has(DataKeys.back_right.getNamespacedKey())) {
                 MenuManager.openInfoMenu(player);
+
+                return;
+            }
+
+            final EnchantmentType current = holder.getEnchantmentType();
+
+            if (current != null && (view.has(DataKeys.next_page.getNamespacedKey()) || view.has(DataKeys.previous_page.getNamespacedKey()))) {
+                MenuManager.openInfoMenu(player, current, holder.getPage() + (view.has(DataKeys.next_page.getNamespacedKey()) ? 1 : -1));
 
                 return;
             }
