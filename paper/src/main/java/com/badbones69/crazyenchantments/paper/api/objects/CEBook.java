@@ -221,7 +221,10 @@ public class CEBook {
      * @return Return the book as an ItemBuilder.
      */
     public ItemBuilder getItemBuilder() {
-        String name = this.enchantment.getCustomName() + " " + NumberUtils.convertLevelString(level);
+        final String customName = this.enchantment.getCustomName();
+        final String colour = ColorUtils.firstColour(customName);
+        // Bold after the colour: a colour code clears formatting, so §l must come second.
+        String name = (colour == null ? customName : colour + "§l" + ColorUtils.stripStringColour(customName)) + " " + NumberUtils.convertLevelString(level);
         List<String> lore = new ArrayList<>();
 
         final YamlConfiguration configuration = FileKeys.CONFIG.getConfiguration();

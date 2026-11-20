@@ -61,7 +61,7 @@ Types:
         Namespace: ""
         # diamond_helmet
         Key: ""
-      Slot: 2
+      Slot: 4
       Name: '&e&lBoot Enchantments'
       Lore:
         - '&7Enchantable Items:'
@@ -79,6 +79,7 @@ Types:
       - 'DIAMOND_BOOTS'
       - 'NETHERITE_BOOTS'
   Armor:
+    Menu: false
     Display-Item:
       Item: 'GOLDEN_CHESTPLATE'
       # Item model settings
@@ -132,7 +133,7 @@ Types:
         Namespace: ""
         # diamond_helmet
         Key: ""
-      Slot: 4
+      Slot: 7
       Name: '&e&lBow Enchantments'
       Lore:
         - '&7Enchantable Items:'
@@ -200,7 +201,7 @@ Types:
         Namespace: ""
         # diamond_helmet
         Key: ""
-      Slot: 7
+      Slot: 9
       Name: '&e&lHoe Enchantments'
       Lore:
         - '&7Enchantable Items:'
@@ -244,6 +245,7 @@ Types:
       - 'DIAMOND_PICKAXE'
       - 'NETHERITE_PICKAXE'
   Tool:
+    Menu: false
     Display-Item:
       Item: 'GOLDEN_SHOVEL'
       # Item model settings
@@ -290,6 +292,7 @@ Types:
       - 'SHEARS'
       - 'FISHING_ROD'
   Weapons:
+    Menu: false
     Display-Item:
       Item: 'IRON_SWORD'
       # Item model settings
@@ -326,6 +329,7 @@ Types:
       - 'TRIDENT'
       - 'MACE'
   Damaged-Items:
+    Menu: false
     Display-Item:
       Item: 'DAMAGED_ANVIL'
       # Item model settings
@@ -408,7 +412,7 @@ Types:
       Model:
         Namespace: ""
         Key: ""
-      Slot: 12
+      Slot: 2
       Name: '&e&lChestplate Enchantments'
       Lore:
         - '&7Enchantable Items:'
@@ -431,7 +435,7 @@ Types:
       Model:
         Namespace: ""
         Key: ""
-      Slot: 13
+      Slot: 3
       Name: '&e&lLeggings Enchantments'
       Lore:
         - '&7Enchantable Items:'
@@ -449,6 +453,7 @@ Types:
       - 'DIAMOND_LEGGINGS'
       - 'NETHERITE_LEGGINGS'
   Helmet-and-Boots:
+    Menu: false
     Display-Item:
       Item: 'GOLDEN_HELMET'
       Model:
@@ -475,6 +480,7 @@ Types:
       - 'DIAMOND_BOOTS'
       - 'NETHERITE_BOOTS'
   Sword-and-Axe:
+    Menu: false
     Display-Item:
       Item: 'GOLDEN_SWORD'
       Model:
@@ -500,6 +506,7 @@ Types:
       - 'DIAMOND_AXE'
       - 'NETHERITE_AXE'
   Weapons-and-Tools:
+    Menu: false
     Display-Item:
       Item: 'IRON_SWORD'
       Model:

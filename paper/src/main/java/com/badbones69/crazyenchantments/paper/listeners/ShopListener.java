@@ -33,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Random;
 import java.util.logging.Level;
 
 public class ShopListener implements Listener {
@@ -90,7 +91,7 @@ public class ShopListener implements Listener {
 
                 if (this.methods.isInventoryFull(player)) return;
 
-                CEBook book = this.crazyManager.getRandomEnchantmentBook(category);
+                CEBook book = this.crazyManager.getRandomEnchantmentBook(category, new Random());
                 if (book == null) {
                     player.sendMessage(ColorUtils.getPrefix("&cThe category &6" + category.getName() + " &chas no enchantments assigned to it."));
                     return;

@@ -315,12 +315,26 @@ class CosmicReworkLogicTest {
         assertEquals(helmetAndBoots.size(), materials(types, "Helmet-and-Boots").size(), "no duplicate material");
 
         final Set<Integer> slots = new HashSet<>();
+        final Set<String> hidden = new HashSet<>();
 
         for (final Object type : types.keySet()) {
-            final int slot = (int) section(section(types, type), "Display-Item").get("Slot");
+            final Map<?, ?> config = section(types, type);
+
+            // Combo types keep their old slot and are never drawn, so only the
+            // per-piece pages the menu shows must be unique.
+            if (Boolean.FALSE.equals(config.get("Menu"))) {
+                hidden.add(String.valueOf(type));
+                continue;
+            }
+
+            final int slot = (int) section(config, "Display-Item").get("Slot");
 
             assertTrue(slots.add(slot), "slot collision: " + slot);
         }
+
+        assertEquals(Set.of("Armor", "Tool", "Weapons", "Weapons-and-Tools", "Damaged-Items",
+                "Helmet-and-Boots", "Sword-and-Axe"), hidden);
+        assertEquals(9, slots.size(), "one page per piece");
 
         // The info menu has 18 slots (index = Slot - 1).
         assertTrue(slots.stream().allMatch(slot -> slot >= 1 && slot <= 18));

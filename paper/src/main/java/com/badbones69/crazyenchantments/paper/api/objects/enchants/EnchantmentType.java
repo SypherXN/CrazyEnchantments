@@ -23,6 +23,7 @@ public class EnchantmentType {
 
     private final String displayName;
     private final int slot;
+    private final boolean menu;
     private final ItemStack displayItem;
     private final List<CEnchantment> enchantments = new ArrayList<>();
     private final List<Material> enchantableMaterials = new ArrayList<>();
@@ -32,6 +33,7 @@ public class EnchantmentType {
         String path = "Types." + name;
         this.displayName = name;
         this.slot = file.getInt(path + ".Display-Item.Slot", 1) - 1;
+        this.menu = file.getBoolean(path + ".Menu", true);
         this.displayItem = new ItemBuilder()
         .setMaterial(file.getString(path + ".Display-Item.Item", "STONE"))
         .setItemModel(file.getString(path + ".Display-Item.Model.Namespace", ""), file.getString(path + ".Display-Item.Model.Key", ""))
@@ -55,6 +57,17 @@ public class EnchantmentType {
 
     public int getSlot() {
         return this.slot;
+    }
+
+    /**
+     * Whether this type gets its own page in the info menu. Combo types such as
+     * {@code Sword-and-Axe} are hidden and their enchantments instead appear on
+     * every per-piece page they fit.
+     *
+     * @return True when the type is shown in the info menu.
+     */
+    public boolean isInMenu() {
+        return this.menu;
     }
 
     public ItemStack getDisplayItem() {

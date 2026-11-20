@@ -49,15 +49,17 @@ class ToolEnchantLogicTest {
     }
 
     @Test
-    void newTypeUsesAnUnoccupiedInventoryIndex() throws IOException {
+    void onlyVisiblePagesUseAnUnoccupiedInventoryIndex() throws IOException {
         var types = section(yaml("Enchantment-Types.yml"), "Types");
         var positions = new HashSet<Integer>();
         for (var type : types.keySet()) {
-            var display = section(section(types, type), "Display-Item");
+            var config = section(types, type);
+            if (Boolean.FALSE.equals(config.get("Menu"))) continue;
+            var display = section(config, "Display-Item");
             var index = (int) display.get("Slot") - 1;
             assertTrue(positions.add(index), "collision at inventory index " + index);
-            if (type.equals("Weapons-and-Tools")) assertEquals(10, index);
         }
+        assertEquals(9, positions.size(), "one page per piece");
     }
 
     @Test

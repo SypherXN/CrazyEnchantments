@@ -58,6 +58,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -569,11 +570,54 @@ public class CrazyManager {
     }
     
     public CEBook getRandomEnchantmentBook(Category category) {
+        return buildRandomEnchantmentBook(category, null);
+    }
+
+    /**
+     * The same random enchantment and level as {@link #getRandomEnchantmentBook(Category)}, but
+     * each rate is its own uniform roll over 0-100 inclusive instead of the category's bounds.
+     * Used for direct shop purchases, where every chance should be equally likely.
+     *
+     * @param category The category to pick from.
+     * @param random The random source for the two rate rolls.
+     * @return The book, or null when the category has no enchantments.
+     */
+    public CEBook getRandomEnchantmentBook(Category category, Random random) {
+        return buildRandomEnchantmentBook(category, random);
+    }
+
+    /**
+     * One rate roll for a shop book. Each rate draws its own value.
+     *
+     * @param random The random source.
+     * @return 0 through 100, inclusive.
+     */
+    static int rollBookRate(Random random) {
+        return random.nextInt(101);
+    }
+
+    /**
+     * Picks the enchantment and level, then builds the book.
+     *
+     * <p>Selection, the level roll and construction share one catch: a category with no
+     * enchantments, a legacy config whose rates are inverted (percentPick rejects max &lt; min)
+     * or any other construction failure must yield null, so a shop purchase can never charge
+     * for a book it did not build.</p>
+     *
+     * @param category The category to pick from.
+     * @param random When non-null, each rate is its own uniform 0-100 roll; when null, the
+     *               book uses the category's configured bounds.
+     * @return The book, or null when it could not be built.
+     */
+    private CEBook buildRandomEnchantmentBook(Category category, Random random) {
         try {
             List<CEnchantment> enchantments = category.getEnabledEnchantments();
             CEnchantment enchantment = enchantments.get(new Random().nextInt(enchantments.size()));
+            int level = randomLevel(enchantment, category);
 
-            return new CEBook(enchantment, randomLevel(enchantment, category), 1, category);
+            if (random == null) return new CEBook(enchantment, level, 1, category);
+
+            return new CEBook(enchantment, level, 1, rollBookRate(random), rollBookRate(random));
         } catch (Exception e) {
             this.plugin.getLogger().info("The category " + category.getName() + " has no enchantments."
             + " Please add enchantments to the category in the Enchantments.yml. If you do not wish to have the category feel free to delete it from the Config.yml.");
@@ -654,7 +698,12 @@ public class CrazyManager {
         final List<Component> oldLore = lore != null ? lore : new ArrayList<>();
         List<Component> newLore = new ArrayList<>();
 
-        for (Entry<CEnchantment, Integer> entry : enchantments.entrySet()) {
+        final List<Entry<CEnchantment, Integer>> sorted = new ArrayList<>(enchantments.entrySet());
+
+        // Highest tier first, so Legendary sits above Simple.
+        sorted.sort(Comparator.comparingInt((Entry<CEnchantment, Integer> entry) -> rarityRank(entry.getKey())).reversed());
+
+        for (Entry<CEnchantment, Integer> entry : sorted) {
             CEnchantment enchantment = entry.getKey();
             int level = entry.getValue();
 
@@ -667,11 +716,27 @@ public class CrazyManager {
             }
         }
 
-        newLore.addAll(oldLore);
+        // Vanilla enchantment lore stays on top; ours go underneath it.
+        oldLore.addAll(newLore);
 
-        itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(newLore).build());
+        itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(oldLore).build());
 
         itemStack.editPersistentDataContainer(container -> container.set(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING, Methods.getGson().toJson(enchantData)));
+    }
+
+    /**
+     * Position of an enchant's tier in the rarity ladder, so lore can be ordered
+     * by tier. Unknown or missing tiers rank below every known one.
+     *
+     * @param enchantment The enchantment to rank.
+     * @return The tier index, or -1 when it has no known tier.
+     */
+    private static int rarityRank(final CEnchantment enchantment) {
+        final List<Category> categories = enchantment.getCategories();
+
+        if (categories.isEmpty()) return -1;
+
+        return Math.max(-1, TuningConfig.RARITIES.indexOf(categories.get(0).getIdentity()));
     }
 
     /**

@@ -60,10 +60,6 @@ Enchantments:
       Description:
         - '&7Night Vision while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aHelmets'
     #All the categories the Enchantment can be found in
     Categories:
@@ -86,10 +82,6 @@ Enchantments:
         - '&7Gives fire resistance'
         - '&7when you put it on.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -112,10 +104,6 @@ Enchantments:
         - '&7Has a chance to deal'
         - '&7double damage to your enemy.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -135,10 +123,6 @@ Enchantments:
         - '&7+2 max hearts per level'
         - '&7while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -161,10 +145,6 @@ Enchantments:
         - '&7back enemies and destroys'
         - '&7unprotected drops.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -184,10 +164,6 @@ Enchantments:
         - '&7Jump Boost equal to the'
         - '&7level while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBoots'
     Categories:
       - 'Simple'
@@ -207,10 +183,6 @@ Enchantments:
         - '&7Speed equal to the level'
         - '&7while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBoots'
     Categories:
       - 'Simple'
@@ -233,10 +205,6 @@ Enchantments:
         - '&7Slowness equal to the'
         - '&7level while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -256,10 +224,6 @@ Enchantments:
         - '&7Gives you water breathing'
         - '&7when you put it on.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aHelmets'
     Categories:
       - 'Simple'
@@ -279,10 +243,6 @@ Enchantments:
         - '&7Speed by level and +2 max'
         - '&7hearts per level while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -312,10 +272,6 @@ Enchantments:
         - '&c1 HP&7 per level after &c3 seconds&7.'
         - '&7By default, only one heal can be pending.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -339,10 +295,6 @@ Enchantments:
         - '&c1 HP&7 per level. It deals no extra'
         - '&7damage to your enemy.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -363,10 +315,6 @@ Enchantments:
         - '&7Higher levels heal more; the arrow'
         - '&7can still deal damage.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -394,10 +342,6 @@ Enchantments:
         - '&7Arrow impacts can damage and knock'
         - '&7back nearby enemies and clear drops.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -420,10 +364,6 @@ Enchantments:
         - '&7Arrow hits can briefly poison enemies.'
         - '&7Higher levels apply stronger Poison.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -447,10 +387,6 @@ Enchantments:
         - '&7enemy with &cSlowness II-IV&7 for'
         - '&c3 seconds&7 by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -473,10 +409,6 @@ Enchantments:
         - '&7Hits have a chance to blind your'
         - '&7enemy for &c3 seconds&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -499,10 +431,6 @@ Enchantments:
         - '&7Hits have a chance to poison your'
         - '&7enemy with &cPoison II-IV&7 for &c5 seconds&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -522,10 +450,6 @@ Enchantments:
         - '&7Jump Boost equal to the'
         - '&7level while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBoots'
     Categories:
       - 'Simple'
@@ -551,10 +475,6 @@ Enchantments:
         - '&7damage: by default, an extra third'
         - '&7of the hit.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -578,10 +498,6 @@ Enchantments:
         - '&c5 seconds&7. Higher levels grant'
         - '&7stronger Haste.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -605,10 +521,6 @@ Enchantments:
         - '&7Hunger, Poison, Slowness, Mining Fatigue,'
         - '&7Weakness and Wither, but not Bleed.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -649,9 +561,6 @@ Enchantments:
         - '&7armor and slows &c5%&7. Stacks refresh'
         - '&7and fade after &c5 seconds&7 without a hit.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Elite'
@@ -677,8 +586,6 @@ Enchantments:
         - '&7your Bleed chance is multiplied by'
         - '&c1.25&7 (&c1.5&7, &c1.75&7) by level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Unique'
@@ -703,8 +610,6 @@ Enchantments:
         - '&7bleeding enemy: &c+5%&7 to &c+20%&7 by level.'
         - '&7Always active while the target bleeds.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Elite'
@@ -734,8 +639,6 @@ Enchantments:
         - '&731 other enemies within &c3 blocks&7 with'
         - '&cSlowness II&7 for &c3-5 seconds&7 by level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Elite'
@@ -769,8 +672,6 @@ Enchantments:
         - '&7by default. Range grows with level and'
         - '&7splash damage never chains.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Ultimate'
@@ -792,8 +693,6 @@ Enchantments:
         - '&7a chance to break an arrow that'
         - '&7hits you: no damage, arrow removed.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Ultimate'
@@ -823,8 +722,6 @@ Enchantments:
         - '&7your most damaged worn armor piece by'
         - '&c1&7 (&c2&7 at IV and V) durability.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Elite'
@@ -853,8 +750,6 @@ Enchantments:
         - '&7your melee hits deal &c10%&7 more damage'
         - '&7per extra enemy, up to &c50%&7 by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Elite'
@@ -877,8 +772,6 @@ Enchantments:
         - '&7enemies holding an axe in their'
         - '&7main hand.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Elite'
@@ -901,8 +794,6 @@ Enchantments:
         - '&7enemies holding a sword in their'
         - '&7main hand.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Ultimate'
@@ -930,8 +821,6 @@ Enchantments:
         - '&c10%&7 (&c15%&7, &c20%&7) more damage by'
         - '&7default, at most once every &c2 seconds&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Legendary'
@@ -964,8 +853,6 @@ Enchantments:
         - '&73 blocks per axis, at most'
         - '&7once per second.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aChestplate'
     Categories:
       - 'Elite'
@@ -987,10 +874,6 @@ Enchantments:
         - '&7your food based on saturation and'
         - '&7level. It can also lower it.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -1014,10 +897,6 @@ Enchantments:
         - '&7Nausea for &c9 seconds&7 plus &c1 second&7'
         - '&7per level by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -1041,10 +920,6 @@ Enchantments:
         - '&cStrength I&7 and Mining Fatigue II for'
         - '&c5 seconds&7 plus &c1 second&7 per level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -1071,10 +946,6 @@ Enchantments:
         - '&7Mining Fatigue II for &c9 seconds&7 plus'
         - '&c1 second&7 per level by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -1099,10 +970,6 @@ Enchantments:
         - '&7Has a chance to'
         - '&7deal double the damage.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -1129,10 +996,6 @@ Enchantments:
         - '&7more: up to &c5 extra logs per level + 1&7'
         - '&7by default, within a limited reach.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -1156,10 +1019,6 @@ Enchantments:
         - '&7heal you 1 HP per level'
         - '&7before damage.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1184,10 +1043,6 @@ Enchantments:
         - '&7III, or IV at level II,'
         - '&7for 3 seconds.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1211,10 +1066,6 @@ Enchantments:
         - '&7ignite the attacker for'
         - '&72 seconds per level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1239,10 +1090,6 @@ Enchantments:
         - '&73 seconds. Poison II at I,'
         - '&7stronger with level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1266,10 +1113,6 @@ Enchantments:
         - '&7a direct enemy hit before'
         - '&7armor.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1297,10 +1140,6 @@ Enchantments:
         - '&7Default: 1 HP, at most'
         - '&7once per second.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1324,10 +1163,6 @@ Enchantments:
         - '&7into ingots and grant extra drops.'
         - '&7Higher levels can give more items.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aPickaxes'
     Categories:
       - 'Simple'
@@ -1350,10 +1185,6 @@ Enchantments:
         - '&7Blocks that drop XP can give extra XP.'
         - '&7Higher levels give more bonus XP.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aPickaxes'
     Categories:
       - 'Simple'
@@ -1373,10 +1204,6 @@ Enchantments:
         - '&7Block drops go straight to your inventory.'
         - '&7Anything that does not fit drops at your feet.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aTools'
     Categories:
       - 'Simple'
@@ -1397,10 +1224,6 @@ Enchantments:
         - '&7for 5 seconds of Haste. Higher levels'
         - '&7grant stronger Haste.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aTools'
     Categories:
       - 'Simple'
@@ -1420,10 +1243,6 @@ Enchantments:
         - '&7Click with this tool in your main hand'
         - '&7for 5 seconds of Water Breathing.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aTools'
     Categories:
       - 'Simple'
@@ -1446,10 +1265,6 @@ Enchantments:
         - '&7Arrow hits can inflict Slowness II'
         - '&7for 5 seconds.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -1473,10 +1288,6 @@ Enchantments:
         - '&7that damages nearby enemies, but not'
         - '&7the enemy hit directly by the arrow.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -1500,10 +1311,6 @@ Enchantments:
         - '&7a player or eligible mob head'
         - '&7while this axe is held.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxes'
     Categories:
       - 'Simple'
@@ -1530,10 +1337,6 @@ Enchantments:
         - '&7Deals &c3%&7 more damage per level'
         - '&7to an enemy at or below 30% health.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1557,10 +1360,6 @@ Enchantments:
         - '&7a player or eligible mob head'
         - '&7while this sword is held.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1584,10 +1383,6 @@ Enchantments:
         - '&7from &c2x&7 at level I up to &c6x&7 at'
         - '&7level V.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1613,10 +1408,6 @@ Enchantments:
         - '&7retaliate with your base'
         - '&7damage plus a bonus.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1639,10 +1430,6 @@ Enchantments:
         - '&7Hits can raise your saturation.'
         - '&7They do not add hunger points.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1666,10 +1453,6 @@ Enchantments:
         - '&7in the direction you face, unless'
         - '&7Shackle prevents the knockback.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1694,10 +1477,6 @@ Enchantments:
         - '&7Fatigue III for &c3 seconds&7, and damage'
         - '&7enemies near you.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1721,10 +1500,6 @@ Enchantments:
         - '&c4 XP points&7 plus &c1&7 per enchantment'
         - '&7level, limited by the target''s XP.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1747,10 +1522,6 @@ Enchantments:
         - '&7Hits have a chance to give your'
         - '&7enemy &cSlowness III&7 for &c3 seconds&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1781,10 +1552,6 @@ Enchantments:
         - '&7III for 2 seconds by'
         - '&7default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1806,10 +1573,6 @@ Enchantments:
         - '&7level, and it resets after &c2 seconds&7'
         - '&7without a hit.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Simple'
@@ -1838,10 +1601,6 @@ Enchantments:
         - '&7Default: 1.125% per level'
         - '&7per worn piece.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1866,10 +1625,6 @@ Enchantments:
         - '&7I and Slowness II for'
         - '&73 seconds.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1890,10 +1645,6 @@ Enchantments:
         - '&7and Slowness equal to the'
         - '&7level while worn.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1918,10 +1669,6 @@ Enchantments:
         - '&7for 5 seconds. Weakness II'
         - '&7at I, stronger with level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1947,10 +1694,6 @@ Enchantments:
         - '&7Firing can launch 1 extra arrow per'
         - '&7level, with a slight spread.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -1972,10 +1715,6 @@ Enchantments:
         - '&7gains Absorption III for 8s'
         - '&7and Regeneration II for 5s.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -1999,10 +1738,6 @@ Enchantments:
         - '&7deal 1 HP per level back'
         - '&7to the attacker.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2033,10 +1768,6 @@ Enchantments:
         - '&7launch higher, cool down'
         - '&7faster and resist falls.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBoots'
     Categories:
       - 'Simple'
@@ -2072,8 +1803,6 @@ Enchantments:
         - '&7and it ends once you'
         - '&7recover.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aHelmets, Boots'
     Categories:
       - 'Legendary'
@@ -2094,10 +1823,6 @@ Enchantments:
         - '&7level, at most once per'
         - '&7second.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2122,10 +1847,6 @@ Enchantments:
         - '&7item, 1 durability per level,'
         - '&7at most once per second.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor, Weapons, Tools, Fishing Rods, and Shears'
     Categories:
       - 'Simple'
@@ -2148,10 +1869,6 @@ Enchantments:
         - '&7level, at most once per'
         - '&7second.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aHelmets'
     Categories:
       - 'Simple'
@@ -2176,10 +1893,6 @@ Enchantments:
         - '&7attacker and damage'
         - '&7enemies near you.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2204,10 +1917,6 @@ Enchantments:
         - '&7deal +0.5 HP per nearby ally.'
         - '&7Range grows with level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2238,10 +1947,6 @@ Enchantments:
         - '&7intervals. Default: 6/5/4s'
         - '&7at levels I-III.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aHelmets'
     Categories:
       - 'Simple'
@@ -2264,10 +1969,6 @@ Enchantments:
         - '&7ground you (except in'
         - '&7unrestricted worlds).'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBoots'
     Categories:
       - 'Simple'
@@ -2291,8 +1992,6 @@ Enchantments:
         - '&7that share a face. Higher levels reach'
         - '&7farther along the vein.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aPickaxes'
     Categories:
       - 'Legendary'
@@ -2312,10 +2011,6 @@ Enchantments:
         - '&7Mining breaks eligible blocks in a 3x3'
         - '&7area, with 1 layer per enchant level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aPickaxes'
     Categories:
       - 'Simple'
@@ -2344,10 +2039,6 @@ Enchantments:
         - '&75s by default. Range: 3'
         - '&7blocks per axis by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2376,10 +2067,6 @@ Enchantments:
         - '&7a chance to poison them'
         - '&7(Poison II for 4s by default).'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2408,10 +2095,6 @@ Enchantments:
         - '&7a chance to blind them for'
         - '&710s by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2436,10 +2119,6 @@ Enchantments:
         - '&7the enemy ignites for 5s'
         - '&7by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2466,10 +2145,6 @@ Enchantments:
         - '&7(stronger with level) for 3s'
         - '&7by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2493,10 +2168,6 @@ Enchantments:
       Description:
         - '&7Arrow hits can pull enemies toward you.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBows'
     Categories:
       - 'Simple'
@@ -2521,10 +2192,6 @@ Enchantments:
         - '&7summon 1 wolf per level for'
         - '&760s. Shared 2m cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2546,10 +2213,6 @@ Enchantments:
         - '&7summon 1 golem per level'
         - '&7for 60s. Shared 2m cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2575,10 +2238,6 @@ Enchantments:
         - '&7silverfish per level for 60s.'
         - '&7Shared 2m cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2600,10 +2259,6 @@ Enchantments:
         - '&7summon 2 zombies per level'
         - '&7for 60s. Shared 2m cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2628,10 +2283,6 @@ Enchantments:
         - '&7summon 1 bee per level for'
         - '&760s. Shared 2m cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Simple'
@@ -2656,8 +2307,6 @@ Enchantments:
         - '&7not dodge arrows or'
         - '&7hazards.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Legendary'
@@ -2684,8 +2333,6 @@ Enchantments:
         - '&7armor, which then applies'
         - '&7again.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Legendary'
@@ -2707,8 +2354,6 @@ Enchantments:
         - '&7the attacker up and in the'
         - '&7direction you face.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Legendary'
@@ -2731,8 +2376,6 @@ Enchantments:
         - '&7cancelled and restore'
         - '&7full health.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Legendary'
@@ -2756,10 +2399,6 @@ Enchantments:
         - '&75 seconds. Hitting an entity can leave'
         - '&7a 3x3 patch instead.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
-        - '&7 - &9&l&nRare'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Simple'
@@ -2782,8 +2421,6 @@ Enchantments:
         - '&7nearby allies &cSpeed II&7 for &c10 seconds&7.'
         - '&7The range grows with the level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Unique'
@@ -2805,8 +2442,6 @@ Enchantments:
         - '&cHaste II&7 to their nearby allies for'
         - '&c5 seconds&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Unique'
@@ -2832,8 +2467,6 @@ Enchantments:
         - '&7entities. The direction varies with'
         - '&7where they stand, not always away.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aAxe'
     Categories:
       - 'Elite'
@@ -2860,8 +2493,6 @@ Enchantments:
         - '&7from one random armor piece that'
         - '&7can take damage.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aSwords, Axes'
     Categories:
       - 'Legendary'
@@ -2885,8 +2516,6 @@ Enchantments:
         - '&7Hits have a chance to give your enemy'
         - '&cHunger II&7 for &c10 seconds&7 by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Unique'
@@ -2909,8 +2538,6 @@ Enchantments:
         - '&7Right-clicking a young crop can wear'
         - '&7down the hoe without growing the crop.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aHoe'
     Categories:
       - 'Unique'
@@ -2927,8 +2554,6 @@ Enchantments:
       Description:
         - '&7Currently does not harvest nearby crops.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
         - '&6Enchantable Items: &aHoe'
     Categories:
       - 'Simple'
@@ -2946,8 +2571,6 @@ Enchantments:
         - '&7Right-click soil to till eligible dirt'
         - '&7and grass in a 3x3 area.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
         - '&6Enchantable Items: &aHoe'
     Categories:
       - 'Simple'
@@ -2966,8 +2589,6 @@ Enchantments:
         - '&7plant, or plant while tilling. Uses the'
         - '&7off-hand first, then hotbar left to right.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
         - '&6Enchantable Items: &aHoe'
     Categories:
       - 'Simple'
@@ -2985,8 +2606,6 @@ Enchantments:
         - '&7Worn: Speed, Strength and'
         - '&7Jump Boost.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Elite'
@@ -3007,8 +2626,6 @@ Enchantments:
         - '&7Arrow hits can inflict Poison II'
         - '&7for 5 seconds.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Elite'
@@ -3030,8 +2647,6 @@ Enchantments:
         - '&7by &c1.85%&7 per level on every'
         - '&7worn piece.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Elite'
@@ -3053,8 +2668,6 @@ Enchantments:
         - '&7by &c2%&7 per level on every'
         - '&7worn piece.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -3076,8 +2689,6 @@ Enchantments:
         - '&7by &c1.85%&7 per level on every'
         - '&7worn piece.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -3101,8 +2712,6 @@ Enchantments:
         - '&7by &c1.5%&7 per level on every'
         - '&7worn piece, up to &c25%&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -3124,8 +2733,6 @@ Enchantments:
         - '&7your outgoing hit. At most'
         - '&7one doubling per hit.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Elite'
@@ -3147,8 +2754,6 @@ Enchantments:
         - '&7Blocks Blindness at or below the'
         - '&7highest worn Clarity level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Elite'
@@ -3173,8 +2778,6 @@ Enchantments:
         - '&7Default: 0.4s per level on'
         - '&7the highest worn piece.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -3199,8 +2802,6 @@ Enchantments:
         - '&7At levels IV and V, a prevented tick'
         - '&7heals &c0.5 HP&7, at most once per second.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBoots'
     Categories:
       - 'Ultimate'
@@ -3229,8 +2830,6 @@ Enchantments:
         - '&7Hits from farther away lose the'
         - '&7bonus and deal &c10%&7 less damage.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Ultimate'
@@ -3256,8 +2855,6 @@ Enchantments:
         - '&7per level, and &c5%&7 per level at half'
         - '&7health, by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Ultimate'
@@ -3288,8 +2885,6 @@ Enchantments:
         - '&7melee hit and reflects &c25%&7 (&c35%&7, &c45%&7)'
         - '&7of its damage before defenses by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Ultimate'
@@ -3316,8 +2911,6 @@ Enchantments:
         - '&7strikes your target and the hit deals'
         - '&c1 HP&7 more damage per level by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nCommon'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Simple'
@@ -3345,8 +2938,6 @@ Enchantments:
         - '&7sword enchant bonuses. At most once'
         - '&7per second by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Elite'
@@ -3375,8 +2966,6 @@ Enchantments:
         - '&7the hit and heals &c1 HP&7 (&c2&7, &c2&7, &c3&7)'
         - '&7by level, at most once every &c2 seconds&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Elite'
@@ -3406,8 +2995,6 @@ Enchantments:
         - '&7with damage and is capped; the wear'
         - '&7never breaks a piece.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Ultimate'
@@ -3430,8 +3017,6 @@ Enchantments:
         - '&7to enemies holding a bow or crossbow'
         - '&7by default.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSword'
     Categories:
       - 'Elite'
@@ -3453,8 +3038,6 @@ Enchantments:
         - '&7mobs spawned by spawners. Supported'
         - '&7ranged hits count too.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aWeapons'
     Categories:
       - 'Elite'
@@ -3478,8 +3061,6 @@ Enchantments:
         - '&7to &c1 extra mob&7 per level. Requires'
         - '&7WildStacker.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aSwords'
     Categories:
       - 'Elite'
@@ -3500,8 +3081,6 @@ Enchantments:
         - '&7Has a chance to prevent durability loss'
         - '&7on the held weapon or tool.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aWeapons and Tools'
     Categories:
       - 'Elite'
@@ -3525,8 +3104,6 @@ Enchantments:
         - '&7Covers Mining, Woodcutting, Herbalism,'
         - '&7Excavation and Fishing. Requires mcMMO.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aWeapons and Tools'
     Categories:
       - 'Unique'
@@ -3551,8 +3128,6 @@ Enchantments:
         - '&7Covers Swords, Axes, Archery, Unarmed'
         - '&7and Taming. Requires mcMMO.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aWeapons'
     Categories:
       - 'Unique'
@@ -3569,8 +3144,6 @@ Enchantments:
       Description:
         - '&7Always smelts eligible drops from Detonate.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aPickaxe'
     Categories:
       - 'Ultimate'
@@ -3597,8 +3170,6 @@ Enchantments:
         - '&7Needs EconomyShopGUI or Premium,'
         - '&7plus a Vault-backed economy.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aPickaxe'
     Categories:
       - 'Legendary'
@@ -3619,8 +3190,6 @@ Enchantments:
         - '&7Has a chance to instantly break'
         - '&7plain obsidian.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aPickaxe'
     Categories:
       - 'Unique'
@@ -3646,8 +3215,6 @@ Enchantments:
         - '&7bow and crossbow damage. Higher levels'
         - '&7weaken it more and last longer.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Ultimate'
@@ -3673,8 +3240,6 @@ Enchantments:
         - '&7you for a share of the health it removes.'
         - '&7Default: 20%, up to 3 HP per hit.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Ultimate'
@@ -3699,8 +3264,6 @@ Enchantments:
         - '&7from building Rage. Higher levels'
         - '&7keep them from building it longer.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Ultimate'
@@ -3722,8 +3285,6 @@ Enchantments:
         - '&7with a bow or crossbow in their main'
         - '&7hand. Default: 5% more per level.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Ultimate'
@@ -3748,8 +3309,6 @@ Enchantments:
         - '&7of enemy armor. Longer shots cause'
         - '&7more wear, up to 4 durability per piece.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Ultimate'
@@ -3775,8 +3334,6 @@ Enchantments:
         - '&7nearby enemies. Higher levels make'
         - '&7them burn longer.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Elite'
@@ -3802,8 +3359,6 @@ Enchantments:
         - '&7nearby enemies. Higher levels deal'
         - '&7more blast damage.'
         - ''
-        - '&6Found in:'
-        - '&7 - &a&l&nRare'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Unique'
@@ -3829,8 +3384,6 @@ Enchantments:
         - '&7Higher levels deal more blast damage.'
         - '&7Up to 5 blasts per second per shooter.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Ultimate'
@@ -3860,8 +3413,6 @@ Enchantments:
         - '&7nearly full draw or better (90% by default).'
         - '&7Higher levels deal more headshot damage.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Ultimate'
@@ -3891,8 +3442,6 @@ Enchantments:
         - '&7At least one timed debuff must be active.'
         - '&7Higher levels add more time.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Unique'
@@ -3922,8 +3471,6 @@ Enchantments:
         - '&7teleport you to a safe spot beside them.'
         - '&7Default: 30-block range, 10s cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Elite'
@@ -3957,8 +3504,6 @@ Enchantments:
         - '&7more often at low health.'
         - '&7Default: 40% health or less, 3s cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aBow'
     Categories:
       - 'Elite'
@@ -3976,8 +3521,6 @@ Enchantments:
         - '&7Currently has no effect;'
         - '&7armor can still be removed.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -4006,8 +3549,6 @@ Enchantments:
         - '&7deal 50% less melee damage'
         - '&7by default, before armor.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Elite'
@@ -4039,8 +3580,6 @@ Enchantments:
         - '&7heal 1 HP per 3s when an'
         - '&7explosion hits you.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -4063,8 +3602,6 @@ Enchantments:
         - '&7lose is skipped with &c10%&7 chance per'
         - '&7level, rolled separately for each point.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Elite'
@@ -4093,8 +3630,6 @@ Enchantments:
         - '&7level pushes harder.'
         - '&7Not arrows or hazards.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Unique'
@@ -4118,8 +3653,6 @@ Enchantments:
         - '&7with &c30%&7, &c50%&7, &c70%&7 or &c90%&7 chance at'
         - '&7levels I-IV. Other effects still apply.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aBoots'
     Categories:
       - 'Ultimate'
@@ -4146,8 +3679,6 @@ Enchantments:
         - '&7per second for &a5 seconds&7.'
         - '&7Cannot refresh while already healing.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -4183,8 +3714,6 @@ Enchantments:
         - '&7and X. Default: 1 HP every'
         - '&72s, 30s cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nUltimate'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Ultimate'
@@ -4215,8 +3744,6 @@ Enchantments:
         - '&7for &a1 HP&7 plus &a0.25 HP&7 per level after I.'
         - '&7Does not heal you. Cooldown: &a2 seconds&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aChestplate'
     Categories:
       - 'Elite'
@@ -4240,8 +3767,6 @@ Enchantments:
         - '&7On death, can fully heal allies'
         - '&7within &a8 blocks&7.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aLeggings'
     Categories:
       - 'Unique'
@@ -4270,8 +3795,6 @@ Enchantments:
         - '&7Briefly lingers after'
         - '&7recovery, then re-arms.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aChestplate'
     Categories:
       - 'Unique'
@@ -4305,8 +3828,6 @@ Enchantments:
         - '&7random enemy within &c4 blocks&7 for &c1.5 HP&7.'
         - '&7Enemies only, never you or your allies.'
         - ''
-        - '&6Found in:'
-        - '&7 - &4&l&nLegendary'
         - '&6Enchantable Items: &aHelmet'
     Categories:
       - 'Elite'
@@ -4349,8 +3870,6 @@ Enchantments:
         - '&7re-arms after recovery or'
         - '&7timeout.'
         - ''
-        - '&6Found in:'
-        - '&7 - &9&l&nRare'
         - '&6Enchantable Items: &aLeggings'
     Categories:
       - 'Unique'
@@ -4385,8 +3904,6 @@ Enchantments:
         - '&7per level on players.'
         - '&7Default: 6s, 120s cooldown.'
         - ''
-        - '&6Found in:'
-        - '&7 - &5&l&nMythical'
         - '&6Enchantable Items: &aArmor'
     Categories:
       - 'Legendary'

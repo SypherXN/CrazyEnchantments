@@ -135,9 +135,11 @@ public class CEnchantment {
      * @return This enchantment.
      */
     public CEnchantment applyRarityColour() {
-        final String colour = this.categories.isEmpty() ? null : ColorUtils.firstColour(this.categories.get(0).getName());
+        final String colour = this.categories.isEmpty() ? null : this.categories.get(0).getColour();
 
         if (colour == null) return this;
+
+        setInfoName(colour + "§l" + ColorUtils.stripStringColour(this.infoName));
 
         return setCustomName(colour + ColorUtils.stripStringColour(this.customName));
     }

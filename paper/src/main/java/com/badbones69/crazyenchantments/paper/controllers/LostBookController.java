@@ -22,6 +22,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class LostBookController implements Listener {
 
@@ -67,16 +68,18 @@ public class LostBookController implements Listener {
 
         LostBook lostBook = category.getLostBook();
 
-        this.methods.removeItem(item, player);
-
-        CEBook book = crazyManager.getRandomEnchantmentBook(category);
+        CEBook book = crazyManager.getRandomEnchantmentBook(category, ThreadLocalRandom.current());
 
         if (book == null) {
             player.sendMessage(ColorUtils.getPrefix("&cThe category &6" + category.getName() + " &chas no enchantments assigned to it."));
             return;
         }
 
-        player.getInventory().addItem(book.buildBook());
+        ItemStack revealedBook = book.buildBook();
+        if (revealedBook.isEmpty()) return;
+
+        this.methods.removeItem(item, player);
+        player.getInventory().addItem(revealedBook);
 
         HashMap<String, String> placeholders = new HashMap<>();
 

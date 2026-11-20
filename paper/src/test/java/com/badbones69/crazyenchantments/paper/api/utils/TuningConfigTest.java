@@ -286,6 +286,14 @@ class TuningConfigTest {
     }
 
     @Test
+    void rarityLadderStaysAscendingBecauseLoreOrderDependsOnIt() {
+        // CrazyManager sorts gear lore by indexOf in this list, so the order is
+        // a behaviour, not a cosmetic detail: Legendary must stay last here to
+        // render first on the item.
+        assertEquals(List.of("Simple", "Unique", "Elite", "Ultimate", "Legendary"), TuningConfig.RARITIES);
+    }
+
+    @Test
     void legacyFormatMapsEveryOldNameToItsCosmicTier() {
         for (final Object absent : new Object[]{null, 1, "1"}) {
             final List<String> notice = new ArrayList<>();
@@ -388,9 +396,10 @@ class TuningConfigTest {
 
         for (final Map.Entry<String, Object> entry : enchantments().entrySet()) {
             final Map<?, ?> block = assertInstanceOf(Map.class, entry.getValue(), entry.getKey());
-            assertInstanceOf(Boolean.class, block.get("Enabled"), entry.getKey());
+            assertEquals(Boolean.TRUE, block.get("Enabled"), entry.getKey() + " must be obtainable");
             assertInstanceOf(String.class, block.get("Name"), entry.getKey());
-            assertInstanceOf(Number.class, block.get("MaxPower"), entry.getKey());
+            assertTrue(assertInstanceOf(Integer.class, block.get("MaxPower"), entry.getKey()) > 0,
+                    entry.getKey() + " must have at least one rollable level");
 
             final Object rarity = block.get("Rarity");
             assertTrue(rarity instanceof String, entry.getKey() + " has no Rarity");

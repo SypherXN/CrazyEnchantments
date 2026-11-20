@@ -10,12 +10,16 @@ import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import org.bukkit.entity.Player;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BaseMenu extends InventoryBuilder {
 
@@ -31,8 +35,19 @@ public class BaseMenu extends InventoryBuilder {
 
     @Override
     public InventoryBuilder build() {
-        if (getEnchantmentType() != null) {
-            List<CEnchantment> enchantments = getEnchantmentType().getEnchantments();
+        final EnchantmentType page = getEnchantmentType();
+
+        if (page != null) {
+            final List<Material> materials = page.getEnchantableMaterials();
+            final Set<CEnchantment> enchantments = new LinkedHashSet<>();
+
+            // Match on the materials a page covers, so a Sword-and-Axe enchant
+            // shows up on both the Sword page and the Axe page.
+            for (EnchantmentType type : MenuManager.getEnchantmentTypes()) {
+                if (Collections.disjoint(type.getEnchantableMaterials(), materials)) continue;
+
+                enchantments.addAll(type.getEnchantments());
+            }
 
             ItemBuilder book = this.bookSettings.getNormalBook().setGlow(true);
 
@@ -44,7 +59,8 @@ public class BaseMenu extends InventoryBuilder {
 
             getInventory().setItem(getSize() - 1, KitsManager.getBackRight());
         } else {
-            MenuManager.getEnchantmentTypes().forEach(key -> getInventory().setItem(key.getSlot(), key.getDisplayItem()));
+            MenuManager.getEnchantmentTypes().stream().filter(EnchantmentType::isInMenu)
+                    .forEach(key -> getInventory().setItem(key.getSlot(), key.getDisplayItem()));
         }
 
         return this;
@@ -73,6 +89,8 @@ public class BaseMenu extends InventoryBuilder {
             }
 
             for (EnchantmentType enchantmentType : MenuManager.getEnchantmentTypes()) {
+                if (!enchantmentType.isInMenu()) continue;
+
                 if (itemStack.isSimilar(enchantmentType.getDisplayItem())) {
                     MenuManager.openInfoMenu(player, enchantmentType);
 
