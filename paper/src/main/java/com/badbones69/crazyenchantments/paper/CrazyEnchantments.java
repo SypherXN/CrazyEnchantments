@@ -230,6 +230,8 @@ public class CrazyEnchantments extends JavaPlugin {
 
             this.bossBarController.removeAllBossBars();
 
+            if (this.starter.getNameTagListener() != null) this.starter.getNameTagListener().clearAll();
+
             BleedSystem.shutdown();
 
             if (this.armorEnchantments != null) this.armorEnchantments.stop();

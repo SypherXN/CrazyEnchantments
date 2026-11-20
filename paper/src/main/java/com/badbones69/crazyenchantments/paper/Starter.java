@@ -15,6 +15,7 @@ import com.badbones69.crazyenchantments.paper.api.utils.BowUtils;
 import com.badbones69.crazyenchantments.paper.controllers.EnchantmentControl;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import com.badbones69.crazyenchantments.paper.controllers.settings.ProtectionCrystalSettings;
+import com.badbones69.crazyenchantments.paper.listeners.NameTagListener;
 import com.badbones69.crazyenchantments.paper.listeners.ScramblerListener;
 import com.badbones69.crazyenchantments.paper.listeners.ScrollListener;
 import com.badbones69.crazyenchantments.paper.listeners.SlotCrystalListener;
@@ -54,6 +55,7 @@ public class Starter {
     private ScramblerListener scramblerListener;
     private ScrollListener scrollListener;
     private SlotCrystalListener slotCrystalListener;
+    private NameTagListener nameTagListener;
 
 
     public void run() {
@@ -84,6 +86,7 @@ public class Starter {
         this.plugin.pluginManager.registerEvents(this.scramblerListener = new ScramblerListener(), this.plugin);
         this.plugin.pluginManager.registerEvents(this.scrollListener = new ScrollListener(), this.plugin);
         this.plugin.pluginManager.registerEvents(this.slotCrystalListener = new SlotCrystalListener(), this.plugin);
+        this.plugin.pluginManager.registerEvents(this.nameTagListener = new NameTagListener(), this.plugin);
 
         this.crazyManager = new CrazyManager();
 
@@ -156,6 +159,10 @@ public class Starter {
 
     public SlotCrystalListener getSlotCrystalListener() {
         return this.slotCrystalListener;
+    }
+
+    public NameTagListener getNameTagListener() {
+        return this.nameTagListener;
     }
 
     // Plugin Utils.

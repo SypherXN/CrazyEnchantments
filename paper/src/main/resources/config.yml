@@ -368,7 +368,7 @@ Settings:
     Amount-of-Enchantments: ' &7[&6&n%amount%&7]' #The suffix that will be added at the end of the item's name.
     Amount-Toggle: true #If the amount is added to the suffix of the item's name.
     Count-Vanilla-Enchantments: true #If it counts the vanilla enchantments in the amount.
-    Lore-Order: #The order in which you want the lore sections to be applied to the item when using the transmog scroll.
+    Lore-Order: #The order in which you want the lore sections to be applied to the item when using the transmog scroll. Unknown names are ignored and a section left out is added at the end.
       - 'CE_Enchantments'
       - 'Protection'
       - 'Normal_Lore'

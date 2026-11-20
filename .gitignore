@@ -19,3 +19,4 @@ opencode-usage.json
 /enchants-dump2.txt
 # Third-party Factions build dependency; no redistribution rights, supply it locally.
 /libs/
+*.log

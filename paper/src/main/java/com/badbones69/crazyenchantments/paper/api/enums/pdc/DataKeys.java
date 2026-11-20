@@ -21,6 +21,7 @@ public enum DataKeys {
     experience("Experience", PersistentDataType.STRING),
     limit_reducer("Limit_Reducer", PersistentDataType.INTEGER),
     slot_crystal("Slot_Crystal", PersistentDataType.BOOLEAN),
+    name_tag("Name_Tag", PersistentDataType.STRING),
     gkit_type("gkit", PersistentDataType.STRING),
     random_number("random_number", PersistentDataType.STRING),
 

@@ -15,6 +15,7 @@ import com.badbones69.crazyenchantments.paper.api.objects.LostBook;
 import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.EnchantUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.LoreLines;
 import com.badbones69.crazyenchantments.paper.api.utils.NumberUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.RegistrySnapshot;
 import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
@@ -385,7 +386,7 @@ public class EnchantmentBookSettings {
     public static boolean matchesLore(final Component line, final CEnchantment enchant, final Enchant stored) {
         final String plain = ColorUtils.toPlainText(line);
 
-        if (plain.contains(ColorUtils.stripStringColour(enchant.getCustomName()))) return true;
+        if (LoreLines.isEnchantLine(plain, ColorUtils.stripStringColour(enchant.getCustomName()))) return true;
 
         return SNIPER_ID.equals(enchant.getName()) && isLegacySniperLine(plain, stored.getLevel(SNIPER_ID));
     }

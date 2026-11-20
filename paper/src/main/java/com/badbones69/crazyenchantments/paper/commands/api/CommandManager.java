@@ -17,6 +17,7 @@ import com.badbones69.crazyenchantments.paper.commands.types.admin.BottleCommand
 import com.badbones69.crazyenchantments.paper.commands.types.admin.DustCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.EnchantCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.LostBookCommand;
+import com.badbones69.crazyenchantments.paper.commands.types.admin.NameTagCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.ReloadCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.ScrollCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.crystal.CrystalCommand;
@@ -275,6 +276,7 @@ public class CommandManager {
 
                 new LostBookCommand(),
                 new ScrollCommand(),
+                new NameTagCommand(),
 
                 new BookCommand(),
 

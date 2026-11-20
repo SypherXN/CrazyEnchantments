@@ -11,8 +11,10 @@ import com.badbones69.crazyenchantments.paper.api.enums.pdc.DataKeys;
 import com.badbones69.crazyenchantments.paper.api.enums.pdc.Enchant;
 import com.badbones69.crazyenchantments.paper.api.objects.CEBook;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
+import com.badbones69.crazyenchantments.paper.api.objects.Category;
 import com.badbones69.crazyenchantments.paper.api.objects.enchants.EnchantmentType;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.LoreLines;
 import com.badbones69.crazyenchantments.paper.api.utils.NumberUtils;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
 import com.badbones69.crazyenchantments.paper.controllers.settings.ProtectionCrystalSettings;
@@ -78,6 +80,10 @@ public class ScrollListener implements Listener {
         if (type == null) return;
 
         if (scroll.getAmount() > 1) {
+            // A stacked transmog scroll is still a scroll-on-target gesture, so
+            // cancel rather than let the vanilla click swap it with the item.
+            if (type == Scrolls.TRANSMOG_SCROLL) event.setCancelled(true);
+
             player.sendMessage(Messages.NEED_TO_UNSTACK_ITEM.getMessage());
             return;
         }
@@ -117,14 +123,25 @@ public class ScrollListener implements Listener {
             }
 
             case "TransmogScroll" -> {
-                if (this.enchantmentBookSettings.getEnchantments(item).isEmpty()) return;
-                if (item.lore() == null) return;
+                // Dropping the scroll on an item is the intended gesture whether
+                // or not it can act; cancel the vanilla swap either way and say
+                // why, so a no-op never trades the scroll for the item.
+                event.setCancelled(true);
+
+                if (this.enchantmentBookSettings.getEnchantments(item).isEmpty()) {
+                    player.sendMessage(ColorUtils.legacyTranslateColourCodes("&7This item has no enchantments to organize."));
+
+                    return;
+                }
 
                 ItemStack orderedItem = newOrderNewEnchantments(item.clone());
 
-                if (item.isSimilar(orderedItem)) return;
+                if (item.isSimilar(orderedItem)) {
+                    player.sendMessage(ColorUtils.legacyTranslateColourCodes("&7This item is already organized."));
 
-                event.setCancelled(true);
+                    return;
+                }
+
                 event.setCurrentItem(orderedItem);
                 player.setItemOnCursor(this.methods.removeItem(scroll));
             }
@@ -176,69 +193,81 @@ public class ScrollListener implements Listener {
 
         final Enchant data = Methods.getGson().fromJson(container.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING), Enchant.class);
 
-        final boolean addSpaces = configuration.getBoolean("Settings.TransmogScroll.Add-Blank-Lines", true);
+        if (data == null) return item; // Only order if it has CE_Enchants
+
+        final Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(item);
+
+        if (enchantments.isEmpty()) return item;
 
         final List<CEnchantment> newEnchantmentOrder = new ArrayList<>();
 
-        final Map<CEnchantment, Integer> enchantments = new HashMap<>();
-
-        List<String> order = configuration.getStringList("Settings.TransmogScroll.Lore-Order");
-
-        if (order.isEmpty()) order = Arrays.asList("CE_Enchantments", "Protection", "Normal_Lore");
-
-        if (data == null) return item; // Only order if it has CE_Enchants
-
         for (final CEnchantment enchantment : this.enchantmentBookSettings.getRegisteredEnchantments()) {
-            if (!data.hasEnchantment(enchantment.getName())) continue;
-
-            enchantments.put(enchantment,ColorUtils.stripStringColour((enchantment.getCustomName() + " " + NumberUtils.toRoman(data.getLevel(enchantment.getName())))).length());
-
-            newEnchantmentOrder.add(enchantment);
+            if (enchantments.containsKey(enchantment)) newEnchantmentOrder.add(enchantment);
         }
 
-        orderInts(newEnchantmentOrder, enchantments); // Order Enchantments by length.
+        orderByRarity(newEnchantmentOrder);
 
-        List<Component> enchantLore = newEnchantmentOrder.stream().map(i ->
-                ColorUtils.legacyTranslateColourCodes("%s %s".formatted(i.getCustomName(), NumberUtils.toRoman(data.getLevel(i.getName()))))).collect(Collectors.toList());
+        final List<Component> enchantLore = newEnchantmentOrder.stream().map(enchantment ->
+                ColorUtils.legacyTranslateColourCodes("%s %s".formatted(enchantment.getCustomName(), NumberUtils.convertLevelString(enchantments.get(enchantment))))).collect(Collectors.toList());
 
-        List<Component> normalLore = stripNonNormalLore(lore == null ? new ArrayList<>() : lore, newEnchantmentOrder, data);
+        final List<Component> normalLore = stripNonNormalLore(lore, newEnchantmentOrder, data, container);
 
-        List<Component> protectionLore = getAllProtectionLore(container);
+        final List<Component> protectionLore = getAllProtectionLore(container);
 
-        List<Component> newLore = new ArrayList<>();
+        final List<Component> newLore = new ArrayList<>();
+
+        final boolean addSpaces = configuration.getBoolean("Settings.TransmogScroll.Add-Blank-Lines", true);
 
         boolean wasEmpty = true;
 
-        for (String selection : order) {
-            switch (selection) {
-                case "CE_Enchantments" -> {
-                    if (addSpaces && !wasEmpty && !enchantLore.isEmpty()) newLore.add(Component.text(""));
-                    newLore.addAll(enchantLore);
+        for (String selection : LoreLines.sectionOrder(configuration.getStringList("Settings.TransmogScroll.Lore-Order"))) {
+            final List<Component> sectionLore = switch (selection) {
+                case "CE_Enchantments" -> enchantLore;
+                case "Protection" -> protectionLore;
+                case "Normal_Lore" -> normalLore;
+                default -> List.of();
+            };
 
-                    wasEmpty = enchantLore.isEmpty();
-                }
+            if (addSpaces && !wasEmpty && !sectionLore.isEmpty()) newLore.add(Component.text(""));
 
-                case "Protection" -> {
-                    if (addSpaces && !wasEmpty && !protectionLore.isEmpty()) newLore.add(Component.text(""));
-                    newLore.addAll(protectionLore);
+            newLore.addAll(sectionLore);
 
-                    wasEmpty = protectionLore.isEmpty();
-                }
-
-                case "Normal_Lore" -> {
-                    if (addSpaces && !wasEmpty && !normalLore.isEmpty()) newLore.add(Component.text(""));
-                    newLore.addAll(normalLore);
-
-                    wasEmpty = normalLore.isEmpty();
-                }
-            }
+            wasEmpty = sectionLore.isEmpty();
         }
 
-        useSuffix(item, newEnchantmentOrder);
+        useSuffix(item, newEnchantmentOrder.size());
 
         item.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(newLore).build());
 
         return item;
+    }
+
+    /**
+     * The scroll's whole job: highest rarity first, so Legendary sits above
+     * Simple. The order comes from each category's configured {@code Rarity},
+     * and enchants of equal rarity keep the registry's order.
+     *
+     * @param enchantments The enchantments on the item, edited in place.
+     */
+    private static void orderByRarity(final List<CEnchantment> enchantments) {
+        final Map<String, Integer> rarity = new HashMap<>();
+        final Map<String, CEnchantment> byName = new LinkedHashMap<>();
+
+        for (final CEnchantment enchantment : enchantments) {
+            int highest = Integer.MIN_VALUE;
+
+            for (final Category category : enchantment.getCategories()) highest = Math.max(highest, category.getRarity());
+
+            rarity.put(enchantment.getName(), highest);
+            byName.put(enchantment.getName(), enchantment);
+        }
+
+        final List<CEnchantment> ordered = new ArrayList<>();
+
+        for (final String name : LoreLines.highestRarityFirst(new ArrayList<>(byName.keySet()), rarity)) ordered.add(byName.get(name));
+
+        enchantments.clear();
+        enchantments.addAll(ordered);
     }
 
     private List<Component> getAllProtectionLore(@NotNull PersistentDataContainerView container) {
@@ -252,7 +281,9 @@ public class ScrollListener implements Listener {
         return lore;
     }
 
-    private List<Component> stripNonNormalLore(List<Component> lore, List<CEnchantment> enchantments, Enchant stored) {
+    private List<Component> stripNonNormalLore(final List<Component> source, final List<CEnchantment> enchantments, final Enchant stored, @NotNull final PersistentDataContainerView container) {
+        final List<Component> lore = new ArrayList<>(source == null ? List.of() : source);
+
         // Remove blank lines
         lore.removeIf(loreComponent -> ColorUtils.toPlainText(loreComponent).replaceAll(" ", "").isEmpty());
 
@@ -261,47 +292,43 @@ public class ScrollListener implements Listener {
                 EnchantmentBookSettings.matchesLore(loreComponent, enchant, stored)
         ));
 
-        // Remove white-scroll protection lore
-        lore.removeIf(loreComponent -> ColorUtils.toPlainText(loreComponent).contains(ColorUtils.stripStringColour(Scrolls.getWhiteScrollProtectionName())));
+        // Only the protection line the item actually carries is ours to move;
+        // ordinary lore that happens to read the same is left where it is.
+        if (Scrolls.hasWhiteScrollProtection(container)) {
+            final String whiteScrollName = ColorUtils.stripStringColour(FileKeys.CONFIG.getConfiguration().getString("Settings.WhiteScroll.ProtectedName", "&b&lPROTECTED"));
 
-        // Remove Protection-crystal protection lore
-        lore.removeIf(loreComponent -> ColorUtils.toPlainText(loreComponent).contains(
-                ColorUtils.stripStringColour(FileKeys.CONFIG.getConfiguration().getString("Settings.ProtectionCrystal.Protected", "&6Ancient Protection"))
-        ));
+            lore.removeIf(loreComponent -> LoreLines.isMarkerLine(ColorUtils.toPlainText(loreComponent), whiteScrollName));
+        }
+
+        if (ProtectionCrystalSettings.isProtected(container)) {
+            final String protectionName = ColorUtils.stripStringColour(FileKeys.CONFIG.getConfiguration().getString("Settings.ProtectionCrystal.Protected", "&6Ancient Protection"));
+
+            lore.removeIf(loreComponent -> LoreLines.isMarkerLine(ColorUtils.toPlainText(loreComponent), protectionName));
+        }
 
         return lore;
     }
 
-    private void useSuffix(final ItemStack item, final List<CEnchantment> newEnchantmentOrder) {
-        if (this.useSuffix) {
-            final boolean hasName = item.hasData(DataComponentTypes.ITEM_NAME);
+    private void useSuffix(final ItemStack item, final int enchantmentAmount) {
+        if (!this.useSuffix) return;
 
-            String newName = hasName ? ColorUtils.toLegacy(item.getData(DataComponentTypes.ITEM_NAME)) :
-                    "&b" + WordUtils.capitalizeFully(item.getType().toString().replace("_", " "));
+        final String amount = String.valueOf(this.countVanillaEnchantments ? enchantmentAmount + item.getEnchantments().size() : enchantmentAmount);
 
-            if (hasName) {
-                for (int i = 0; i <= 100; i++) {
-                    String suffixWithAmount = this.suffix.replace("%Amount%", String.valueOf(i)).replace("%amount%", String.valueOf(i));
+        // CUSTOM_NAME is an anvil rename and outranks ITEM_NAME, so the count is
+        // written where the player actually sees it; with neither, name the item
+        // from its material. Nothing else on the item is touched.
+        final boolean hasCustomName = item.hasData(DataComponentTypes.CUSTOM_NAME);
 
-                    if (!newName.endsWith(suffixWithAmount)) continue;
+        final Component current = hasCustomName ? item.getData(DataComponentTypes.CUSTOM_NAME) : item.getData(DataComponentTypes.ITEM_NAME);
 
-                    newName = newName.substring(0, newName.length() - suffixWithAmount.length());
+        final String base = current != null ? ColorUtils.toLegacy(current) : "&b" + WordUtils.capitalizeFully(item.getType().toString().replace("_", " "));
 
-                    break;
-                }
-            }
+        final String suffix = LoreLines.renderedSuffix(this.suffix, amount);
+        final String stripped = LoreLines.withoutSuffix(base, this.suffix);
 
-            String amount = String.valueOf(this.countVanillaEnchantments ? newEnchantmentOrder.size() + item.getEnchantments().size() : newEnchantmentOrder.size());
+        // The name already shows this count, so leave it (and the scroll) alone.
+        if ((stripped + suffix).equals(base)) return;
 
-            item.setData(DataComponentTypes.ITEM_NAME, ColorUtils.legacyTranslateColourCodes(newName + this.suffix.replace("%Amount%", amount).replace("%amount%", amount)));
-        }
-    }
-
-    private void orderInts(List<CEnchantment> list, final Map<CEnchantment, Integer> map) {
-        list.sort((a1, a2) -> {
-            Integer string1 = map.get(a1);
-            Integer string2 = map.get(a2);
-            return string2.compareTo(string1);
-        });
+        item.setData(hasCustomName ? DataComponentTypes.CUSTOM_NAME : DataComponentTypes.ITEM_NAME, ColorUtils.legacyTranslateColourCodes(stripped + suffix));
     }
 }

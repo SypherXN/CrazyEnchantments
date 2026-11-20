@@ -25,6 +25,7 @@ import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
 import com.badbones69.crazyenchantments.paper.api.bleed.BleedSystem;
 import com.badbones69.crazyenchantments.paper.api.utils.AttributeUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.LoreLines;
 import com.badbones69.crazyenchantments.paper.api.utils.MetaphysicalSettings;
 import com.badbones69.crazyenchantments.paper.api.utils.NumberUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.TuningConfig;
@@ -58,7 +59,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -682,61 +682,41 @@ public class CrazyManager {
     }
 
     /**
+     * Adds enchantments without reordering the item. An enchant already on the
+     * item keeps its line where the player left it and a new enchant joins the
+     * enchant block; only the transmog scroll sorts anything.
+     *
      * @param itemStack The meta you want to add the enchantment to.
      * @param enchantments The enchantments to be added.
      */
     public void addEnchantments(final ItemStack itemStack, final Map<CEnchantment, Integer> enchantments) {
-        final Map<CEnchantment, Integer> currentEnchantments = this.enchantmentBookSettings.getEnchantments(itemStack);
-
-        this.enchantmentBookSettings.removeEnchantments(itemStack, enchantments.keySet().stream().filter(currentEnchantments::containsKey).toList());
-
         String data = itemStack.getPersistentDataContainer().get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING);
         final Enchant enchantData = data != null ? Methods.getGson().fromJson(data, Enchant.class) : new Enchant(new HashMap<>());
 
-        final List<Component> lore = itemStack.lore();
+        final List<Component> lore = new ArrayList<>(itemStack.lore() != null ? itemStack.lore() : List.of());
 
-        final List<Component> oldLore = lore != null ? lore : new ArrayList<>();
-        List<Component> newLore = new ArrayList<>();
+        final List<CEnchantment> known = new ArrayList<>(this.enchantmentBookSettings.getEnchantments(itemStack).keySet());
 
-        final List<Entry<CEnchantment, Integer>> sorted = new ArrayList<>(enchantments.entrySet());
+        known.addAll(enchantments.keySet());
 
-        // Highest tier first, so Legendary sits above Simple.
-        sorted.sort(Comparator.comparingInt((Entry<CEnchantment, Integer> entry) -> rarityRank(entry.getKey())).reversed());
+        final List<Component> additions = new ArrayList<>();
 
-        for (Entry<CEnchantment, Integer> entry : sorted) {
+        for (Entry<CEnchantment, Integer> entry : enchantments.entrySet()) {
             CEnchantment enchantment = entry.getKey();
             int level = entry.getValue();
 
-            String loreString = enchantment.getCustomName() + " " + NumberUtils.convertLevelString(level);
+            final Component line = ColorUtils.legacyTranslateColourCodes(enchantment.getCustomName() + " " + NumberUtils.convertLevelString(level));
 
-            newLore.add(ColorUtils.legacyTranslateColourCodes(loreString));
+            if (!LoreLines.replaceFirst(lore, old -> EnchantmentBookSettings.matchesLore(old, enchantment, enchantData), line)) additions.add(line);
 
-            for (Entry<CEnchantment, Integer> x : enchantments.entrySet()) {
-                enchantData.addEnchantment(x.getKey().getName(), x.getValue());
-            }
+            enchantData.addEnchantment(enchantment.getName(), level);
         }
 
-        // Vanilla enchantment lore stays on top; ours go underneath it.
-        oldLore.addAll(newLore);
+        LoreLines.insertAfterLastEnchant(lore, line -> known.stream().anyMatch(enchantment -> EnchantmentBookSettings.matchesLore(line, enchantment, enchantData)), additions);
 
-        itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(oldLore).build());
+        itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(lore).build());
 
         itemStack.editPersistentDataContainer(container -> container.set(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING, Methods.getGson().toJson(enchantData)));
-    }
-
-    /**
-     * Position of an enchant's tier in the rarity ladder, so lore can be ordered
-     * by tier. Unknown or missing tiers rank below every known one.
-     *
-     * @param enchantment The enchantment to rank.
-     * @return The tier index, or -1 when it has no known tier.
-     */
-    private static int rarityRank(final CEnchantment enchantment) {
-        final List<Category> categories = enchantment.getCategories();
-
-        if (categories.isEmpty()) return -1;
-
-        return Math.max(-1, TuningConfig.RARITIES.indexOf(categories.get(0).getIdentity()));
     }
 
     /**

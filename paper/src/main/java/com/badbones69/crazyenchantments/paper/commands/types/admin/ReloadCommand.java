@@ -27,6 +27,8 @@ public class ReloadCommand extends EnchantCommand {
 
         this.platform.reload();
 
+        if (this.starter.getNameTagListener() != null) this.starter.getNameTagListener().clearAll();
+
         MenuManager.load(); // Load crazyManager after as it will set the enchants in each category.
 
         this.crazyManager.load();
