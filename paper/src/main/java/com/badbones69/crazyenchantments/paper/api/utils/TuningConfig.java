@@ -412,6 +412,7 @@ public final class TuningConfig {
                 config.getDouble("CosmicEnchants.Tank.Reduction-Per-Level-PP", damageModifierDefaults.tankReductionPerLevelPp()),
                 config.getDouble("CosmicEnchants.Marksman.Bonus-Per-Level-PP", damageModifierDefaults.marksmanBonusPerLevelPp()),
                 config.getDouble("CosmicEnchants.Marksman.Bonus-Cap-PP", damageModifierDefaults.marksmanBonusCapPp()),
+                config.getDouble("CosmicEnchants.DamageModifiers.Strength-Damage-Per-Level", damageModifierDefaults.strengthDamagePerLevel()),
                 warn
         );
 

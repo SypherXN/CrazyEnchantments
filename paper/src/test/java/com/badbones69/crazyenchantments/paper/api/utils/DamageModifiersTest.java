@@ -102,14 +102,14 @@ class DamageModifiersTest {
         assertEquals(25.0, DamageModifiers.sumPP(25.0, 6.0, 6.0, 6.0, 6.0, 6.0), 1e-9);
 
         assertEquals(1.24, DamageModifiers.outgoingMultiplier(24.0), 1e-9);
-        assertEquals(2.48, DamageModifiers.multiply(DamageModifiers.outgoingMultiplier(24.0), DamageModifiers.deathbringerMultiplier(1)), 1e-9);
+        assertEquals(1.86, DamageModifiers.multiply(DamageModifiers.outgoingMultiplier(24.0), DamageModifiers.deathbringerMultiplier(1)), 1e-9);
     }
 
     @Test
     void deathbringerProcsNeverCompound() {
         assertEquals(1.0, DamageModifiers.deathbringerMultiplier(0), 1e-9);
-        assertEquals(2.0, DamageModifiers.deathbringerMultiplier(1), 1e-9);
-        assertEquals(2.0, DamageModifiers.deathbringerMultiplier(4), 1e-9);
+        assertEquals(1.5, DamageModifiers.deathbringerMultiplier(1), 1e-9);
+        assertEquals(1.5, DamageModifiers.deathbringerMultiplier(4), 1e-9);
     }
 
     @Test
@@ -119,12 +119,15 @@ class DamageModifiersTest {
                 DamageModifiers.deathbringerMultiplier(3)
         );
 
-        assertEquals(2.5, multiplier, 1e-9);
-        assertEquals(25.0, DamageModifiers.capBonus(10.0, multiplier, 20.0), 1e-9);
+        assertEquals(1.875, multiplier, 1e-9);
+        assertEquals(18.75, DamageModifiers.capBonus(10.0, multiplier, 20.0), 1e-9);
 
-        // Reduction takes 40 to 20 before the bonus is capped at +20.
+        // The +20 cap still bites on a big enough hit.
+        assertEquals(60.0, DamageModifiers.capBonus(40.0, multiplier, 20.0), 1e-9);
+
+        // Reduction takes 40 to 20 before the multiplier applies.
         final double reduced = DamageModifiers.reduceOnce(40.0, 50.0);
-        assertEquals(40.0, DamageModifiers.capBonus(reduced, multiplier, 20.0), 1e-9);
+        assertEquals(37.5, DamageModifiers.capBonus(reduced, multiplier, 20.0), 1e-9);
     }
 
     @Test

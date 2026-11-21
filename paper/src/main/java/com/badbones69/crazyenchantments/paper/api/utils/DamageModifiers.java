@@ -148,7 +148,7 @@ public final class DamageModifiers {
      * and extra procs on the same hit never compound.
      */
     public static double deathbringerMultiplier(final int procs) {
-        return procs > 0 ? 2.0 : 1.0;
+        return procs > 0 ? 1.5 : 1.0;
     }
 
     /**
@@ -187,6 +187,20 @@ public final class DamageModifiers {
         final double boosted = damage * Math.max(1.0, multiplier);
 
         return Math.min(boosted, damage + Math.max(0.0, bonusCapHp));
+    }
+
+    /**
+     * Vanilla Strength adds 3 HP per level to melee damage. Returns the hit with
+     * the excess over {@code perLevel} removed, clamped at zero, so a per-level
+     * value of 1 takes 6 off a level III hit. A {@code perLevel} outside
+     * {@code [0, 3]} falls back to the shipped 1.
+     */
+    public static double strengthDamage(final double damage, final int level, final double perLevel) {
+        if (!(damage > 0.0) || level <= 0) return damage;
+
+        final double configured = perLevel >= 0.0 && perLevel <= 3.0 ? perLevel : 1.0;
+
+        return Math.max(0.0, damage - (3.0 - configured) * level);
     }
 
     /**

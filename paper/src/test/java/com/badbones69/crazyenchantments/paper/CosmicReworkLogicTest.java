@@ -123,13 +123,15 @@ class CosmicReworkLogicTest {
         final long second = 1_000_000_000L;
 
         assertTrue(rocket.ready(null, 0L, 1), "no previous launch");
-        assertFalse(rocket.ready(0L, 19L * second, 1));
-        assertTrue(rocket.ready(0L, 20L * second, 1), "elapsed == cooldown is allowed again");
-        assertFalse(rocket.ready(0L, 14L * second, 2));
-        assertTrue(rocket.ready(0L, 15L * second, 2));
-        assertTrue(rocket.ready(0L, 10L * second, 3));
-        assertEquals(0.9, rocket.velocity(1));
-        assertEquals(1.1, rocket.velocity(3));
+        assertFalse(rocket.ready(0L, 29L * second, 1));
+        assertTrue(rocket.ready(0L, 30L * second, 1), "elapsed == cooldown is allowed again");
+        assertFalse(rocket.ready(0L, 24L * second, 2));
+        assertTrue(rocket.ready(0L, 25L * second, 2));
+        assertFalse(rocket.ready(0L, 19L * second, 3));
+        assertTrue(rocket.ready(0L, 20L * second, 3));
+        assertEquals(3.6, rocket.velocity(1));
+        assertEquals(4.0, rocket.velocity(2));
+        assertEquals(4.4, rocket.velocity(3));
     }
 
     // ---------------------------------------------------------------------------------------------

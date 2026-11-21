@@ -31,6 +31,7 @@ import com.badbones69.crazyenchantments.paper.support.SupportUtils;
 import com.ryderbelserion.fusion.core.api.enums.Level;
 import com.ryderbelserion.fusion.paper.FusionPaper;
 import com.ryderbelserion.fusion.paper.builders.folia.FoliaScheduler;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -636,16 +637,12 @@ public class SwordEnchantments implements Listener {
         if (this.crazyManager.useRageBossBar()) {
             this.bossBarController.updateBossBar(player, message.getMessageNoPrefix(placeholders), progress);
         } else {
-            player.sendMessage(message.getMessage(placeholders));
+            // Action bar instead of chat: rage fires on every hit, so chat would flood.
+            player.sendActionBar(LegacyComponentSerializer.legacySection().deserialize(message.getMessageNoPrefix(placeholders)));
         }
     }
-    private void rageInformPlayer(Player player, Messages message, float progress) {
-        if (message.getMessageNoPrefix().isBlank()) return;
 
-        if (this.crazyManager.useRageBossBar()) {
-            this.bossBarController.updateBossBar(player, message.getMessageNoPrefix(), progress);
-        } else {
-            player.sendMessage(message.getMessage());
-        }
+    private void rageInformPlayer(Player player, Messages message, float progress) {
+        rageInformPlayer(player, message, Map.of(), progress);
     }
 }

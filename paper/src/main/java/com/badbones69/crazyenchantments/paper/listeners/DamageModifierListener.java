@@ -28,6 +28,8 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -57,6 +59,24 @@ public class DamageModifierListener implements Listener {
 
     @NotNull
     private final EnchantmentBookSettings enchantmentBookSettings = this.starter.getEnchantmentBookSettings();
+
+    // Strength's vanilla +3 per level is already in the event damage, so trim the excess
+    // at NORMAL: HIGHEST's multipliers (Rage, Marksman, Deathbringer) then scale the
+    // reduced value, exactly as they would scale a hit from an unenchanted attacker.
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onStrengthDamage(final EntityDamageByEntityEvent event) {
+        if (SyntheticHit.isBleedTick() || EventUtils.isIgnoredEvent(event)) return;
+
+        // Vanilla Strength raises melee damage only, so a player's own hit is the only case.
+        if (!(event.getDamager() instanceof Player attacker)) return;
+        if (!Bukkit.isOwnedByCurrentRegion(attacker)) return;
+
+        final PotionEffect strength = attacker.getPotionEffect(PotionEffectType.STRENGTH);
+        if (strength == null) return;
+
+        event.setDamage(DamageModifiers.strengthDamage(event.getDamage(), strength.getAmplifier() + 1,
+                TuningConfig.damageModifiers().strengthDamagePerLevel()));
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageByEntityEvent event) {

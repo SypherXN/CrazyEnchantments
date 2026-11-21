@@ -888,6 +888,7 @@ public class CrazyManager {
         enchants.get(CEnchantments.INSOMNIA).put(PotionEffectType.MINING_FATIGUE, -1);
         enchants.get(CEnchantments.INSOMNIA).put(PotionEffectType.SLOWNESS, -1);
 
+        // Jump Boost I is amplifier 0: Anti Gravity I starts at Jump Boost III.
         enchants.put(CEnchantments.ANTIGRAVITY, new HashMap<>());
         enchants.get(CEnchantments.ANTIGRAVITY).put(PotionEffectType.JUMP_BOOST, 1);
 

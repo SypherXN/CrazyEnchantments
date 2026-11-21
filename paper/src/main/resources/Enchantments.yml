@@ -447,8 +447,8 @@ Enchantments:
     Info:
       Name: '&e&lAnti Gravity &7(&bI-&bIII&7)'
       Description:
-        - '&7Jump Boost equal to the'
-        - '&7level while worn.'
+        - '&7Grants Jump Boost III, IV, or V'
+        - '&7while worn, depending on rank.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -1751,10 +1751,10 @@ Enchantments:
       # DOC Cosmic's Rocket Escape blasts the wearer upward at low HP (max III). Always-on (no chance system).
       # FORK Being hit at or below this percent of max health launches the wearer.
       Trigger-PP: 30.0
-      # FORK Upward velocity at levels I-III (about 4 to 6 blocks of height).
-      Velocity: [0.9, 1.0, 1.1]
+      # FORK Upward velocity at levels I-III.
+      Velocity: [3.6, 4.0, 4.4]
       # FORK Seconds before the same wearer can launch again, at levels I-III. Starts when a launch is accepted.
-      Cooldown-Seconds: [20.0, 15.0, 10.0]
+      Cooldown-Seconds: [30.0, 25.0, 20.0]
     Sound: "ENTITY_PLAYER_LEVELUP"
     Name: '&7Rocket Escape'
     MaxPower: 3
@@ -2729,9 +2729,9 @@ Enchantments:
     Info:
       Name: '&e&lDeathbringer &7(&bI-&bIII&7)'
       Description:
-        - '&7Each worn piece can double'
-        - '&7your outgoing hit. At most'
-        - '&7one doubling per hit.'
+        - '&7Each worn piece can boost'
+        - '&7your outgoing hit by 50%.'
+        - '&7At most one boost per hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:

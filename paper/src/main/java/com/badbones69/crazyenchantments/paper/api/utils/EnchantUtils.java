@@ -71,9 +71,9 @@ public class EnchantUtils {
      */
     private static boolean isActive(Player player, CEnchantments enchant, Map<CEnchantment, Integer> enchants, double multiplier) {
         //if (CrazyEnchantments.getPlugin().getStarter().getCrazyManager().getCEPlayer(player.getUniqueId()).onEnchantCooldown(enchant)) return false;
-        return enchants.containsKey(enchant.getEnchantment()) && (player.isOp() ||
-                ((!enchant.hasChanceSystem() || enchant.chanceSuccessful(enchants.get(enchant.getEnchantment()), multiplier)) &&
-                        !(player.hasPermission("crazyenchantments.%s.deny".formatted(enchant.getName())))));
+        return enchants.containsKey(enchant.getEnchantment())
+                && (player.isOp() || !player.hasPermission("crazyenchantments.%s.deny".formatted(enchant.getName())))
+                && (!enchant.hasChanceSystem() || enchant.chanceSuccessful(enchants.get(enchant.getEnchantment()), multiplier));
         // TODO Potentially add in entity support.
     }
 

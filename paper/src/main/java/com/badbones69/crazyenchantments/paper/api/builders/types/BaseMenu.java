@@ -65,13 +65,13 @@ public class BaseMenu extends InventoryBuilder {
                 getInventory().setItem(index - current * perPage, book.setName(enchantment.getInfoName()).setLore(enchantment.getInfoDescription()).build());
             }
 
-            getInventory().setItem(getSize() - 1, KitsManager.getBackRight());
+            // Back sits in the middle of the bottom row with the page arrows on
+            // the outer edges, so the pages read left-to-right either side of it.
+            getInventory().setItem(getSize() - 5, KitsManager.getBackRight());
 
-            // The bottom row is reserved for navigation, so a full page never
-            // pushes its books into the arrows.
             if (current > 0) getInventory().setItem(getSize() - 9, navigation(DataKeys.previous_page, "ARROW", "&c&lPrevious Page"));
 
-            if (current < lastPage) getInventory().setItem(getSize() - 5, navigation(DataKeys.next_page, "ARROW", "&a&lNext Page"));
+            if (current < lastPage) getInventory().setItem(getSize() - 1, navigation(DataKeys.next_page, "ARROW", "&a&lNext Page"));
         } else {
             MenuManager.getEnchantmentTypes().stream().filter(EnchantmentType::isInMenu)
                     .forEach(key -> getInventory().setItem(key.getSlot(), key.getDisplayItem()));

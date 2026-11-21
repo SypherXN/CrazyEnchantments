@@ -511,13 +511,42 @@ public class ArmorEnchantments implements Listener {
         Map<CEnchantments, HashMap<PotionEffectType, Integer>> enchantmentPotions = this.crazyManager.getEnchantmentPotions();
         HashMap<PotionEffectType, WornPotion> topPotions = new HashMap<>();
 
-        topEnchants.forEach((key, value) -> enchantmentPotions.entrySet()
-                .stream().filter(enchantedPotion -> enchantedPotion.getKey().getEnchantment().equals(key))
-                .forEach(enchantedPotion -> enchantedPotion.getValue().entrySet().stream()
-                        .filter(pot -> !topPotions.containsKey(pot.getKey()) || (topPotions.get(pot.getKey()).level() != -1 && topPotions.get(pot.getKey()).level() <= pot.getValue()))
-                        .forEach(pot -> topPotions.put(pot.getKey(), new WornPotion(value, enchantedPotion.getKey() == CEnchantments.HULK)))));
+        topEnchants.forEach((key, level) -> enchantmentPotions.forEach((enchant, potions) -> {
+            if (!enchant.getEnchantment().equals(key)) return;
+
+            potions.forEach((type, offset) -> {
+                final WornPotion current = topPotions.get(type);
+
+                // Jump Boost is the only effect the offset decides: Anti Gravity must outrank a
+                // same-level Springs, so the highest effective amplifier wins. The stored level
+                // stays "amplifier + 1", the value updateEffects turns back into the amplifier.
+                if (type.equals(PotionEffectType.JUMP_BOOST)) {
+                    final int amplifier = jumpAmplifier(level, offset);
+
+                    if (current == null || current.level() - 1 < amplifier) {
+                        topPotions.put(type, new WornPotion(amplifier + 1, false));
+                    }
+
+                    return;
+                }
+
+                // Every other effect keeps the worn selection it had before: the raw level, with
+                // the first entry for a type winning.
+                if (current != null && !(current.level() != -1 && current.level() <= offset)) return;
+
+                topPotions.put(type, new WornPotion(level, enchant == CEnchantments.HULK));
+            });
+        }));
 
         return topPotions;
+    }
+
+    /**
+     * The Jump Boost amplifier a worn level grants, using the offset in
+     * {@link CrazyManager#getEnchantmentPotions()}. Jump Boost I is amplifier 0.
+     */
+    static int jumpAmplifier(final int level, final int offset) {
+        return level + offset;
     }
 
     private record WornPotion(int level, boolean hulk) {}
@@ -973,9 +1002,8 @@ public class ArmorEnchantments implements Listener {
 
         if (highest < 1 || strongest == null) return 0;
 
-        // An operator keeps the shared rule (the roll is skipped), and a single roll decides
-        // the combined attempt for everyone else.
-        if (!wearer.isOp() && ThreadLocalRandom.current().nextDouble()
+        // A single roll decides the combined attempt, including for operators.
+        if (ThreadLocalRandom.current().nextDouble()
                 >= AngelicSettings.combinedChance(Arrays.copyOf(chances, found))) return 0;
 
         if (!EnchantUtils.normalEnchantEvent(enchant, wearer, strongest)) return 0;

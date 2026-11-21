@@ -6,7 +6,7 @@ import java.util.function.Consumer;
  * Validated tuning for the damage-modifier enchants (Armored, Heavy, Tank,
  * Marksman, Deathbringer). Values are FORK defaults from the CosmicPvP
  * balance sheet (S04); none of them are historical CosmicPvP numbers.
- * Deathbringer's multiplier is fixed at 2.0x by task #70 and is not tunable.
+ * Deathbringer's multiplier is fixed at 1.5x by task #70 and is not tunable.
  */
 public record DamageModifierSettings(
         double incomingReductionCapPp,
@@ -15,7 +15,8 @@ public record DamageModifierSettings(
         double heavyReductionPerLevelPp,
         double tankReductionPerLevelPp,
         double marksmanBonusPerLevelPp,
-        double marksmanBonusCapPp
+        double marksmanBonusCapPp,
+        double strengthDamagePerLevel
 ) {
 
     public static final DamageModifierSettings DEFAULTS = new DamageModifierSettings(
@@ -25,7 +26,8 @@ public record DamageModifierSettings(
             2.0,
             1.85,
             1.5,
-            25.0
+            25.0,
+            1.0
     );
 
     public static DamageModifierSettings validated(
@@ -36,6 +38,7 @@ public record DamageModifierSettings(
             final double tankReductionPerLevelPp,
             final double marksmanBonusPerLevelPp,
             final double marksmanBonusCapPp,
+            final double strengthDamagePerLevel,
             final Consumer<String> warn
     ) {
         final DamageModifierSettings fallback = DEFAULTS;
@@ -47,7 +50,8 @@ public record DamageModifierSettings(
                 number("CosmicEnchants.Heavy.Reduction-Per-Level-PP", heavyReductionPerLevelPp, fallback.heavyReductionPerLevelPp(), 0.0, 100.0, warn),
                 number("CosmicEnchants.Tank.Reduction-Per-Level-PP", tankReductionPerLevelPp, fallback.tankReductionPerLevelPp(), 0.0, 100.0, warn),
                 number("CosmicEnchants.Marksman.Bonus-Per-Level-PP", marksmanBonusPerLevelPp, fallback.marksmanBonusPerLevelPp(), 0.0, 100.0, warn),
-                number("CosmicEnchants.Marksman.Bonus-Cap-PP", marksmanBonusCapPp, fallback.marksmanBonusCapPp(), 0.0, 100.0, warn)
+                number("CosmicEnchants.Marksman.Bonus-Cap-PP", marksmanBonusCapPp, fallback.marksmanBonusCapPp(), 0.0, 100.0, warn),
+                number("CosmicEnchants.DamageModifiers.Strength-Damage-Per-Level", strengthDamagePerLevel, fallback.strengthDamagePerLevel(), 0.0, 3.0, warn)
         );
     }
 

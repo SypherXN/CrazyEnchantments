@@ -8,8 +8,8 @@ import java.util.List;
  * straight up, then the enchant rests for a per-level cooldown.
  *
  * <p>DOC: Cosmic's Rocket Escape blasts the wearer upward at low HP. FORK:
- * trigger at 30% of max health, vertical velocity 0.9 / 1.0 / 1.1 (about 4 to 6
- * blocks) and a 20 / 15 / 10 s cooldown at I / II / III. The cooldown starts
+ * trigger at 30% of max health, vertical velocity 3.6 / 4.0 / 4.4
+ * and a 30 / 25 / 20 s cooldown at I / II / III. The cooldown starts
  * when a launch is accepted, and is over once {@code elapsed >= cooldown}.</p>
  */
 public record RocketEscapeSettings(double triggerPp, List<Double> velocity, List<Double> cooldownSeconds) {
@@ -17,7 +17,7 @@ public record RocketEscapeSettings(double triggerPp, List<Double> velocity, List
     public static final int MAX_LEVEL = 3;
 
     public static final RocketEscapeSettings DEFAULTS = new RocketEscapeSettings(
-            30.0, List.of(0.9, 1.0, 1.1), List.of(20.0, 15.0, 10.0));
+            30.0, List.of(3.6, 4.0, 4.4), List.of(30.0, 25.0, 20.0));
 
     public RocketEscapeSettings {
         triggerPp = TuningConfig.BowValues.checkedNumber(triggerPp, 0.0, 100.0);

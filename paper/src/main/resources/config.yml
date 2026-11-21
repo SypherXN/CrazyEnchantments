@@ -385,7 +385,7 @@ Settings:
     Enchant-Stacked-Items: false #Turn on if you wish for enchantment books to enchant stacked items.
     MaxRageLevel: 4 #The max amount of rage that scan stack when fighting.
     Break-Rage-On-Damage: false #If the player is damaged while building rage, it will be broken if this is enabled.
-    Rage-Boss-Bar: false #If true, messages from rage will be displayed on a boss bar.
+    Rage-Boss-Bar: false #If true, messages from rage are shown on a boss bar. If false, they are shown on the action bar above the hotbar instead of in chat.
     Rage-Increase: 0.1 #Rage will increase in damage by a multiple of enchantLevel*rageIncrease every hit.
     Right-Click-Book-Description: true #Toggles whether when you right-click the enchantment book if it messages the player the description or not.
     UnSafe-Enchantments: true #Having this set to true will allow players to use enchantments levels above the max level.
@@ -732,5 +732,8 @@ CosmicEnchants: #FORK Global values only. Per-enchant effect numbers live in Enc
     # 0.0 disables the cap, which is the shipped default: the incoming reduction layer
     # already shrinks the hit, so capping the bonus on top would leave attackers doing little.
     Bonus-Damage-Cap-HP: 0.0
+    # FORK Damage vanilla Strength adds per level. Vanilla is 3; 1 means Strength I/II/III
+    # deal +1/+2/+3 instead of +3/+6/+9. Clamped to 0..3.
+    Strength-Damage-Per-Level: 1.0
   # Per-enchant effect numbers moved to Enchantments.yml under <enchant>.Tuning.
   # A value left here is still read, once, with a deprecation warning.
