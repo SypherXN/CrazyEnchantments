@@ -97,9 +97,22 @@ public record MetaphysicalSettings(List<Double> resistPp) {
             final boolean slowness, final String actionName, final String causeName, final boolean selfInflicted,
             final int level, final double roll
     ) {
+        return resists(slowness, actionName, causeName, selfInflicted, level, roll, false);
+    }
+
+    /**
+     * As above, with {@code force} skipping only the chance comparison. The
+     * eligibility gates still run first, so the 100% proc test switch cannot
+     * make Metaphysical resist its own effect, a removal, or the wearer's own
+     * potion, milk or command.
+     */
+    public boolean resists(
+            final boolean slowness, final String actionName, final String causeName, final boolean selfInflicted,
+            final int level, final double roll, final boolean force
+    ) {
         if (!slowness || level < 1 || selfInflicted) return false;
         if (!isApplyingAction(actionName) || isExcludedCause(causeName)) return false;
 
-        return roll < resistChancePp(level) / 100.0;
+        return force || roll < resistChancePp(level) / 100.0;
     }
 }

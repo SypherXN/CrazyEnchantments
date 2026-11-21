@@ -30,6 +30,7 @@ import com.badbones69.crazyenchantments.paper.api.utils.FeignVisibility;
 import com.badbones69.crazyenchantments.paper.api.utils.LifebloomSettings;
 import com.badbones69.crazyenchantments.paper.api.utils.MetaphysicalSettings;
 import com.badbones69.crazyenchantments.paper.api.utils.PlagueCarrierSettings;
+import com.badbones69.crazyenchantments.paper.api.utils.ProcTest;
 import com.badbones69.crazyenchantments.paper.api.utils.RagdollSettings;
 import com.badbones69.crazyenchantments.paper.api.utils.SpiritLinkSettings;
 import com.badbones69.crazyenchantments.paper.api.utils.SpiritsSettings;
@@ -137,7 +138,10 @@ public class ArmorEnchantments implements Listener {
 
     private final ArmorProcessor armorProcessor = new ArmorProcessor();
 
-    private final List<UUID> fallenPlayers = new ArrayList<>();
+    // Rocket Escape: wearer -> monotonic deadline of the fall immunity the launch grants. A
+    // deadline needs no scheduled task, so quitting mid-flight cannot strand immunity, and a
+    // later launch only ever pushes the deadline forward.
+    private final ConcurrentHashMap<UUID, Long> fallImmunityUntil = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<UUID, Long> bloodLustCooldowns = new ConcurrentHashMap<>();
 
@@ -402,6 +406,7 @@ public class ArmorEnchantments implements Listener {
         this.implantsRuns.forEach((id, run) -> finishRun(this.implantsRuns, id, run));
         this.enderShiftRuns.forEach((id, run) -> finishRun(this.enderShiftRuns, id, run));
         this.rocketCooldowns.clear();
+        this.fallImmunityUntil.clear();
         this.plagueRuns.keySet().forEach(id -> stopPlague(id, false));
         this.feignRuns.forEach((id, run) -> endFeign(id, run));
 
@@ -471,20 +476,43 @@ public class ArmorEnchantments implements Listener {
      */
     private void updateEffects(@NotNull Player player, @NotNull ItemStack newItem, @NotNull ItemStack oldItem) {
         final Map<CEnchantment, Integer> topEnchants = getCurrentEnchants(player, newItem);
+        final Map<PotionEffectType, WornPotion> worn = getTopPotionEffects(topEnchants);
 
         // Remove all effects that they no longer should have from the armor.
         if (!oldItem.isEmpty()) {
             getTopPotionEffects(this.enchantmentBookSettings.getEnchantments(oldItem)
-                    .entrySet().stream()
-                    .filter(enchant -> !topEnchants.containsKey(enchant.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b)))
-                    .keySet()
-                    .forEach(player::removePotionEffect);
+                            .entrySet().stream()
+                            .filter(enchant -> !topEnchants.containsKey(enchant.getKey()))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b)))
+                    .forEach((type, ignored) -> {
+                        if (!type.equals(PotionEffectType.HEALTH_BOOST)) {
+                            player.removePotionEffect(type);
+
+                            return;
+                        }
+
+                        // A piece that still grants Health Boost is applied below without ever
+                        // removing it, and a finite effect of this type is a potion or another
+                        // plugin's: only a worn one whose last worn source is gone is removed.
+                        if (worn.containsKey(type)) return;
+
+                        final PotionEffect present = player.getPotionEffect(type);
+
+                        if (present != null && present.getDuration() != PotionEffect.INFINITE_DURATION) return;
+
+                        player.removePotionEffect(type);
+                    });
         }
 
         // Add all new effects that said player should now have.
         final int hulkDuration = TuningConfig.fork().hulkDurationTicks();
-        for (final Map.Entry<PotionEffectType, WornPotion> effect : getTopPotionEffects(topEnchants).entrySet()) {
+        for (final Map.Entry<PotionEffectType, WornPotion> effect : worn.entrySet()) {
+            if (effect.getKey() == PotionEffectType.HEALTH_BOOST) {
+                applyWornHealthBoost(player, effect.getValue().level() - 1);
+
+                continue;
+            }
+
             final int amplifier = effect.getValue().level() - 1;
             for (final PotionEffect currentEffect : player.getActivePotionEffects()) {
                 if (!currentEffect.getType().equals(effect.getKey())) continue;
@@ -495,10 +523,120 @@ public class ArmorEnchantments implements Listener {
                 break;
             }
 
-            // The wearer's own armor effect (Hulk, Drunk, Insomnia slow): Metaphysical must never resist it.
+            // The wearer's own armor effect (Hulk, Drunk): Metaphysical must never resist it.
             final int duration = effect.getValue().hulk() ? hulkDuration : PotionEffect.INFINITE_DURATION;
             MetaphysicalSettings.runSelfInflicted(() -> player.addPotionEffect(new PotionEffect(effect.getKey(), duration, amplifier)));
         }
+    }
+
+    /** What the worn Health Boost does to the effect the wearer already has. */
+    enum WornBoost { ADD, KEEP, REPLACE }
+
+    /**
+     * The worn level wins over an infinite effect of the type: CE always applies its worn levels
+     * infinite, so an infinite one is ours - including the level another piece granted a moment
+     * ago, which a downgrade therefore really replaces. An infinite effect from another plugin is
+     * indistinguishable and treated the same, which matches the milk/world-switch refresh. A
+     * finite effect is a potion or another plugin's: it is never replaced by an equal or weaker
+     * worn level, so no infinite effect hides under it and outlives the armor, and the expiry
+     * hand-over applies the worn level once it is gone. A stronger finite effect is left alone
+     * for the same reason.
+     *
+     * @param present           whether the wearer already has a Health Boost
+     * @param presentAmplifier  its amplifier, ignored when absent
+     * @param presentInfinite   whether it is an infinite (worn) level rather than a finite buff
+     * @param wornAmplifier     the amplifier the worn armor grants
+     */
+    static WornBoost wornBoostAction(final boolean present, final int presentAmplifier,
+                                     final boolean presentInfinite, final int wornAmplifier) {
+        if (!present) return WornBoost.ADD;
+        if (presentInfinite) return presentAmplifier == wornAmplifier ? WornBoost.KEEP : WornBoost.REPLACE;
+
+        return presentAmplifier < wornAmplifier ? WornBoost.REPLACE : WornBoost.KEEP;
+    }
+
+    /**
+     * The health a wearer keeps when the worn Health Boost changes: never more than they held, so
+     * damage is never healed, and never more than the new max health allows, so a downgrade does
+     * not cost the hearts the smaller bar still fits.
+     */
+    static double settledHealth(final double held, final double maxHealth) {
+        return Math.min(held, maxHealth);
+    }
+
+    /**
+     * Applies the worn Health Boost level, replacing an infinite level that differs and a finite
+     * one it beats. Nothing is ever added over a present equal or stronger effect, so no infinite
+     * effect can hide under one and survive the armor coming off; a finite one is handed over on
+     * expiry instead.
+     *
+     * <p>Health Boost sizes the max health bar, so after a replacement the wearer's real health
+     * is settled against the new maximum: put back when the removing tick clamped it, and capped
+     * when the new level is smaller. Health actually lost to damage is never restored by that -
+     * it only ever reaches the value held before the worn level changed.</p>
+     *
+     * @param amplifier the Health Boost amplifier the worn armor grants
+     */
+    private void applyWornHealthBoost(final Player player, final int amplifier) {
+        final PotionEffect present = player.getPotionEffect(PotionEffectType.HEALTH_BOOST);
+        final WornBoost action = wornBoostAction(present != null,
+                present == null ? 0 : present.getAmplifier(),
+                present != null && present.getDuration() == PotionEffect.INFINITE_DURATION,
+                amplifier);
+
+        if (action == WornBoost.KEEP) return;
+
+        final double health = player.getHealth();
+
+        if (action == WornBoost.REPLACE) player.removePotionEffect(PotionEffectType.HEALTH_BOOST);
+
+        MetaphysicalSettings.runSelfInflicted(() -> player.addPotionEffect(
+                new PotionEffect(PotionEffectType.HEALTH_BOOST, PotionEffect.INFINITE_DURATION, amplifier)));
+
+        final double kept = settledHealth(health, player.getMaxHealth());
+
+        if (kept > 0 && player.getHealth() != kept) player.setHealth(kept);
+    }
+
+    /**
+     * A finite Health Boost (a potion or another plugin's) that expires on a wearer whose armor
+     * still grants one: the worn level is handed over on the wearer's next tick, once the effect
+     * is really gone. Only expiry is watched - CE's effects are infinite, so this cannot retrigger
+     * itself, and milk, death and world changes already run the full refresh.
+     */
+    @EventHandler
+    public void onHealthBoostExpire(final EntityPotionEffectEvent event) {
+        if (event.isCancelled()) return;
+        if (event.getAction() != EntityPotionEffectEvent.Action.REMOVED) return;
+        if (event.getCause() != EntityPotionEffectEvent.Cause.EXPIRATION) return;
+
+        final PotionEffect gone = event.getOldEffect();
+
+        if (gone == null || !PotionEffectType.HEALTH_BOOST.equals(gone.getType())) return;
+        if (this.supportStopped || this.registryUnpublished) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        handBackWornHealthBoost(player);
+    }
+
+    /** Queues the worn Health Boost hand-over on the wearer's next tick; a leaving player is skipped. */
+    private void handBackWornHealthBoost(final Player player) {
+        try {
+            player.getScheduler().run(this.plugin, task -> reconcileWornHealthBoost(player), null);
+        } catch (final IllegalPluginAccessException ignored) {
+            // The player is already leaving or the scheduler is shutting down.
+        }
+    }
+
+    private void reconcileWornHealthBoost(final Player player) {
+        if (this.supportStopped || this.registryUnpublished) return;
+        if (!player.isConnected() || player.isDead() || !player.isValid()) return;
+
+        final WornPotion boost = getTopPotionEffects(getUpperEnchants(player)).get(PotionEffectType.HEALTH_BOOST);
+
+        if (boost == null) return;
+
+        applyWornHealthBoost(player, boost.level() - 1);
     }
 
     /**
@@ -517,10 +655,13 @@ public class ArmorEnchantments implements Listener {
             potions.forEach((type, offset) -> {
                 final WornPotion current = topPotions.get(type);
 
-                // Jump Boost is the only effect the offset decides: Anti Gravity must outrank a
-                // same-level Springs, so the highest effective amplifier wins. The stored level
-                // stays "amplifier + 1", the value updateEffects turns back into the amplifier.
-                if (type.equals(PotionEffectType.JUMP_BOOST)) {
+                // Jump Boost and Health Boost are the effects two worn sources can fight over:
+                // Anti Gravity must outrank a same-level Springs, and Overload must outrank Ninja
+                // (or the reverse) instead of whichever piece the map loop reaches first. The
+                // highest effective amplifier wins, so the result cannot depend on iteration
+                // order. The stored level stays "amplifier + 1", the value updateEffects turns
+                // back into the amplifier.
+                if (type.equals(PotionEffectType.JUMP_BOOST) || type.equals(PotionEffectType.HEALTH_BOOST)) {
                     final int amplifier = jumpAmplifier(level, offset);
 
                     if (current == null || current.level() - 1 < amplifier) {
@@ -542,8 +683,10 @@ public class ArmorEnchantments implements Listener {
     }
 
     /**
-     * The Jump Boost amplifier a worn level grants, using the offset in
-     * {@link CrazyManager#getEnchantmentPotions()}. Jump Boost I is amplifier 0.
+     * The amplifier a worn level grants, using the offset in
+     * {@link CrazyManager#getEnchantmentPotions()}: Jump Boost I is amplifier 0, and a
+     * Health Boost level maps the same way. Anti Gravity's offset is what makes it start
+     * two Jump Boost levels higher than a Springs of its own level.
      */
     static int jumpAmplifier(final int level, final int offset) {
         return level + offset;
@@ -690,16 +833,6 @@ public class ArmorEnchantments implements Listener {
 
                     if (playerHealth + heal >= maxHealth) player.setHealth(maxHealth);
                 }, () -> this.fusion.log(Level.WARNING, "Player %s did not have the MAX_HEALTH attribute when using %s enchantment!", player.getName(), "Enlightened"));
-            }
-
-            if (EnchantUtils.isEventActive(CEnchantments.INSOMNIA, player, armor, enchants)) {
-                final double retaliation = event.getDamage() + enchants.get(CEnchantments.INSOMNIA.getEnchantment());
-
-                // Retaliation damages the attacker, so it is applied on the attacker's region;
-                // the wearer's own hit above stays synchronous.
-                runOnOwner(damager, () -> {
-                    if (damager.isValid() && !damager.isDead()) damager.damage(retaliation);
-                });
             }
 
             if (EnchantUtils.isEventActive(CEnchantments.MOLTEN, player, armor, enchants)) {
@@ -921,9 +1054,17 @@ public class ArmorEnchantments implements Listener {
     public void onPlayerFallDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
 
-        if (!this.fallenPlayers.contains(player.getUniqueId())) return;
-
         if (!DamageCause.FALL.equals(event.getCause())) return;
+
+        final Long until = this.fallImmunityUntil.get(player.getUniqueId());
+
+        if (until == null) return;
+
+        if (!RocketEscapeSettings.fallImmunityLive(until, System.nanoTime())) {
+            this.fallImmunityUntil.remove(player.getUniqueId(), until);
+
+            return;
+        }
 
         event.setCancelled(true);
     }
@@ -977,7 +1118,7 @@ public class ArmorEnchantments implements Listener {
         final CEnchantment key = enchant.getEnchantment();
 
         if (key == null || !key.isActivated()) return 0;
-        if (wearer.hasPermission("crazyenchantments.%s.deny".formatted(enchant.getName()))) return 0;
+        if (EnchantUtils.denied(wearer, enchant)) return 0;
 
         final double[] chances = new double[gear.length];
         int found = 0;
@@ -1003,7 +1144,9 @@ public class ArmorEnchantments implements Listener {
         if (highest < 1 || strongest == null) return 0;
 
         // A single roll decides the combined attempt, including for operators.
-        if (ThreadLocalRandom.current().nextDouble()
+        // The session-only proc test skips the roll, never the checks above it.
+        if (!ProcTest.isEnabled(wearer.getUniqueId())
+                && ThreadLocalRandom.current().nextDouble()
                 >= AngelicSettings.combinedChance(Arrays.copyOf(chances, found))) return 0;
 
         if (!EnchantUtils.normalEnchantEvent(enchant, wearer, strongest)) return 0;
@@ -1252,7 +1395,10 @@ public class ArmorEnchantments implements Listener {
 
         if (level < 1 || !EnchantUtils.isEventActive(CEnchantments.HARDENED, wearer, worn, enchants)) return;
 
-        final int surviving = TuningConfig.hardened().survivingPoints(event.getDamage(), level, ThreadLocalRandom.current()::nextDouble);
+        // The proc test switch makes every wear point skip; eligibility above still gates.
+        final int surviving = ProcTest.isEnabled(wearer.getUniqueId())
+                ? 0
+                : TuningConfig.hardened().survivingPoints(event.getDamage(), level, ThreadLocalRandom.current()::nextDouble);
 
         if (surviving >= event.getDamage()) return;
 
@@ -1323,7 +1469,9 @@ public class ArmorEnchantments implements Listener {
         final boolean selfInflicted = MetaphysicalSettings.isSelfInflicted()
                 || (event.getCause() == EntityPotionEffectEvent.Cause.PLUGIN && effect.getDuration() == PotionEffect.INFINITE_DURATION);
 
-        if (TuningConfig.metaphysical().resists(true, event.getAction().name(), event.getCause().name(), selfInflicted, level, ThreadLocalRandom.current().nextDouble())) {
+        // The proc test flag only forces the roll; resists() still rejects self-inflicted
+        // effects, removals and the wearer's own potion, milk or command.
+        if (TuningConfig.metaphysical().resists(true, event.getAction().name(), event.getCause().name(), selfInflicted, level, ThreadLocalRandom.current().nextDouble(), ProcTest.isEnabled(wearer.getUniqueId()))) {
             event.setCancelled(true);
         }
     }
@@ -1360,6 +1508,7 @@ public class ArmorEnchantments implements Listener {
         this.ragdollSessions.remove(id);
         this.bloodLustCooldowns.remove(id);
         this.rocketCooldowns.remove(id);
+        this.fallImmunityUntil.remove(id);
     }
 
     /**
@@ -2110,17 +2259,12 @@ public class ArmorEnchantments implements Listener {
             }
         }.runDelayed(1);
 
-        // The launch must not end in fall damage at the low health that triggered it.
-        this.fallenPlayers.add(id);
+        // The launch must not end in fall damage at the low health that triggered it. The
+        // deadline expires on its own, so a quit mid-flight cannot leave immunity behind and
+        // no delayed task can remove a newer launch's deadline.
+        this.fallImmunityUntil.put(id, System.nanoTime() + RocketEscapeSettings.FALL_IMMUNITY_NANOS);
 
         wearer.getWorld().spawnParticle(Particle.EXPLOSION, wearer.getLocation(), 1);
-
-        new FoliaScheduler(this.plugin, null, wearer) {
-            @Override
-            public void run() {
-                fallenPlayers.remove(id);
-            }
-        }.runDelayed(8 * 20);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -2310,6 +2454,9 @@ public class ArmorEnchantments implements Listener {
 
             if (boost && currentBoost != null && ownsEffect(currentBoost, boostAmplifier, ticks)) {
                 wearer.removePotionEffect(PotionEffectType.HEALTH_BOOST);
+
+                // The armor may still grant its own level under the shift's finite one.
+                handBackWornHealthBoost(wearer);
             }
         });
     }
@@ -2499,7 +2646,7 @@ public class ArmorEnchantments implements Listener {
 
         // The deny permission and exactly one cancellable use event for the selected proc.
         // Plague Carrier is always-on, so this is its only use-event and its only veto point.
-        if (wearer.hasPermission("crazyenchantments.%s.deny".formatted(CEnchantments.PLAGUE_CARRIER.getName()))) return;
+        if (EnchantUtils.denied(wearer, CEnchantments.PLAGUE_CARRIER)) return;
         if (!EnchantUtils.normalEnchantEvent(CEnchantments.PLAGUE_CARRIER, wearer, leggings)) return;
 
         // The use event can run a reload to completion; the claim and the burst must then
@@ -2811,7 +2958,7 @@ public class ArmorEnchantments implements Listener {
         final ItemStack[] armor = wearer.getEquipment().getArmorContents();
 
         if (!settings.triggers(wearer.getHealth() - finalDamage, wearer.getMaxHealth())) {
-            return !wearer.hasPermission("crazyenchantments.%s.deny".formatted(CEnchantments.FEIGN_DEATH.getName()))
+            return !EnchantUtils.denied(wearer, CEnchantments.FEIGN_DEATH)
                     && wornHighest(wearer, CEnchantments.FEIGN_DEATH, armor) > 0;
         }
         if (!(finalDamage > 0.0)) return false;

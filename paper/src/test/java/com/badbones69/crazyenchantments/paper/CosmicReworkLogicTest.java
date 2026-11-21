@@ -129,9 +129,31 @@ class CosmicReworkLogicTest {
         assertTrue(rocket.ready(0L, 25L * second, 2));
         assertFalse(rocket.ready(0L, 19L * second, 3));
         assertTrue(rocket.ready(0L, 20L * second, 3));
-        assertEquals(3.6, rocket.velocity(1));
-        assertEquals(4.0, rocket.velocity(2));
-        assertEquals(4.4, rocket.velocity(3));
+        assertEquals(9.0, rocket.velocity(1));
+        assertEquals(10.0, rocket.velocity(2));
+        assertEquals(11.0, rocket.velocity(3));
+    }
+
+    @Test
+    void rocketEscapeFallImmunityIsAPerPlayerDeadlineThatAlwaysExpires() {
+        final long window = RocketEscapeSettings.FALL_IMMUNITY_NANOS;
+        final long launch = 1_000_000_000L;
+
+        assertEquals(10_000_000_000L, window, "the launch covers ten seconds of landing");
+        assertTrue(RocketEscapeSettings.fallImmunityLive(launch + window, launch + window - 1),
+                "live until the last nanosecond of the window");
+        assertFalse(RocketEscapeSettings.fallImmunityLive(launch + window, launch + window),
+                "expires exactly at the window, so immunity is never permanent");
+        assertFalse(RocketEscapeSettings.fallImmunityLive(null, launch), "no launch, no immunity");
+    }
+
+    @Test
+    void rocketEscapeFallImmunityNeedsNoDelayedRemoval() throws IOException {
+        final String armor = Files.readString(JAVA.resolve("enchantments/ArmorEnchantments.java"));
+
+        assertTrue(armor.contains("fallImmunityUntil"), "one monotonic deadline per player");
+        assertFalse(armor.contains("fallenPlayers"),
+                "a shared list plus a delayed removal leaks immunity when the task is dropped");
     }
 
     // ---------------------------------------------------------------------------------------------

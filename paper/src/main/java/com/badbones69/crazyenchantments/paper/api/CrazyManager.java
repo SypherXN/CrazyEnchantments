@@ -772,23 +772,48 @@ public class CrazyManager {
                 if (!enchantments.containsKey(ench.getEnchantment())) continue;
                 final Set<PotionEffectType> hulk = new HashSet<>();
                 Map<PotionEffectType, Integer> effects = getUpdatedEffects(player, armor, new ItemStack(Material.AIR), ench, hulk);
-                checkPotions(effects, player, hulk);
+                checkPotions(effects, player, hulk, true);
             }
         }
     }
 
     public void checkPotions(Map<PotionEffectType, Integer> effects, Player player) { //TODO Remove this Method
-        checkPotions(effects, player, Set.of());
+        checkPotions(effects, player, Set.of(), false);
     }
 
-    private void checkPotions(Map<PotionEffectType, Integer> effects, Player player, Set<PotionEffectType> hulk) {
+    /**
+     * @param worn whether every entry belongs to an enchant the player is wearing. Only Health
+     * Boost reads it: {@link #getUpdatedEffects(Player, ItemStack, ItemStack, CEnchantments)}
+     * reports an enchant the player does not wear as 0, so a worn Health Boost at 0 is Overload I
+     * or Ninja I, while every other type keeps treating 0 as an absent enchant.
+     */
+    private void checkPotions(Map<PotionEffectType, Integer> effects, Player player, Set<PotionEffectType> hulk, final boolean worn) {
         final int hulkDuration = TuningConfig.fork().hulkDurationTicks();
         for (Map.Entry<PotionEffectType, Integer> type : effects.entrySet()) {
             int value = type.getValue();
             PotionEffectType key = type.getKey();
+            final PotionEffect present = player.getPotionEffect(key);
+
+            // A worn Health Boost is only ever applied over a level it beats, and an equal worn
+            // one is left alone so the removing tick cannot clamp the wearer's health. A finite
+            // effect is a potion or another plugin's; the expiry listener hands the worn level
+            // over, so no infinite effect is hidden under it. The public path is unchanged.
+            if (worn && key.equals(PotionEffectType.HEALTH_BOOST) && present != null) {
+                if (present.getDuration() != PotionEffect.INFINITE_DURATION && present.getAmplifier() >= value) {
+                    continue; // an equal or stronger buff is not ours to replace
+                }
+
+                if (present.getDuration() == PotionEffect.INFINITE_DURATION && present.getAmplifier() == value) {
+                    continue; // already the worn level
+                }
+            }
 
             player.removePotionEffect(key);
-            if (value == 0) continue; //TODO check usage with new addition of infinity.
+            // Health Boost I (Overload I, Ninja I) is amplifier 0, which is also what
+            // getUpdatedEffects reports for an absent enchant. Only a worn Health Boost is
+            // applied from 0; every other type keeps the old "0 means absent" skip, so a
+            // Springs I or other amplifier-0 effect is refreshed exactly as before.
+            if (value == 0 && !(worn && key.equals(PotionEffectType.HEALTH_BOOST))) continue;
             if (hulkDuration != PotionEffect.INFINITE_DURATION && hulk.contains(key)) {
                 final PotionEffect potionEffect = new PotionEffect(key, hulkDuration, value);
                 MetaphysicalSettings.runSelfInflicted(() -> player.addPotionEffect(potionEffect));
@@ -883,10 +908,7 @@ public class CrazyManager {
         enchants.get(CEnchantments.NINJA).put(PotionEffectType.HEALTH_BOOST, -1);
         enchants.get(CEnchantments.NINJA).put(PotionEffectType.SPEED, -1);
 
-        enchants.put(CEnchantments.INSOMNIA, new HashMap<>());
-        enchants.get(CEnchantments.INSOMNIA).put(PotionEffectType.NAUSEA, -1);
-        enchants.get(CEnchantments.INSOMNIA).put(PotionEffectType.MINING_FATIGUE, -1);
-        enchants.get(CEnchantments.INSOMNIA).put(PotionEffectType.SLOWNESS, -1);
+        // Insomnia is a sword proc now: it has no worn potion effects.
 
         // Jump Boost I is amplifier 0: Anti Gravity I starts at Jump Boost III.
         enchants.put(CEnchantments.ANTIGRAVITY, new HashMap<>());

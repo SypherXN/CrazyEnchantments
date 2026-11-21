@@ -8,20 +8,30 @@ import java.util.List;
  * straight up, then the enchant rests for a per-level cooldown.
  *
  * <p>DOC: Cosmic's Rocket Escape blasts the wearer upward at low HP. FORK:
- * trigger at 30% of max health, vertical velocity 3.6 / 4.0 / 4.4
+ * trigger at 30% of max health, vertical velocity 9.0 / 10.0 / 11.0
  * and a 30 / 25 / 20 s cooldown at I / II / III. The cooldown starts
  * when a launch is accepted, and is over once {@code elapsed >= cooldown}.</p>
+ *
+ * <p>The launch is one {@code setVelocity} call, so it needs no packet-range
+ * workaround: Paper 26.1.2 sends entity motion as a full-range Vec3
+ * (MC-299627 removed the old ±3.9 packing clamp in 25w32a).</p>
  */
 public record RocketEscapeSettings(double triggerPp, List<Double> velocity, List<Double> cooldownSeconds) {
 
     public static final int MAX_LEVEL = 3;
 
+    /** Upper bound shared by the record and by the config validator in {@link TuningConfig}. */
+    public static final double MAX_VELOCITY = 11.0;
+
+    /** How long after a launch the wearer's own landing must not deal fall damage. */
+    public static final long FALL_IMMUNITY_NANOS = 10_000_000_000L;
+
     public static final RocketEscapeSettings DEFAULTS = new RocketEscapeSettings(
-            30.0, List.of(3.6, 4.0, 4.4), List.of(30.0, 25.0, 20.0));
+            30.0, List.of(9.0, 10.0, 11.0), List.of(30.0, 25.0, 20.0));
 
     public RocketEscapeSettings {
         triggerPp = TuningConfig.BowValues.checkedNumber(triggerPp, 0.0, 100.0);
-        velocity = TuningConfig.BowValues.checkedTable(velocity, MAX_LEVEL, 0.0, 5.0);
+        velocity = TuningConfig.BowValues.checkedTable(velocity, MAX_LEVEL, 0.0, MAX_VELOCITY);
         cooldownSeconds = TuningConfig.BowValues.checkedTable(cooldownSeconds, MAX_LEVEL, 0.0, 3_600.0);
     }
 
@@ -43,6 +53,15 @@ public record RocketEscapeSettings(double triggerPp, List<Double> velocity, List
     /** True with no previous launch, or once the full cooldown has elapsed. */
     public boolean ready(final Long lastLaunchNanos, final long nowNanos, final int level) {
         return lastLaunchNanos == null || nowNanos - lastLaunchNanos >= cooldownNanos(level);
+    }
+
+    /**
+     * True while a launch's fall-immunity deadline is still in the future. An expired deadline
+     * is never live, so the immunity cannot outlast the window it was granted for; the signed
+     * difference keeps the comparison correct across {@link System#nanoTime()} wrap-around.
+     */
+    public static boolean fallImmunityLive(final Long untilNanos, final long nowNanos) {
+        return untilNanos != null && nowNanos - untilNanos < 0;
     }
 
     private static int index(final int level) {

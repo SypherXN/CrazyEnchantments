@@ -2,6 +2,8 @@ package com.badbones69.crazyenchantments.paper.listeners;
 
 import com.badbones69.crazyenchantments.paper.CrazyEnchantments;
 import com.badbones69.crazyenchantments.paper.api.CrazyManager;
+import com.badbones69.crazyenchantments.paper.api.utils.ProcNotify;
+import com.badbones69.crazyenchantments.paper.api.utils.ProcTest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -22,5 +24,7 @@ public class MiscListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event) {
         this.crazyManager.unloadCEPlayer(event.getPlayer());
+        ProcTest.clear(event.getPlayer().getUniqueId());
+        ProcNotify.clear(event.getPlayer().getUniqueId());
     }
 }

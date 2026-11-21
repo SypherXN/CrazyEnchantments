@@ -284,7 +284,28 @@ public class SwordEnchantments implements Listener {
             en.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, settings.durationTicks(), settings.amplifier()));
         }
 
+        // Insomnia: a direct sword swing (ENTITY_ATTACK only: no sweep, projectile or synthetic hit)
+        // that deals positive damage to an enemy player. The material guard is hard-coded, so legacy
+        // Insomnia lore on armor or any other held item is inert whatever the config says.
+        if (en instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                && event.getFinalDamage() > 0.0 && isInsomniaWeapon(item) && EnchantUtils.isEventActive(CEnchantments.INSOMNIA, damager, item, enchantments)) {
+            en.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, INSOMNIA_TICKS, INSOMNIA_AMPLIFIER));
+            en.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, INSOMNIA_TICKS, INSOMNIA_AMPLIFIER));
+            en.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, INSOMNIA_TICKS, 0));
+        }
+
         applyDuelEnchants(event, damager, en, item, enchantments, baseDamage);
+    }
+
+    /** Insomnia debuff length: three seconds, the same as Ice Aspect, Trap and Paralyze. */
+    static final int INSOMNIA_TICKS = 3 * 20;
+
+    /** Slowness II and Mining Fatigue II; Nausea is level I. */
+    static final int INSOMNIA_AMPLIFIER = 1;
+
+    /** Insomnia only works from a sword; legacy armor carrying its lore never procs when held. */
+    static boolean isInsomniaWeapon(final ItemStack item) {
+        return item != null && item.getType().name().endsWith("_SWORD");
     }
 
     private static int levelOf(final Map<CEnchantment, Integer> enchantments, final CEnchantments enchant) {

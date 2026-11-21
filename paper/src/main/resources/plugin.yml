@@ -85,3 +85,6 @@ permissions:
 
   crazyenchantments.access:
     default: op
+
+  crazyenchantments.procnotify:
+    default: true

@@ -557,6 +557,42 @@ class ArmorEnchantLogicTest2 {
     }
 
     @Test
+    void procTestForceOnlySkipsTheRollNeverTheEligibility() throws IOException {
+        final MetaphysicalSettings settings = MetaphysicalSettings.DEFAULTS;
+
+        // Forced while eligible: a roll that would never pass is overridden.
+        assertTrue(settings.resists(true, "ADDED", "PLUGIN", false, 4, 0.999999, true));
+        assertFalse(settings.resists(true, "ADDED", "PLUGIN", false, 4, 0.999999), "the normal overload still rolls");
+
+        // Forced is still not eligible: another effect, no boots level, CE's own effect.
+        assertFalse(settings.resists(false, "ADDED", "PLUGIN", false, 4, 0.0, true), "not Slowness");
+        assertFalse(settings.resists(true, "ADDED", "PLUGIN", false, 0, 0.0, true), "no boots enchant");
+        assertFalse(settings.resists(true, "ADDED", "PLUGIN", true, 4, 0.0, true), "self-inflicted effect");
+
+        // Forced is still not eligible: a removal, or the wearer's own potion, milk or command.
+        assertFalse(settings.resists(true, "REMOVED", "PLUGIN", false, 4, 0.0, true));
+        assertFalse(settings.resists(true, "CLEARED", "MILK", false, 4, 0.0, true));
+
+        for (final String cause : List.of("POTION_DRINK", "MILK", "COMMAND", "EXPIRATION")) {
+            assertFalse(settings.resists(true, "ADDED", cause, false, 4, 0.0, true), cause + " is never forced");
+        }
+
+        // The handler passes the switch only as resists()' last argument, after every gate.
+        final String slow = method(read(ARMOR_SOURCE), "onSlowApplied");
+
+        assertTrue(slow.contains("nextDouble(), ProcTest.isEnabled(wearer.getUniqueId())"),
+                "the force flag is resists()' final argument, not a bypass around it");
+
+        // The two self-rolled armor procs consult the switch after their own checks.
+        final String armor = read(ARMOR_SOURCE);
+
+        assertTrue(method(armor, "combinedPieceAttempt").contains("ProcTest.isEnabled(wearer.getUniqueId())"),
+                "Angelic/Spirits/Feign Death skip only the combined roll");
+        assertTrue(method(armor, "onArmorWear").contains("ProcTest.isEnabled(wearer.getUniqueId())"),
+                "Hardened skips only its per-point roll");
+    }
+
+    @Test
     void metaphysicalSelfInflictedMarkerNestsAndAlwaysClears() {
         assertFalse(MetaphysicalSettings.isSelfInflicted());
 

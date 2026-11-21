@@ -59,6 +59,7 @@ Enchantments:
       #The description of what it does.
       Description:
         - '&7Night Vision while worn.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHelmets'
     #All the categories the Enchantment can be found in
@@ -81,6 +82,7 @@ Enchantments:
       Description:
         - '&7Gives fire resistance'
         - '&7when you put it on.'
+        - '&7Stacking: One piece is enough; copies do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -103,6 +105,7 @@ Enchantments:
       Description:
         - '&7Has a chance to deal'
         - '&7double damage to your enemy.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -122,6 +125,7 @@ Enchantments:
       Description:
         - '&7+2 max hearts per level'
         - '&7while worn.'
+        - '&7Stacking: Strongest worn Health Boost wins; extra hearts do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -144,6 +148,7 @@ Enchantments:
         - '&7blast damages and knocks'
         - '&7back enemies and destroys'
         - '&7unprotected drops.'
+        - '&7Stacking: Each worn piece triggers a separate blast.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -163,6 +168,7 @@ Enchantments:
       Description:
         - '&7Jump Boost equal to the'
         - '&7level while worn.'
+        - '&7Stacking: Boots only; the strongest worn Jump Boost wins.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -182,6 +188,7 @@ Enchantments:
       Description:
         - '&7Speed equal to the level'
         - '&7while worn.'
+        - '&7Stacking: Boots only; worn Speed effects do not add together.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -204,6 +211,7 @@ Enchantments:
         - '&7Strength, Resistance and'
         - '&7Slowness equal to the'
         - '&7level while worn.'
+        - '&7Stacking: Highest worn copy counts; levels do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -223,6 +231,7 @@ Enchantments:
       Description:
         - '&7Gives you water breathing'
         - '&7when you put it on.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHelmets'
     Categories:
@@ -242,6 +251,7 @@ Enchantments:
       Description:
         - '&7Speed by level and +2 max'
         - '&7hearts per level while worn.'
+        - '&7Stacking: Strongest worn Health Boost wins; extra hearts do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -271,6 +281,7 @@ Enchantments:
         - '&7A strike has a chance to heal you'
         - '&c1 HP&7 per level after &c3 seconds&7.'
         - '&7By default, only one heal can be pending.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -294,6 +305,7 @@ Enchantments:
         - '&7A hit has a chance to heal you'
         - '&c1 HP&7 per level. It deals no extra'
         - '&7damage to your enemy.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -314,6 +326,7 @@ Enchantments:
         - '&7Arrow hits restore health to allies.'
         - '&7Higher levels heal more; the arrow'
         - '&7can still deal damage.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -341,6 +354,7 @@ Enchantments:
       Description:
         - '&7Arrow impacts can damage and knock'
         - '&7back nearby enemies and clear drops.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -363,6 +377,7 @@ Enchantments:
       Description:
         - '&7Arrow hits can briefly poison enemies.'
         - '&7Higher levels apply stronger Poison.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -386,6 +401,7 @@ Enchantments:
         - '&7Hits have a chance to slow your'
         - '&7enemy with &cSlowness II-IV&7 for'
         - '&c3 seconds&7 by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -408,6 +424,7 @@ Enchantments:
       Description:
         - '&7Hits have a chance to blind your'
         - '&7enemy for &c3 seconds&7.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -430,6 +447,7 @@ Enchantments:
       Description:
         - '&7Hits have a chance to poison your'
         - '&7enemy with &cPoison II-IV&7 for &c5 seconds&7.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -449,6 +467,7 @@ Enchantments:
       Description:
         - '&7Grants Jump Boost III, IV, or V'
         - '&7while worn, depending on rank.'
+        - '&7Stacking: Boots only; the strongest worn Jump Boost wins.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -474,6 +493,7 @@ Enchantments:
         - '&7Hits have a chance to deal extra'
         - '&7damage: by default, an extra third'
         - '&7of the hit.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -497,6 +517,7 @@ Enchantments:
         - '&7Your hits can grant you &cHaste&7 for'
         - '&c5 seconds&7. Higher levels grant'
         - '&7stronger Haste.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -520,6 +541,7 @@ Enchantments:
         - '&7Your hits can clear Blindness, Nausea,'
         - '&7Hunger, Poison, Slowness, Mining Fatigue,'
         - '&7Weakness and Wither, but not Bleed.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -560,6 +582,7 @@ Enchantments:
         - '&7default. Each deals &c0.5 HP/s&7 before'
         - '&7armor and slows &c5%&7. Stacks refresh'
         - '&7and fade after &c5 seconds&7 without a hit.'
+        - '&7Stacking: Main hand only; hits can build Bleed stacks up to its cap.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -585,6 +608,7 @@ Enchantments:
         - '&7While this axe is in your main hand,'
         - '&7your Bleed chance is multiplied by'
         - '&c1.25&7 (&c1.5&7, &c1.75&7) by level.'
+        - '&7Stacking: Needs Bleed on the same weapon; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -609,6 +633,7 @@ Enchantments:
         - '&7Your hits deal extra damage to a'
         - '&7bleeding enemy: &c+5%&7 to &c+20%&7 by level.'
         - '&7Always active while the target bleeds.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -638,6 +663,7 @@ Enchantments:
         - '&7On a proc, slows your target and up to'
         - '&731 other enemies within &c3 blocks&7 with'
         - '&cSlowness II&7 for &c3-5 seconds&7 by level.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -671,6 +697,7 @@ Enchantments:
         - '&7up to &c4&7 other enemies near your target'
         - '&7by default. Range grows with level and'
         - '&7splash damage never chains.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -692,6 +719,7 @@ Enchantments:
         - '&7While held in your main hand, has'
         - '&7a chance to break an arrow that'
         - '&7hits you: no damage, arrow removed.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -721,6 +749,7 @@ Enchantments:
         - '&7deals &c50%&7 damage by default and repairs'
         - '&7your most damaged worn armor piece by'
         - '&c1&7 (&c2&7 at IV and V) durability.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -749,6 +778,7 @@ Enchantments:
         - '&7(&c3&7 at IV) hit you within &c5 seconds&7,'
         - '&7your melee hits deal &c10%&7 more damage'
         - '&7per extra enemy, up to &c50%&7 by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -771,6 +801,7 @@ Enchantments:
         - '&7Deal &c5%&7 more damage per level to'
         - '&7enemies holding an axe in their'
         - '&7main hand.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -793,6 +824,7 @@ Enchantments:
         - '&7Deal &c2.5%&7 more damage per level to'
         - '&7enemies holding a sword in their'
         - '&7main hand.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -820,6 +852,7 @@ Enchantments:
         - '&7Hits from behind your target deal'
         - '&c10%&7 (&c15%&7, &c20%&7) more damage by'
         - '&7default, at most once every &c2 seconds&7.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -852,6 +885,7 @@ Enchantments:
         - '&7you. Default: 0.5 HP within'
         - '&73 blocks per axis, at most'
         - '&7once per second.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aChestplate'
     Categories:
@@ -873,6 +907,7 @@ Enchantments:
         - '&7Your hits while not full can change'
         - '&7your food based on saturation and'
         - '&7level. It can also lower it.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -896,6 +931,7 @@ Enchantments:
         - '&7Hits have a chance to give your enemy'
         - '&7Nausea for &c9 seconds&7 plus &c1 second&7'
         - '&7per level by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -919,6 +955,7 @@ Enchantments:
         - '&7Hits have a chance to grant you'
         - '&cStrength I&7 and Mining Fatigue II for'
         - '&c5 seconds&7 plus &c1 second&7 per level.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -945,6 +982,7 @@ Enchantments:
         - '&7Hits have a chance to give your enemy'
         - '&7Mining Fatigue II for &c9 seconds&7 plus'
         - '&c1 second&7 per level by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -969,6 +1007,7 @@ Enchantments:
       Description:
         - '&7Has a chance to'
         - '&7deal double the damage.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -995,6 +1034,7 @@ Enchantments:
         - '&7by logs or leaves. Higher levels cut'
         - '&7more: up to &c5 extra logs per level + 1&7'
         - '&7by default, within a limited reach.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -1018,6 +1058,7 @@ Enchantments:
         - '&7A direct enemy hit can'
         - '&7heal you 1 HP per level'
         - '&7before damage.'
+        - '&7Stacking: Each piece can heal separately.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1042,6 +1083,7 @@ Enchantments:
         - '&7give the attacker Slowness'
         - '&7III, or IV at level II,'
         - '&7for 3 seconds.'
+        - '&7Stacking: Each piece can roll; the same debuff does not add up.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1065,6 +1107,7 @@ Enchantments:
         - '&7A direct enemy hit can'
         - '&7ignite the attacker for'
         - '&72 seconds per level.'
+        - '&7Stacking: The latest proc sets burn time; burns do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1089,6 +1132,7 @@ Enchantments:
         - '&7poison the attacker for'
         - '&73 seconds. Poison II at I,'
         - '&7stronger with level.'
+        - '&7Stacking: Each piece can roll; the same debuff does not add up.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1112,6 +1156,7 @@ Enchantments:
         - '&7Each worn piece can halve'
         - '&7a direct enemy hit before'
         - '&7armor.'
+        - '&7Stacking: Each successful piece applies another reduction.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1139,6 +1184,7 @@ Enchantments:
         - '&7horizontally can heal you.'
         - '&7Default: 1 HP, at most'
         - '&7once per second.'
+        - '&7Stacking: Pieces share one cooldown; only one proc at a time.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1162,6 +1208,7 @@ Enchantments:
         - '&7Mining ore can turn raw metal drops'
         - '&7into ingots and grant extra drops.'
         - '&7Higher levels can give more items.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aPickaxes'
     Categories:
@@ -1184,6 +1231,7 @@ Enchantments:
       Description:
         - '&7Blocks that drop XP can give extra XP.'
         - '&7Higher levels give more bonus XP.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aPickaxes'
     Categories:
@@ -1203,6 +1251,7 @@ Enchantments:
       Description:
         - '&7Block drops go straight to your inventory.'
         - '&7Anything that does not fit drops at your feet.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aTools'
     Categories:
@@ -1223,6 +1272,7 @@ Enchantments:
         - '&7Click with this tool in your main hand'
         - '&7for 5 seconds of Haste. Higher levels'
         - '&7grant stronger Haste.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aTools'
     Categories:
@@ -1242,6 +1292,7 @@ Enchantments:
       Description:
         - '&7Click with this tool in your main hand'
         - '&7for 5 seconds of Water Breathing.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aTools'
     Categories:
@@ -1264,6 +1315,7 @@ Enchantments:
       Description:
         - '&7Arrow hits can inflict Slowness II'
         - '&7for 5 seconds.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -1287,6 +1339,7 @@ Enchantments:
         - '&7Arrow impacts can call down lightning'
         - '&7that damages nearby enemies, but not'
         - '&7the enemy hit directly by the arrow.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -1310,6 +1363,7 @@ Enchantments:
         - '&7Kills credited to you can drop'
         - '&7a player or eligible mob head'
         - '&7while this axe is held.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
     Categories:
@@ -1336,6 +1390,7 @@ Enchantments:
       Description:
         - '&7Deals &c3%&7 more damage per level'
         - '&7to an enemy at or below 30% health.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1359,6 +1414,7 @@ Enchantments:
         - '&7Kills credited to you can drop'
         - '&7a player or eligible mob head'
         - '&7while this sword is held.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1382,6 +1438,7 @@ Enchantments:
         - '&7Kills can multiply the XP they drop,'
         - '&7from &c2x&7 at level I up to &c6x&7 at'
         - '&7level V.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1395,20 +1452,20 @@ Enchantments:
     Sound: "ENTITY_PLAYER_LEVELUP"
     Name: '&7Insomnia'
     MaxPower: 1
-    Enchantment-Type: 'Armor'
+    Enchantment-Type: 'Sword'
     Chance-System:
       Base: 10
       Increase: 5
     Info:
       Name: '&e&lInsomnia &7(&bI&7)'
       Description:
-        - '&7Worn: Nausea, Mining'
-        - '&7Fatigue and Slowness. A'
-        - '&7direct enemy hit may'
-        - '&7retaliate with your base'
-        - '&7damage plus a bonus.'
+        - '&7Hits have a chance to give'
+        - '&7an enemy player Slowness II,'
+        - '&7Mining Fatigue II and'
+        - '&7Nausea for &c3 seconds&7.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
-        - '&6Enchantable Items: &aArmor'
+        - '&6Enchantable Items: &aSword'
     Categories:
       - 'Simple'
       - 'Unique'
@@ -1429,6 +1486,7 @@ Enchantments:
       Description:
         - '&7Hits can raise your saturation.'
         - '&7They do not add hunger points.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1452,6 +1510,7 @@ Enchantments:
         - '&7Hits can launch your target up and'
         - '&7in the direction you face, unless'
         - '&7Shackle prevents the knockback.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1476,6 +1535,7 @@ Enchantments:
         - '&7your target &cSlowness III&7 and Mining'
         - '&7Fatigue III for &c3 seconds&7, and damage'
         - '&7enemies near you.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1499,6 +1559,7 @@ Enchantments:
         - '&7Hits on players can steal up to'
         - '&c4 XP points&7 plus &c1&7 per enchantment'
         - '&7level, limited by the target''s XP.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1521,6 +1582,7 @@ Enchantments:
       Description:
         - '&7Hits have a chance to give your'
         - '&7enemy &cSlowness III&7 for &c3 seconds&7.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1551,6 +1613,7 @@ Enchantments:
         - '&7give the attacker Wither'
         - '&7III for 2 seconds by'
         - '&7default.'
+        - '&7Stacking: Each piece can roll; the same debuff does not add up.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1572,6 +1635,7 @@ Enchantments:
         - '&7up to a limit. By default, &c+10%&7 per'
         - '&7level, and it resets after &c2 seconds&7'
         - '&7without a hit.'
+        - '&7Stacking: Main hand only; builds across hits, not from extra weapons.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -1600,6 +1664,7 @@ Enchantments:
         - '&7hits.'
         - '&7Default: 1.125% per level'
         - '&7per worn piece.'
+        - '&7Stacking: Applicable pieces add up to the shared damage reduction cap.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1624,6 +1689,7 @@ Enchantments:
         - '&7give the attacker Blindness'
         - '&7I and Slowness II for'
         - '&73 seconds.'
+        - '&7Stacking: Each piece can roll; the same debuff does not add up.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1644,6 +1710,7 @@ Enchantments:
         - '&7Strength, Mining Fatigue'
         - '&7and Slowness equal to the'
         - '&7level while worn.'
+        - '&7Stacking: Highest worn copy counts; levels do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1668,6 +1735,7 @@ Enchantments:
         - '&7give the attacker Weakness'
         - '&7for 5 seconds. Weakness II'
         - '&7at I, stronger with level.'
+        - '&7Stacking: Each piece can roll; the same debuff does not add up.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1693,6 +1761,7 @@ Enchantments:
       Description:
         - '&7Firing can launch 1 extra arrow per'
         - '&7level, with a slight spread.'
+        - '&7Stacking: Fired bow only; extra arrows use its enchants separately.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -1714,6 +1783,7 @@ Enchantments:
         - '&7a combat area, the killer'
         - '&7gains Absorption III for 8s'
         - '&7and Regeneration II for 5s.'
+        - '&7Stacking: One piece is enough; copies do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1737,6 +1807,7 @@ Enchantments:
         - '&7A direct enemy hit can'
         - '&7deal 1 HP per level back'
         - '&7to the attacker.'
+        - '&7Stacking: Each piece can trigger its own retaliation.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1752,7 +1823,7 @@ Enchantments:
       # FORK Being hit at or below this percent of max health launches the wearer.
       Trigger-PP: 30.0
       # FORK Upward velocity at levels I-III.
-      Velocity: [3.6, 4.0, 4.4]
+      Velocity: [9.0, 10.0, 11.0]
       # FORK Seconds before the same wearer can launch again, at levels I-III. Starts when a launch is accepted.
       Cooldown-Seconds: [30.0, 25.0, 20.0]
     Sound: "ENTITY_PLAYER_LEVELUP"
@@ -1767,6 +1838,7 @@ Enchantments:
         - '&7damage. Higher levels'
         - '&7launch higher, cool down'
         - '&7faster and resist falls.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -1802,6 +1874,7 @@ Enchantments:
         - '&7highest worn level counts'
         - '&7and it ends once you'
         - '&7recover.'
+        - '&7Stacking: Highest level across helmet and boots; no added boost.'
         - ''
         - '&6Enchantable Items: &aHelmets, Boots'
     Categories:
@@ -1822,6 +1895,7 @@ Enchantments:
         - '&73s. Range: 4 blocks plus'
         - '&7level, at most once per'
         - '&7second.'
+        - '&7Stacking: Pieces share one cooldown; only one proc at a time.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1846,6 +1920,7 @@ Enchantments:
         - '&7enchanted held or worn'
         - '&7item, 1 durability per level,'
         - '&7at most once per second.'
+        - '&7Stacking: Held and worn items share one repair cooldown.'
         - ''
         - '&6Enchantable Items: &aArmor, Weapons, Tools, Fishing Rods, and Shears'
     Categories:
@@ -1868,6 +1943,7 @@ Enchantments:
         - '&7Range: 4 blocks plus'
         - '&7level, at most once per'
         - '&7second.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHelmets'
     Categories:
@@ -1892,6 +1968,7 @@ Enchantments:
         - '&7call lightning on the'
         - '&7attacker and damage'
         - '&7enemies near you.'
+        - '&7Stacking: Each piece can trigger its own retaliation.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1916,6 +1993,7 @@ Enchantments:
         - '&7player, each worn piece can'
         - '&7deal +0.5 HP per nearby ally.'
         - '&7Range grows with level.'
+        - '&7Stacking: Successful procs from several pieces add up.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -1946,6 +2024,7 @@ Enchantments:
         - '&7and a food point at set'
         - '&7intervals. Default: 6/5/4s'
         - '&7at levels I-III.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHelmets'
     Categories:
@@ -1968,6 +2047,7 @@ Enchantments:
         - '&7Visible nearby enemies may'
         - '&7ground you (except in'
         - '&7unrestricted worlds).'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -1991,6 +2071,7 @@ Enchantments:
         - '&7Mining ore also breaks ore blocks'
         - '&7that share a face. Higher levels reach'
         - '&7farther along the vein.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aPickaxes'
     Categories:
@@ -2010,6 +2091,7 @@ Enchantments:
       Description:
         - '&7Mining breaks eligible blocks in a 3x3'
         - '&7area, with 1 layer per enchant level.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aPickaxes'
     Categories:
@@ -2038,6 +2120,7 @@ Enchantments:
         - '&7that enemy gets Slow I for'
         - '&75s by default. Range: 3'
         - '&7blocks per axis by default.'
+        - '&7Stacking: Pieces share one aura cooldown; one trigger at a time.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2066,6 +2149,7 @@ Enchantments:
         - '&7player crosses a block edge,'
         - '&7a chance to poison them'
         - '&7(Poison II for 4s by default).'
+        - '&7Stacking: Pieces share one aura cooldown; one trigger at a time.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2094,6 +2178,7 @@ Enchantments:
         - '&7player crosses a block edge,'
         - '&7a chance to blind them for'
         - '&710s by default.'
+        - '&7Stacking: Pieces share one aura cooldown; one trigger at a time.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2118,6 +2203,7 @@ Enchantments:
         - '&7player crosses a block edge,'
         - '&7the enemy ignites for 5s'
         - '&7by default.'
+        - '&7Stacking: Pieces share one aura cooldown; one trigger at a time.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2144,6 +2230,7 @@ Enchantments:
         - '&7the enemy gets Weakness I'
         - '&7(stronger with level) for 3s'
         - '&7by default.'
+        - '&7Stacking: Pieces share one aura cooldown; one trigger at a time.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2167,6 +2254,7 @@ Enchantments:
       Name: '&e&lPull &7(&bI-&bIII&7)'
       Description:
         - '&7Arrow hits can pull enemies toward you.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBows'
     Categories:
@@ -2191,6 +2279,7 @@ Enchantments:
         - '&7or take from a player, can'
         - '&7summon 1 wolf per level for'
         - '&760s. Shared 2m cooldown.'
+        - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2212,6 +2301,7 @@ Enchantments:
         - '&7or take from a player, can'
         - '&7summon 1 golem per level'
         - '&7for 60s. Shared 2m cooldown.'
+        - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2237,6 +2327,7 @@ Enchantments:
         - '&7summon 3 endermites and 3'
         - '&7silverfish per level for 60s.'
         - '&7Shared 2m cooldown.'
+        - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2258,6 +2349,7 @@ Enchantments:
         - '&7or take from a player, can'
         - '&7summon 2 zombies per level'
         - '&7for 60s. Shared 2m cooldown.'
+        - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2282,6 +2374,7 @@ Enchantments:
         - '&7or take from a player, can'
         - '&7summon 1 bee per level for'
         - '&760s. Shared 2m cooldown.'
+        - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2306,6 +2399,7 @@ Enchantments:
         - '&7a direct enemy hit. Does'
         - '&7not dodge arrows or'
         - '&7hazards.'
+        - '&7Stacking: Each piece can roll; the first success is enough.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2332,6 +2426,7 @@ Enchantments:
         - '&7The reduction applies after'
         - '&7armor, which then applies'
         - '&7again.'
+        - '&7Stacking: Each successful piece applies another reduction.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2353,6 +2448,7 @@ Enchantments:
         - '&7A direct enemy hit can fling'
         - '&7the attacker up and in the'
         - '&7direction you face.'
+        - '&7Stacking: Each piece can roll; pushes do not add together.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2375,6 +2471,7 @@ Enchantments:
         - '&7would kill you can be'
         - '&7cancelled and restore'
         - '&7full health.'
+        - '&7Stacking: Each piece can roll; the first success is enough.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2398,6 +2495,7 @@ Enchantments:
         - '&7Arrow impacts can leave a cobweb for'
         - '&75 seconds. Hitting an entity can leave'
         - '&7a 3x3 patch instead.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -2420,6 +2518,7 @@ Enchantments:
         - '&7Killing a player grants you and'
         - '&7nearby allies &cSpeed II&7 for &c10 seconds&7.'
         - '&7The range grows with the level.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2441,6 +2540,7 @@ Enchantments:
         - '&7gives &cSpeed II&7, &cRegeneration I&7 and'
         - '&cHaste II&7 to their nearby allies for'
         - '&c5 seconds&7.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2466,6 +2566,7 @@ Enchantments:
         - '&7Hits can fling nearby non-allied'
         - '&7entities. The direction varies with'
         - '&7where they stand, not always away.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxe'
     Categories:
@@ -2492,6 +2593,7 @@ Enchantments:
         - '&7Hits on players can wear durability'
         - '&7from one random armor piece that'
         - '&7can take damage.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords, Axes'
     Categories:
@@ -2515,6 +2617,7 @@ Enchantments:
       Description:
         - '&7Hits have a chance to give your enemy'
         - '&cHunger II&7 for &c10 seconds&7 by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2537,6 +2640,7 @@ Enchantments:
       Description:
         - '&7Right-clicking a young crop can wear'
         - '&7down the hoe without growing the crop.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHoe'
     Categories:
@@ -2553,6 +2657,7 @@ Enchantments:
       Name: '&e&lHarvester &7(&bI&7)'
       Description:
         - '&7Currently does not harvest nearby crops.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHoe'
     Categories:
@@ -2570,6 +2675,7 @@ Enchantments:
       Description:
         - '&7Right-click soil to till eligible dirt'
         - '&7and grass in a 3x3 area.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHoe'
     Categories:
@@ -2588,6 +2694,7 @@ Enchantments:
         - '&7Right-click farmland or soul sand to'
         - '&7plant, or plant while tilling. Uses the'
         - '&7off-hand first, then hotbar left to right.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHoe'
     Categories:
@@ -2605,6 +2712,7 @@ Enchantments:
       Description:
         - '&7Worn: Speed, Strength and'
         - '&7Jump Boost.'
+        - '&7Stacking: One piece is enough; copies do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2625,6 +2733,7 @@ Enchantments:
       Description:
         - '&7Arrow hits can inflict Poison II'
         - '&7for 5 seconds.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -2646,6 +2755,7 @@ Enchantments:
         - '&7Reduces incoming sword damage'
         - '&7by &c1.85%&7 per level on every'
         - '&7worn piece.'
+        - '&7Stacking: Applicable pieces add up to the shared damage reduction cap.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2667,6 +2777,7 @@ Enchantments:
         - '&7Reduces incoming arrow damage'
         - '&7by &c2%&7 per level on every'
         - '&7worn piece.'
+        - '&7Stacking: Applicable pieces add up to the shared damage reduction cap.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2688,6 +2799,7 @@ Enchantments:
         - '&7Reduces incoming axe damage'
         - '&7by &c1.85%&7 per level on every'
         - '&7worn piece.'
+        - '&7Stacking: Applicable pieces add up to the shared damage reduction cap.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2711,6 +2823,7 @@ Enchantments:
         - '&7Increases your own arrow damage'
         - '&7by &c1.5%&7 per level on every'
         - '&7worn piece, up to &c25%&7.'
+        - '&7Stacking: Bonuses from pieces add up to the cap.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2732,6 +2845,7 @@ Enchantments:
         - '&7Each worn piece can boost'
         - '&7your outgoing hit by 50%.'
         - '&7At most one boost per hit.'
+        - '&7Stacking: Each piece can roll; the 50% bonus applies at most once.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2753,6 +2867,7 @@ Enchantments:
       Description:
         - '&7Blocks Blindness at or below the'
         - '&7highest worn Clarity level.'
+        - '&7Stacking: Highest worn level counts; copies do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2777,6 +2892,7 @@ Enchantments:
         - '&7further enemy arrows.'
         - '&7Default: 0.4s per level on'
         - '&7the highest worn piece.'
+        - '&7Stacking: Highest worn level counts; copies do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -2801,6 +2917,7 @@ Enchantments:
         - '&7Prevents Poison and Wither damage.'
         - '&7At levels IV and V, a prevented tick'
         - '&7heals &c0.5 HP&7, at most once per second.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -2829,6 +2946,7 @@ Enchantments:
         - '&7deal &c5%&7 more damage per level.'
         - '&7Hits from farther away lose the'
         - '&7bonus and deal &c10%&7 less damage.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2854,6 +2972,7 @@ Enchantments:
         - '&7harder you hit: up to &c10%&7 more damage'
         - '&7per level, and &c5%&7 per level at half'
         - '&7health, by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2884,6 +3003,7 @@ Enchantments:
         - '&7While held, a proc cancels an incoming'
         - '&7melee hit and reflects &c25%&7 (&c35%&7, &c45%&7)'
         - '&7of its damage before defenses by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2910,6 +3030,7 @@ Enchantments:
         - '&7On a proc, a visual lightning effect'
         - '&7strikes your target and the hit deals'
         - '&c1 HP&7 more damage per level by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2937,6 +3058,7 @@ Enchantments:
         - '&7damage based on its damage before'
         - '&7sword enchant bonuses. At most once'
         - '&7per second by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2965,6 +3087,7 @@ Enchantments:
         - '&7On a proc when hit in melee, negates'
         - '&7the hit and heals &c1 HP&7 (&c2&7, &c2&7, &c3&7)'
         - '&7by level, at most once every &c2 seconds&7.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -2994,6 +3117,7 @@ Enchantments:
         - '&7worn armor piece. The amount scales'
         - '&7with damage and is capped; the wear'
         - '&7never breaks a piece.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -3016,6 +3140,7 @@ Enchantments:
         - '&7Deals &c4%&7 more melee damage per level'
         - '&7to enemies holding a bow or crossbow'
         - '&7by default.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
     Categories:
@@ -3037,6 +3162,7 @@ Enchantments:
         - '&7Hits have a chance not to knock back'
         - '&7mobs spawned by spawners. Supported'
         - '&7ranged hits count too.'
+        - '&7Stacking: Only the attacking weapon counts.'
         - ''
         - '&6Enchantable Items: &aWeapons'
     Categories:
@@ -3060,6 +3186,7 @@ Enchantments:
         - '&7you hit within &c5 seconds&7 can lose up'
         - '&7to &c1 extra mob&7 per level. Requires'
         - '&7WildStacker.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSwords'
     Categories:
@@ -3080,6 +3207,7 @@ Enchantments:
       Description:
         - '&7Has a chance to prevent durability loss'
         - '&7on the held weapon or tool.'
+        - '&7Stacking: Only the item losing durability counts.'
         - ''
         - '&6Enchantable Items: &aWeapons and Tools'
     Categories:
@@ -3103,6 +3231,7 @@ Enchantments:
         - '&7by default while held, up to &c+30%&7.'
         - '&7Covers Mining, Woodcutting, Herbalism,'
         - '&7Excavation and Fishing. Requires mcMMO.'
+        - '&7Stacking: Higher level between hands; copies do not add.'
         - ''
         - '&6Enchantable Items: &aWeapons and Tools'
     Categories:
@@ -3127,6 +3256,7 @@ Enchantments:
         - '&7by default while held, up to &c+30%&7.'
         - '&7Covers Swords, Axes, Archery, Unarmed'
         - '&7and Taming. Requires mcMMO.'
+        - '&7Stacking: Higher level between hands; copies do not add.'
         - ''
         - '&6Enchantable Items: &aWeapons'
     Categories:
@@ -3143,6 +3273,7 @@ Enchantments:
       Name: '&e&lFuse &7(&bI&7)'
       Description:
         - '&7Always smelts eligible drops from Detonate.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aPickaxe'
     Categories:
@@ -3169,6 +3300,7 @@ Enchantments:
         - '&7price. Unsold drops stay.'
         - '&7Needs EconomyShopGUI or Premium,'
         - '&7plus a Vault-backed economy.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aPickaxe'
     Categories:
@@ -3189,6 +3321,7 @@ Enchantments:
       Description:
         - '&7Has a chance to instantly break'
         - '&7plain obsidian.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aPickaxe'
     Categories:
@@ -3214,6 +3347,7 @@ Enchantments:
         - '&7Arrow hits can weaken the target''s'
         - '&7bow and crossbow damage. Higher levels'
         - '&7weaken it more and last longer.'
+        - '&7Stacking: Fired bow only; repeat hits extend the effect, not add copies.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3239,6 +3373,7 @@ Enchantments:
         - '&7Hitting an enemy with an arrow can heal'
         - '&7you for a share of the health it removes.'
         - '&7Default: 20%, up to 3 HP per hit.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3263,6 +3398,7 @@ Enchantments:
         - '&7Arrow hits can stop enemy players'
         - '&7from building Rage. Higher levels'
         - '&7keep them from building it longer.'
+        - '&7Stacking: Fired bow only; repeat hits extend the effect, not add copies.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3284,6 +3420,7 @@ Enchantments:
         - '&7Arrows deal more damage to enemies'
         - '&7with a bow or crossbow in their main'
         - '&7hand. Default: 5% more per level.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3308,6 +3445,7 @@ Enchantments:
         - '&7Arrow hits can wear down each piece'
         - '&7of enemy armor. Longer shots cause'
         - '&7more wear, up to 4 durability per piece.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3333,6 +3471,7 @@ Enchantments:
         - '&7Arrow impacts can damage and ignite'
         - '&7nearby enemies. Higher levels make'
         - '&7them burn longer.'
+        - '&7Stacking: Fired bow only; these three can add to the same blast.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3358,6 +3497,7 @@ Enchantments:
         - '&7Arrow impacts can explode and damage'
         - '&7nearby enemies. Higher levels deal'
         - '&7more blast damage.'
+        - '&7Stacking: Fired bow only; these three can add to the same blast.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3383,6 +3523,7 @@ Enchantments:
         - '&7and set the direct target on fire.'
         - '&7Higher levels deal more blast damage.'
         - '&7Up to 5 blasts per second per shooter.'
+        - '&7Stacking: Fired bow only; these three can add to the same blast.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3412,6 +3553,7 @@ Enchantments:
         - '&7Headshots deal extra damage with a'
         - '&7nearly full draw or better (90% by default).'
         - '&7Higher levels deal more headshot damage.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3441,6 +3583,7 @@ Enchantments:
         - '&7and Wither and remove Regeneration.'
         - '&7At least one timed debuff must be active.'
         - '&7Higher levels add more time.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3470,6 +3613,7 @@ Enchantments:
         - '&7An arrow hit on a nearby ally can'
         - '&7teleport you to a safe spot beside them.'
         - '&7Default: 30-block range, 10s cooldown.'
+        - '&7Stacking: Fired bow only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3503,6 +3647,7 @@ Enchantments:
         - '&7hits can push attackers away. Triggers'
         - '&7more often at low health.'
         - '&7Default: 40% health or less, 3s cooldown.'
+        - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBow'
     Categories:
@@ -3520,6 +3665,7 @@ Enchantments:
       Description:
         - '&7Currently has no effect;'
         - '&7armor can still be removed.'
+        - '&7Stacking: Inactive; more pieces have no effect.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -3548,6 +3694,7 @@ Enchantments:
         - '&7&c8 minus level&7, further players'
         - '&7deal 50% less melee damage'
         - '&7by default, before armor.'
+        - '&7Stacking: Highest worn level counts; copies do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -3579,6 +3726,7 @@ Enchantments:
         - '&7blast knockback and can'
         - '&7heal 1 HP per 3s when an'
         - '&7explosion hits you.'
+        - '&7Stacking: Blast reduction adds up; highest level sets the other effects.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -3601,6 +3749,7 @@ Enchantments:
         - '&7Each durability point this piece would'
         - '&7lose is skipped with &c10%&7 chance per'
         - '&7level, rolled separately for each point.'
+        - '&7Stacking: Each piece protects only itself.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -3629,6 +3778,7 @@ Enchantments:
         - '&7attacker. The highest worn'
         - '&7level pushes harder.'
         - '&7Not arrows or hazards.'
+        - '&7Stacking: Highest worn level counts; copies do not add.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -3652,6 +3802,7 @@ Enchantments:
         - '&7Slowness from another source is ignored'
         - '&7with &c30%&7, &c50%&7, &c70%&7 or &c90%&7 chance at'
         - '&7levels I-IV. Other effects still apply.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBoots'
     Categories:
@@ -3678,6 +3829,7 @@ Enchantments:
         - '&7Enemy hits can heal you for &a0.5 HP'
         - '&7per second for &a5 seconds&7.'
         - '&7Cannot refresh while already healing.'
+        - '&7Stacking: Pieces improve the odds of one proc; highest level sets the effect.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -3713,6 +3865,7 @@ Enchantments:
         - '&7near each. More at IV, VII'
         - '&7and X. Default: 1 HP every'
         - '&72s, 30s cooldown.'
+        - '&7Stacking: Pieces improve the odds of one proc; highest level sets the effect.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:
@@ -3743,6 +3896,7 @@ Enchantments:
         - '&7Enemy hits can heal allies within &a6 blocks&7'
         - '&7for &a1 HP&7 plus &a0.25 HP&7 per level after I.'
         - '&7Does not heal you. Cooldown: &a2 seconds&7.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aChestplate'
     Categories:
@@ -3766,6 +3920,7 @@ Enchantments:
       Description:
         - '&7On death, can fully heal allies'
         - '&7within &a8 blocks&7.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aLeggings'
     Categories:
@@ -3794,6 +3949,7 @@ Enchantments:
         - '&7I and Resistance I; II at V.'
         - '&7Briefly lingers after'
         - '&7recovery, then re-arms.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aChestplate'
     Categories:
@@ -3827,6 +3983,7 @@ Enchantments:
         - '&7Every &c3 seconds&7 the helmet can hit one'
         - '&7random enemy within &c4 blocks&7 for &c1.5 HP&7.'
         - '&7Enemies only, never you or your allies.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aHelmet'
     Categories:
@@ -3869,6 +4026,7 @@ Enchantments:
         - '&7More at higher levels;'
         - '&7re-arms after recovery or'
         - '&7timeout.'
+        - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aLeggings'
     Categories:
@@ -3903,6 +4061,7 @@ Enchantments:
         - '&7teleport. Ends after 1 hit'
         - '&7per level on players.'
         - '&7Default: 6s, 120s cooldown.'
+        - '&7Stacking: Pieces improve the odds of one proc; highest level sets the effect.'
         - ''
         - '&6Enchantable Items: &aArmor'
     Categories:

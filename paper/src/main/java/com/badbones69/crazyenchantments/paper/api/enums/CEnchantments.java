@@ -94,7 +94,7 @@ public enum CEnchantments {
     RADIANT("Radiant", "Armor"),
     OVERLOAD("Overload", "Armor"),
     BLIZZARD("Blizzard", "Armor"),
-    INSOMNIA("Insomnia", "Armor", 10, 5),
+    INSOMNIA("Insomnia", "Sword", 10, 5),
     ACIDRAIN("Acid Rain", "Armor", 5, 5),
     SANDSTORM("Sand Storm", "Armor", 5, 5),
     SMOKEBOMB("Smoke Bomb", "Armor", 5, 5),

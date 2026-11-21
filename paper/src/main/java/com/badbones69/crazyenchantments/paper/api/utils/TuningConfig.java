@@ -684,7 +684,7 @@ public final class TuningConfig {
 
         rocketEscape = new RocketEscapeSettings(
                 values.number("RocketEscape.Trigger-PP", rocketDefaults.triggerPp(), 0.0, 100.0),
-                values.table("RocketEscape.Velocity", rocketDefaults.velocity(), 0.0, 5.0),
+                values.table("RocketEscape.Velocity", rocketDefaults.velocity(), 0.0, RocketEscapeSettings.MAX_VELOCITY),
                 values.table("RocketEscape.Cooldown-Seconds", rocketDefaults.cooldownSeconds(), 0.0, 3_600.0));
 
         final EnderShiftSettings shiftDefaults = EnderShiftSettings.DEFAULTS;

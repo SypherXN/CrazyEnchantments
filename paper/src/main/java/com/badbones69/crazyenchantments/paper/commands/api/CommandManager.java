@@ -18,6 +18,7 @@ import com.badbones69.crazyenchantments.paper.commands.types.admin.DustCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.EnchantCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.LostBookCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.NameTagCommand;
+import com.badbones69.crazyenchantments.paper.commands.types.admin.ProcTestCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.RandomGearCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.ReloadCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.admin.ScrollCommand;
@@ -30,6 +31,7 @@ import com.badbones69.crazyenchantments.paper.commands.types.admin.debug.DebugCo
 import com.badbones69.crazyenchantments.paper.commands.types.admin.debug.FixCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.player.HelpCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.player.LimitCommand;
+import com.badbones69.crazyenchantments.paper.commands.types.player.ProcNotifyCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.player.single.BlackSmithCommand;
 import com.badbones69.crazyenchantments.paper.commands.types.player.single.TinkerCommand;
 import com.badbones69.crazyenchantments.paper.controllers.settings.EnchantmentBookSettings;
@@ -188,7 +190,7 @@ public class CommandManager {
                 final PlayerInventory inventory = player.getInventory();
                 final ItemStack itemStack = inventory.getItemInMainHand();
 
-                book.getEnchantments(itemStack).forEach((enchantment, _) -> completions.add(enchantment.getName()));
+                book.getEnchantments(itemStack).forEach((enchantment, _) -> completions.add(enchantment.getName().replace(" ", "_")));
 
                 if (itemStack.hasData(DataComponentTypes.ENCHANTMENTS)) {
                     final ItemEnchantments component = itemStack.getData(DataComponentTypes.ENCHANTMENTS);
@@ -279,12 +281,14 @@ public class CommandManager {
                 new ScrollCommand(),
                 new NameTagCommand(),
                 new RandomGearCommand(),
+                new ProcTestCommand(),
 
                 new BookCommand(),
 
                 new EnchantCommand(),
 
                 new LimitCommand(),
+                new ProcNotifyCommand(),
                 new HelpCommand(),
 
                 new KitCommand()

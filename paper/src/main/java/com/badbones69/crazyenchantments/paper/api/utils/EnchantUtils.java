@@ -47,7 +47,16 @@ public class EnchantUtils {
     }
 
     public static boolean isEventActive(CEnchantments enchant, Entity damager, ItemStack item, Map<CEnchantment, Integer> enchants, double multiplier) {
-        return isActive((Player) damager, enchant, enchants, multiplier) && normalEnchantEvent(enchant, damager, item);
+        if (!isActive((Player) damager, enchant, enchants, multiplier) || !normalEnchantEvent(enchant, damager, item)) return false;
+
+        // Past the chance roll and the cancellable use event: this activation really happens.
+        if (damager instanceof Player player) {
+            final Integer level = enchants.get(enchant.getEnchantment());
+
+            ProcNotify.send(player, enchant, level == null ? 0 : level);
+        }
+
+        return true;
     }
 
     public static boolean isMassBlockBreakActive(Player player, CEnchantments enchant, Map<CEnchantment, Integer> enchants) {
@@ -57,6 +66,16 @@ public class EnchantUtils {
 
     private static boolean isActive(Player player, CEnchantments enchant, Map<CEnchantment, Integer> enchants) {
         return isActive(player, enchant, enchants, 1.0);
+    }
+
+    /**
+     * Whether the denier explicitly refuses {@code enchant}. Operators hold every
+     * permission implicitly, so a plain check would silently disable the proc for
+     * them; they bypass the deny node, exactly as {@link #isActive} and
+     * {@link #isArmorEventActive} already do.
+     */
+    public static boolean denied(Player player, CEnchantments enchant) {
+        return !player.isOp() && player.hasPermission("crazyenchantments.%s.deny".formatted(enchant.getName()));
     }
 
     /**
@@ -73,7 +92,8 @@ public class EnchantUtils {
         //if (CrazyEnchantments.getPlugin().getStarter().getCrazyManager().getCEPlayer(player.getUniqueId()).onEnchantCooldown(enchant)) return false;
         return enchants.containsKey(enchant.getEnchantment())
                 && (player.isOp() || !player.hasPermission("crazyenchantments.%s.deny".formatted(enchant.getName())))
-                && (!enchant.hasChanceSystem() || enchant.chanceSuccessful(enchants.get(enchant.getEnchantment()), multiplier));
+                && (!enchant.hasChanceSystem() || ProcTest.isEnabled(player.getUniqueId())
+                        || enchant.chanceSuccessful(enchants.get(enchant.getEnchantment()), multiplier));
         // TODO Potentially add in entity support.
     }
 

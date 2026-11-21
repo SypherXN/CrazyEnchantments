@@ -4,6 +4,8 @@ import com.badbones69.crazyenchantments.paper.api.builders.types.MenuManager;
 import com.badbones69.crazyenchantments.paper.api.builders.types.blacksmith.BlackSmithManager;
 import com.badbones69.crazyenchantments.paper.api.builders.types.gkitz.KitsManager;
 import com.badbones69.crazyenchantments.paper.api.enums.Messages;
+import com.badbones69.crazyenchantments.paper.api.utils.ProcNotify;
+import com.badbones69.crazyenchantments.paper.api.utils.ProcTest;
 import com.badbones69.crazyenchantments.paper.commands.EnchantCommand;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
@@ -36,6 +38,10 @@ public class ReloadCommand extends EnchantCommand {
         BlackSmithManager.load();
 
         KitsManager.load();
+
+        // The 100% proc test switch is session state, so a reload drops it too.
+        ProcTest.clear();
+        ProcNotify.clear();
 
         sender.sendMessage(Messages.CONFIG_RELOAD.getMessage());
     }

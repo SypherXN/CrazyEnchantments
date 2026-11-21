@@ -38,11 +38,11 @@ class AntiGravityTest {
     }
 
     @Test
-    void onlyJumpBoostUsesTheOffset() throws IOException {
+    void onlyJumpBoostAndHealthBoostUseTheOffset() throws IOException {
         final String armor = read(ARMOR);
 
         // Jump Boost: the strongest effective amplifier wins.
-        assertTrue(armor.contains("PotionEffectType.JUMP_BOOST"), "Jump Boost is the branch the offset decides");
+        assertTrue(armor.contains("PotionEffectType.JUMP_BOOST"), "Jump Boost is a branch the offset decides");
         assertTrue(armor.contains("jumpAmplifier(level, offset)"), "Jump Boost uses the effective amplifier");
         assertTrue(armor.contains("current.level() - 1 < amplifier"), "the strongest effective Jump Boost wins");
 

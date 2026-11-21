@@ -551,6 +551,44 @@ class SwordEnchantLogicTest {
         return source.substring(start.start(), end + 6);
     }
 
+    // ---- Insomnia: sword proc, no worn effects, no retaliation ----
+
+    @Test
+    void insomniaIsASwordProcThatOnlyWorksFromSwords() throws IOException {
+        assertTrue(read(ENUM_SOURCE).contains("INSOMNIA(\"Insomnia\", \"Sword\", 10, 5)"));
+
+        final String sword = read(SWORD_SOURCE);
+        assertTrue(sword.contains("en instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK"), "enemy players, direct attack only");
+        assertTrue(sword.contains("event.getFinalDamage() > 0.0 && isInsomniaWeapon(item)"), "positive damage, sword guard");
+        assertTrue(sword.contains("PotionEffectType.SLOWNESS, INSOMNIA_TICKS, INSOMNIA_AMPLIFIER"));
+        assertTrue(sword.contains("PotionEffectType.MINING_FATIGUE, INSOMNIA_TICKS, INSOMNIA_AMPLIFIER"));
+        assertTrue(sword.contains("PotionEffectType.NAUSEA, INSOMNIA_TICKS, 0"));
+        assertEquals(60, 3 * 20);
+        assertTrue(sword.contains("INSOMNIA_TICKS = 3 * 20"));
+
+        final var type = org.bukkit.Material.DIAMOND_SWORD;
+        assertTrue(type.name().endsWith("_SWORD"));
+        assertFalse(org.bukkit.Material.DIAMOND_CHESTPLATE.name().endsWith("_SWORD"));
+    }
+
+    @Test
+    void insomniaNoLongerWorksFromArmor() throws IOException {
+        final String armor = read("src/main/java/com/badbones69/crazyenchantments/paper/enchantments/ArmorEnchantments.java");
+        assertFalse(armor.contains("isEventActive(CEnchantments.INSOMNIA"), "retaliation removed");
+        assertFalse(armor.contains("LEGACY_INSOMNIA_EFFECTS"), "no automatic potion cleanup");
+
+        assertFalse(read("src/main/java/com/badbones69/crazyenchantments/paper/api/CrazyManager.java")
+                .contains("CEnchantments.INSOMNIA"), "no worn potion map entry");
+
+        final String yml = read(ENCHANTMENTS_YML);
+        final int start = yml.indexOf("\n  Insomnia:");
+        final String block = yml.substring(start, yml.indexOf("#Do not change this line.", start));
+        assertTrue(block.contains("Enchantment-Type: 'Sword'"));
+        assertTrue(block.contains("MaxPower: 1"));
+        assertTrue(block.contains("Base: 10") && block.contains("Increase: 5"));
+        assertFalse(block.contains("Armor"));
+    }
+
     private static String read(final String relative) throws IOException {
         Path root = Path.of(System.getProperty("user.dir"));
 

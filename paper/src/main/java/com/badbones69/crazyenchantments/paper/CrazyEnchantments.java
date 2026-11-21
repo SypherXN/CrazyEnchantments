@@ -18,6 +18,8 @@ import com.badbones69.crazyenchantments.paper.enchantments.BootEnchantments;
 import com.badbones69.crazyenchantments.paper.enchantments.BowEnchantments;
 import com.badbones69.crazyenchantments.paper.enchantments.HoeEnchantments;
 import com.badbones69.crazyenchantments.paper.api.utils.AutoSellSupport;
+import com.badbones69.crazyenchantments.paper.api.utils.ProcNotify;
+import com.badbones69.crazyenchantments.paper.api.utils.ProcTest;
 import com.badbones69.crazyenchantments.paper.enchantments.PickaxeEnchantments;
 import com.badbones69.crazyenchantments.paper.enchantments.SwordEnchantments;
 import com.badbones69.crazyenchantments.paper.enchantments.ToolEnchantments;
@@ -238,6 +240,9 @@ public class CrazyEnchantments extends JavaPlugin {
 
             if (this.starter.getAllyManager() != null) this.starter.getAllyManager().forceRemoveAllies();
         }
+
+        ProcTest.clear();
+        ProcNotify.clear();
     }
 
     public Starter getStarter() {
