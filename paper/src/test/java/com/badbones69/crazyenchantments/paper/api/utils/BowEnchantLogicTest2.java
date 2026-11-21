@@ -416,9 +416,11 @@ class BowEnchantLogicTest2 {
                 "the window is re-read on the shooter's own thread");
         assertTrue(body.indexOf("pendingTeleports.add(", callback) < body.indexOf("teleportAsync(", callback),
                 "several arrows in one tick must yield one teleport");
-        assertTrue(body.indexOf("teleportAsync(landing).thenAccept(") < body.indexOf("settings.claim("),
+        assertTrue(body.indexOf("teleportAsync(landing).whenComplete(") < body.indexOf("settings.claim("),
                 "the window is spent only by a completed teleport");
-        assertTrue(body.contains("if (success) settings.claim("));
+        // whenComplete, not thenAccept, so a failed teleport still releases the in-flight flag.
+        assertTrue(body.contains("Boolean.TRUE.equals(success)) settings.claim("),
+                "only a successful teleport spends the window");
         assertTrue(body.contains("pendingTeleports.remove(shooterId)"));
     }
 

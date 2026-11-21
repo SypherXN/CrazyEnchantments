@@ -380,7 +380,7 @@ public class ItemBuilder {
         if (this.isHead) { // Has to go 1st due to it removing all data when finished.
             final ResolvableProfile.Builder builder = ResolvableProfile.resolvableProfile();
 
-            if (this.isHash) { // Sauce: https://github.com/deanveloper/SkullCreator
+            if (!this.player.isEmpty()) { // Sauce: https://github.com/deanveloper/SkullCreator
                 if (this.isURL) {
                     final PlayerProfile profile = this.server.createProfile(UUID.randomUUID(), null);
 

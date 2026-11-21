@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 public record ArrowDeflectSettings(int intervalPerLevelMillis) {
 
-    public static final ArrowDeflectSettings DEFAULTS = new ArrowDeflectSettings(400);
+    public static final ArrowDeflectSettings DEFAULTS = new ArrowDeflectSettings(750);
 
     public long intervalMillis(final int level) {
         return (long) this.intervalPerLevelMillis * Math.clamp(level, 0, 4);

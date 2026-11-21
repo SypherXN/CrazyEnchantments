@@ -196,18 +196,20 @@ public class AxeEnchantments implements Listener {
         if (enchantments.isEmpty()) return;
 
         if (EnchantUtils.isEventActive(CEnchantments.BERSERK, damager, item, enchantments)) {
-                damager.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, (enchantments.get(CEnchantments.BERSERK.getEnchantment()) + 5) * 20, 1));
-                damager.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, (enchantments.get(CEnchantments.BERSERK.getEnchantment()) + 5) * 20, 0));
+            final int berserkLevel = enchantments.get(CEnchantments.BERSERK.getEnchantment());
+            // Strength and Mining Fatigue share one amplifier per level (I-III).
+            final int berserkTicks = (berserkLevel + 5) * 20;
+            damager.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, berserkTicks, berserkLevel - 1));
+            damager.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, berserkTicks, berserkLevel - 1));
         }
 
         if (EnchantUtils.isEventActive(CEnchantments.BLESSED, damager, item, enchantments)) removeBadPotions(damager);
 
-        if (EnchantUtils.isEventActive(CEnchantments.FEEDME, damager, item, enchantments)&& damager.getFoodLevel() < 20) {
-            int food = 2 * enchantments.get(CEnchantments.FEEDME.getEnchantment());
+        if (EnchantUtils.isEventActive(CEnchantments.FEEDME, damager, item, enchantments) && damager.getFoodLevel() < 20) {
+            // Restore real hunger from the current food level; saturation never sets the bar.
+            final int food = 2 * enchantments.get(CEnchantments.FEEDME.getEnchantment());
 
-            if (damager.getFoodLevel() + food < 20) damager.setFoodLevel((int) (damager.getSaturation() + food));
-
-            if (damager.getFoodLevel() + food > 20) damager.setFoodLevel(20);
+            damager.setFoodLevel(Math.min(20, damager.getFoodLevel() + food));
         }
 
         if (EnchantUtils.isEventActive(CEnchantments.REKT, damager, item, enchantments)) event.setDamage(event.getDamage() * TuningConfig.fork().rektMultiplier());
@@ -225,13 +227,18 @@ public class AxeEnchantments implements Listener {
             final var settings = TuningConfig.fork().battleCry();
             final double radius = settings.radius();
             final Location origin = damager.getLocation();
-            final Vector offset = origin.toVector().normalize().setY(settings.verticalOffset());
+            final Vector originVector = origin.toVector();
 
             for (final Entity nearbyEntity : damager.getNearbyEntities(radius, radius, radius)) {
                 // Live friendship providers need both entities on this region.
                 if (!Bukkit.isOwnedByCurrentRegion(nearbyEntity) || this.support.isFriendly(damager, nearbyEntity)) continue;
 
-                final Vector velocity = nearbyEntity.getLocation().toVector().subtract(offset).multiply(settings.strength());
+                // Push away from the caster. Subtracting a normalised world position
+                // produced enormous velocities, which froze the victim mid-air.
+                final Vector direction = nearbyEntity.getLocation().toVector().subtract(originVector);
+                if (direction.lengthSquared() < 1.0E-4) continue;
+
+                final Vector velocity = direction.normalize().multiply(settings.strength()).setY(settings.verticalOffset());
                 nearbyEntity.getScheduler().run(this.plugin, task -> {
                     if (!nearbyEntity.isValid() || !nearbyEntity.getWorld().equals(origin.getWorld())) return;
 
@@ -671,8 +678,12 @@ public class AxeEnchantments implements Listener {
             double multiplier = this.crazyManager.getDecapitationHeadMap().getOrDefault(headMat, 0.0);
 
             if (multiplier != 0.0 && EnchantUtils.isEventActive(CEnchantments.DECAPITATION, killer, item, enchantments, multiplier)) {
-                ItemStack head = new ItemBuilder().setMaterial(headMat).build();
-                event.getDrops().add(head);
+                final ItemBuilder headBuilder = new ItemBuilder().setMaterial(headMat);
+
+                // Player heads need a profile, or the drop renders as an ownerless head.
+                if (event.getEntity() instanceof Player killed) headBuilder.setPlayerName(killed.getName());
+
+                event.getDrops().add(headBuilder.build());
             }
         }
     }

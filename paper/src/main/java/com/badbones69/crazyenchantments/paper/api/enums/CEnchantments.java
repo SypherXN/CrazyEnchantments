@@ -178,7 +178,7 @@ public enum CEnchantments {
     SHACKLE("Shackle", "Weapons", 50, 25),
     KILL_AURA("Kill Aura", "Sword", 3, 1),
     DEEP_WOUNDS("Deep Wounds", "Axe"),
-    SKILLING("Skilling", "Weapons-and-Tools"),
+    SKILLING("Skilling", "Tool"),
     TRAINING("Training", "Weapons"),
     HELLFORGED("Hell Forged", "Damaged-Items", 5, 5);
 

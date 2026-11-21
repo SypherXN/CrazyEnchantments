@@ -61,6 +61,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -252,7 +254,7 @@ public class SwordEnchantments implements Listener {
                 && !ShackleSupport.suppressesKnockback(en, damager, item, enchantments)) {
             // A hand-set velocity never fires EntityKnockbackByEntityEvent, so Shackle's
             // rule is asked here directly instead of relying on that event.
-            event.getEntity().setVelocity(damager.getLocation().getDirection().multiply(2).setY(1.25));
+            event.getEntity().setVelocity(damager.getLocation().getDirection().multiply(8).setY(5.0));
         }
 
         if (EnchantUtils.isEventActive(CEnchantments.PARALYZE, damager, item, enchantments)) {
@@ -594,10 +596,15 @@ public class SwordEnchantments implements Listener {
         // A heal Vampire still owes a wielder who died is cancelled.
         this.vampirePending.remove(event.getEntity().getUniqueId());
 
+        Player player = event.getEntity();
+
+        // Revenge belongs to the surviving ally now, so it must run even when nothing earned
+        // the kill credit (void, /kill, a mob).
+        revengeOnAllyDeath(player);
+
         if (event.getEntity().getKiller() == null) return;
 
         Player damager = event.getEntity().getKiller();
-        Player player = event.getEntity();
         ItemStack item = this.methods.getItemInHand(damager);
         Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(item);
 
@@ -605,18 +612,54 @@ public class SwordEnchantments implements Listener {
             ItemStack head = new ItemBuilder().setMaterial("PLAYER_HEAD").setPlayerName(player.getName()).build();
             event.getDrops().add(head);
         }
+    }
 
-        if (EnchantUtils.isEventActive(CEnchantments.REVENGE, damager, item, enchantments)) {
-            final int radius = TuningConfig.fork().revengeRadius();
-            for (final Entity entity : player.getNearbyEntities(radius, radius, radius)) {
-                if (!this.support.isFriendly(entity, player)) continue;
+    /**
+     * Revenge: when the dead player was the holder's ally, the holder gets the effects. The
+     * old code gave them to the dead player's nearby allies instead of the sword's owner, and
+     * the friendly check was called with the arguments reversed, so the directional providers
+     * (Lands, GriefPrevention) never matched.
+     *
+     * <p>Only UUIDs are collected while the death event is on the dead player's region; the
+     * holder's hand, faction state and effects are read and applied on the holder's own
+     * region. A holder is visited once per death, and an offline holder is skipped.</p>
+     */
+    private void revengeOnAllyDeath(final Player dead) {
+        final int radius = TuningConfig.fork().revengeRadius();
 
-                Player ally = (Player) entity; //todo() check if entity is player
+        if (radius <= 0) return;
 
-                ally.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 1));
-                ally.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 5 * 20, 0));
-                ally.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 5 * 20, 1));
-            }
+        final List<UUID> nearby = new ArrayList<>();
+
+        for (final Entity entity : dead.getNearbyEntities(radius, radius, radius)) {
+            if (entity instanceof Player target && !target.getUniqueId().equals(dead.getUniqueId())) nearby.add(target.getUniqueId());
+        }
+
+        for (final UUID id : nearby) {
+            final Player holder = Bukkit.getPlayer(id);
+
+            if (holder == null) continue;
+
+            runOnOwner(holder, () -> {
+                if (!holder.isOnline() || holder.isDead() || !holder.isValid()) return;
+                if (!dead.getWorld().equals(holder.getWorld())) return;
+
+                // The dead player has to be the holder's ally, not the other way round.
+                if (!this.support.isFriendly(holder, dead)) return;
+
+                final ItemStack item = this.methods.getItemInHand(holder);
+
+                if (item == null || item.isEmpty()) return;
+
+                final Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(item);
+
+                if (!enchantments.containsKey(CEnchantments.REVENGE.getEnchantment())) return;
+                if (!EnchantUtils.isEventActive(CEnchantments.REVENGE, holder, item, enchantments)) return;
+
+                holder.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 1));
+                holder.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 5 * 20, 0));
+                holder.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 5 * 20, 1));
+            });
         }
     }
 
@@ -635,19 +678,31 @@ public class SwordEnchantments implements Listener {
             if (headMat != null && !EventUtils.containsDrop(event, headMat)) {
                 double multiplier = this.crazyManager.getDecapitationHeadMap().getOrDefault(headMat, 0.0);
                 if (multiplier != 0.0 && EnchantUtils.isEventActive(CEnchantments.HEADLESS, damager, item, enchantments, multiplier)) {
-                    ItemStack head = new ItemBuilder().setMaterial(headMat).build();
-                    event.getDrops().add(head);
+                    final ItemBuilder headBuilder = new ItemBuilder().setMaterial(headMat);
+
+                    // Player heads need a profile, or the drop renders as an ownerless head.
+                    if (event.getEntity() instanceof Player killed) headBuilder.setPlayerName(killed.getName());
+
+                    event.getDrops().add(headBuilder.build());
                 }
 			}
 
             // The entity that is killed is a player.
             if (event.getEntity() instanceof Player && EnchantUtils.isEventActive(CEnchantments.CHARGE, damager, item, enchantments)) {
                 int radius = TuningConfig.fork().chargeBaseRadius() + enchantments.get(CEnchantments.CHARGE.getEnchantment());
-                damager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10 * 20, 1));
+                final PotionEffect speed = new PotionEffect(PotionEffectType.SPEED, 10 * 20, 1);
 
-                damager.getNearbyEntities(radius, radius, radius).stream().filter(entity ->
-                        this.support.isFriendly(entity, damager)).forEach(entity ->
-                        ((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10 * 20, 1)));
+                runOnOwner(damager, () -> damager.addPotionEffect(speed));
+
+                // The killer is always the source of the friendly check. The old call passed
+                // the neighbour first, which made directional providers (Lands and
+                // GriefPrevention trust) answer for the wrong player and never match.
+                for (final Entity entity : damager.getNearbyEntities(radius, radius, radius)) {
+                    if (!(entity instanceof Player ally) || ally.getUniqueId().equals(damager.getUniqueId())) continue;
+                    if (!this.support.isFriendly(damager, ally)) continue;
+
+                    runOnOwner(ally, () -> ally.addPotionEffect(speed));
+                }
             }
         }
     }
@@ -665,5 +720,21 @@ public class SwordEnchantments implements Listener {
 
     private void rageInformPlayer(Player player, Messages message, float progress) {
         rageInformPlayer(player, message, Map.of(), progress);
+    }
+
+    /** Applies a mutation on the entity's own Folia region thread; a local one runs at once. */
+    private void runOnOwner(final Entity entity, final Runnable action) {
+        if (Bukkit.isOwnedByCurrentRegion(entity)) {
+            action.run();
+
+            return;
+        }
+
+        new FoliaScheduler(this.plugin, null, entity) {
+            @Override
+            public void run() {
+                action.run();
+            }
+        }.runNextTick();
     }
 }

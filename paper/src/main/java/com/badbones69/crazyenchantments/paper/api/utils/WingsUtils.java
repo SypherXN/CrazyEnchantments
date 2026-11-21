@@ -119,32 +119,15 @@ public class WingsUtils {
 
                     return false;
                 }
-
-                return true; // true, they can fly, false, they can't fly
+                // A friendly player does not prove the airspace is empty; keep looking for
+                // one that is visible and not friendly.
             }
         }
 
-        final Location location = player.getLocation();
-
-        for (final String region : wingsManager.getRegions()) {
-            if (support.isTerritory(region, location)) {
-                return true;
-            }
-        }
-
-        if (wingsManager.canOwnersFly() && support.isOwner(player)) {
-            return true; // they can fly
-        }
-
-        if (wingsManager.canMembersFly() && support.isMember(player)) {
-            return true; // they can fly
-        }
-
-        if (support.isTerritory(player, location)) {
-            return true; // they can fly
-        }
-
-        return false;
+        // Wings work anywhere: a world that is not blacklisted and has no visible enemy in
+        // range no longer needs a claim or a whitelist entry, which used to make the enchant
+        // dead on an ordinary survival world.
+        return true;
     }
 
     private static List<Player> getNearbyPlayers(Player player, int radius) {

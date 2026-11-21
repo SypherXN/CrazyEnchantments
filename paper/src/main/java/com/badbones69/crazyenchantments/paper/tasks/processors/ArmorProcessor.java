@@ -138,6 +138,11 @@ public class ArmorProcessor {
                 if (EnchantUtils.normalEnchantEvent(CEnchantments.COMMANDER, player, armor)) {
                     final PotionEffect fastDigging = new PotionEffect(PotionEffectType.HASTE, 3 * 20, 1);
 
+                    // The wearer is their own closest ally. Ally providers only describe
+                    // faction/party mates, so without one (or while solo) the old code handed
+                    // Haste to nobody and the proc looked dead.
+                    player.addPotionEffect(fastDigging);
+
                     for (final Entity entity : player.getNearbyEntities(radius, radius, radius)) {
                         new FoliaScheduler(plugin, null, entity) {
                             @Override
@@ -175,6 +180,10 @@ public class ArmorProcessor {
                 if (!EnchantUtils.normalEnchantEvent(CEnchantments.ANGEL, player, armor)) return;
 
                 final PotionEffect regeneration = new PotionEffect(PotionEffectType.REGENERATION, 3 * 20, 0);
+
+                // The wearer is their own closest ally: without an ally provider the loop
+                // below finds nobody, so the enchant never did anything for a solo player.
+                player.addPotionEffect(regeneration);
 
                 for (final Entity entity : player.getNearbyEntities(radius, radius, radius)) {
                     if (!(entity instanceof Player otherPlayer)) continue;

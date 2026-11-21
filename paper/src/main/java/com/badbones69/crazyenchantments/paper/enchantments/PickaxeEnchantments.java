@@ -64,6 +64,8 @@ public class PickaxeEnchantments implements Listener {
     private final Map<Player, HashMap<Block, BlockFace>> blocks = new ConcurrentHashMap<>();
     private final ToolEnchantLogic.DigAttempts<UUID, Block> obsidianAttempts = new ToolEnchantLogic.DigAttempts<>();
     private final ThreadLocal<ToolEnchantLogic.FuseBinding<BlockDropItemEvent, Block>> blastSmelting = new ThreadLocal<>();
+    /** The block the player actually mined, set only while Detonate breaks its blocks on this thread. */
+    private final ThreadLocal<Block> blastOrigin = new ThreadLocal<>();
 
     /** Set only when a shop plugin is present; null leaves every drop to the code below. */
     private volatile AutoSellLogic.DropSeller<BlockDropItemEvent> autoSeller;
@@ -86,13 +88,10 @@ public class PickaxeEnchantments implements Listener {
         final CEnchantment enchantment = CEnchantments.OBSIDIAN_DESTROYER.getEnchantment();
         if (enchantment == null || !enchantment.canEnchantItem(item)) return;
 
-        // When Blast owns this break, Obsidian Destroyer stays out of the way: Blast cancels the native event at
-        // LOWEST and breaks the blocks itself, before later listeners can veto the original break.
-        final Map<Block, BlockFace> clicked = this.blocks.get(player);
-        final boolean blastCandidate = clicked != null && clicked.containsKey(block)
-                && this.crazyManager.getBlastBlockList().contains(block.getType());
+        // No longer steps aside for Blast (Detonate): obsidian is in the Detonate block list, so a pick carrying
+        // both enchants never rolled Obsidian Destroyer and mined at vanilla speed. Insta-break only makes the
+        // native BlockBreakEvent fire now; Blast then takes that event as usual and protection can still veto it.
         final Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(item);
-        if (blastCandidate && enchantments.getOrDefault(CEnchantments.BLAST.getEnchantment(), 0) > 0) return;
 
         if (!enchantments.containsKey(enchantment) || !this.obsidianAttempts.start(player.getUniqueId(), block)) return;
 
@@ -168,11 +167,20 @@ public class PickaxeEnchantments implements Listener {
                 && EnchantUtils.isEventActive(CEnchantments.FUSE, player, currentItem, enchantments);
         event.setCancelled(true);
 
-        for (Block block : blockList) {
-            if (!Bukkit.isOwnedByCurrentRegion(block.getLocation())) continue;
-            if (block.isEmpty() || !crazyManager.getBlastBlockList().contains(block.getType())) continue;
-            if (breakBlastBlock(player, block, currentItem, blockList, fuse)) continue;
-            if (damage) this.methods.removeDurability(currentItem, player, enchantments);
+        // Auto Smelt may only touch the block the player mined; every other block Detonate breaks is left alone.
+        final Block previousOrigin = this.blastOrigin.get();
+        this.blastOrigin.set(initialBlock);
+
+        try {
+            for (Block block : blockList) {
+                if (!Bukkit.isOwnedByCurrentRegion(block.getLocation())) continue;
+                if (block.isEmpty() || !crazyManager.getBlastBlockList().contains(block.getType())) continue;
+                if (breakBlastBlock(player, block, currentItem, blockList, fuse)) continue;
+                if (damage) this.methods.removeDurability(currentItem, player, enchantments);
+            }
+        } finally {
+            if (previousOrigin == null) this.blastOrigin.remove();
+            else this.blastOrigin.set(previousOrigin);
         }
         if (!damage) this.methods.removeDurability(currentItem, player, enchantments);
     }
@@ -260,6 +268,10 @@ public class PickaxeEnchantments implements Listener {
             }
             return; // Fuse uses the mapping, not Auto Smelt's proc or bonus-amount rolls.
         }
+
+        // Inside a Detonate break, Auto Smelt (roll, bonus ore, smelting) applies only to the mined block.
+        final Block origin = this.blastOrigin.get();
+        if (origin != null && !origin.equals(event.getBlock())) return;
 
         ItemStack item = this.methods.getItemInHand(player);
         Map<CEnchantment, Integer> enchants = this.enchantmentBookSettings.getEnchantments(item);

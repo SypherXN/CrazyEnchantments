@@ -117,8 +117,10 @@ public final class AutoSellSupport implements AutoSellLogic.DropSeller<BlockDrop
         for (final Item item : outcome.sold()) item.remove();
         AutoSellLogic.removeSold(drops, outcome.sold());
 
+        // Action bar, not chat: Auto Sell fires on every break and was flooding chat.
+        // An empty configured message still means silence. Failures stay in the console log above.
         final String summary = AutoSellLogic.summary(TuningConfig.autoSell().message(), outcome.items(), outcome.money());
-        if (summary != null) ColorUtils.sendMessage(player, summary, false);
+        if (summary != null) player.sendActionBar(ColorUtils.legacyTranslateColourCodes(summary));
     }
 
     private OptionalDouble appraise(final Player player, final Item drop, final Map<Item, Pending> pending) {

@@ -20,3 +20,7 @@ opencode-usage.json
 # Third-party Factions build dependency; no redistribution rights, supply it locally.
 /libs/
 *.log
+
+### Local analysis output
+/reports/
+/research_notes/

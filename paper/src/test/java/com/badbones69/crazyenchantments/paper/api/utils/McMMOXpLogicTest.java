@@ -61,6 +61,29 @@ class McMMOXpLogicTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {"PVE", "PVP", "SHARED_PVE", "SHARED_PVP"})
+    void ownCombatAwardsCountWhetherOrNotAPartySharesTheXp(String reason) {
+        assertTrue(McMMOXpLogic.isDirectCombatReason(reason));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"COMMAND", "UNKNOWN", "VAMPIRISM", "Pve", "", "shared_pve"})
+    void foreignSecondHandOrMalformedReasonsAreNotBoosted(String reason) {
+        assertFalse(McMMOXpLogic.isDirectCombatReason(reason));
+    }
+
+    @Test
+    void listenerAsksTheReasonPolicyInsteadOfComparingToPveAndPvpOnly() throws IOException {
+        final String listener = Files.readString(LISTENER);
+
+        assertTrue(listener.contains("!McMMOXpLogic.isDirectCombatReason(reason.name())"));
+        // A party-shared award reaches every member as SHARED_*, so an exact
+        // PVE/PVP comparison here silently disables the enchant for the party.
+        assertFalse(Pattern.compile("reason\\s*(?:!=\\s*XPGainReason\\.(?:PVE|PVP)|==\\s*XPGainReason\\.(?:PVE|PVP))")
+                .matcher(listener).find());
+    }
+
+    @ParameterizedTest
     @CsvSource({"6,0,10,6", "0,6,10,6", "0,0,10,0", "-2,0,10,0", "4,7,10,7", "7,4,10,7",
             "9,0,4,4", "0,9,4,4", "9,11,0,0", "9,11,-1,0"})
     void highestHeldLevelCannotExceedTheConfiguredMax(int mainHand, int offHand, int max, int expected) {
@@ -158,7 +181,7 @@ class McMMOXpLogicTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"Skilling,Weapons-and-Tools", "Training,Weapons"})
+    @CsvSource({"Skilling,Tool", "Training,Weapons"})
     void registryAndConfigAgreeOnAlwaysOnRareLevelTenEnchants(String name, String type) throws IOException {
         final Path resources = MODULE.resolve("src/main/resources");
         final Map<?, ?> yaml = new Yaml().load(Files.readString(resources.resolve("Enchantments.yml")));

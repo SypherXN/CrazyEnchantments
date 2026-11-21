@@ -18,7 +18,7 @@ public record RagdollSettings(List<Double> horizontal, double vertical, double c
 
     public static final int MAX_LEVEL = 4;
 
-    public static final RagdollSettings DEFAULTS = new RagdollSettings(List.of(0.35, 0.45, 0.55, 0.65), 0.1, 1.0);
+    public static final RagdollSettings DEFAULTS = new RagdollSettings(List.of(1.05, 1.35, 1.65, 1.95), 0.1, 1.0);
 
     public RagdollSettings {
         horizontal = TuningConfig.BowValues.checkedTable(horizontal, MAX_LEVEL, 0.0, 10.0);

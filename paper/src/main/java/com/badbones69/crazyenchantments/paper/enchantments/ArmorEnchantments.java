@@ -655,6 +655,14 @@ public class ArmorEnchantments implements Listener {
             potions.forEach((type, offset) -> {
                 final WornPotion current = topPotions.get(type);
 
+                // Aquatic is a single level: its water breathing is infinite, so the enchant
+                // level only ever raised the amplifier. Clamp it so no level scales the effect.
+                if (enchant == CEnchantments.MERMAID) {
+                    topPotions.put(type, new WornPotion(1, false));
+
+                    return;
+                }
+
                 // Jump Boost and Health Boost are the effects two worn sources can fight over:
                 // Anti Gravity must outrank a same-level Springs, and Overload must outrank Ninja
                 // (or the reverse) instead of whichever piece the map loop reaches first. The
@@ -888,10 +896,12 @@ public class ArmorEnchantments implements Listener {
     }
 
     /**
-     * Blood Lust heals from the landed event only: the pre-damage
+     * Blood Lust pays out on landed damage only: the pre-damage
      * {@link com.badbones69.crazyenchantments.paper.api.events.BleedTickEvent} can still be
      * reduced or cancelled by armor and protection, so a heal there would pay out for damage
-     * that never happened.
+     * that never happened. This is the Bleed-tick trigger; see {@link #onBloodLustHit} for the
+     * wearer's own melee hit. Both share one cooldown, so the pair still heals at most once a
+     * second.
      *
      * <p>The check order is the cost order: activation, then the wearer's chestplate and
      * health, then the cooldown, and only then the enchant's roll and its cancellable use
@@ -968,6 +978,55 @@ public class ArmorEnchantments implements Listener {
 
             player.setHealth(Math.min(maxHealth, player.getHealth() + settings.heal()));
         }
+    }
+
+    /**
+     * Blood Lust also heals from the wearer's own landed melee hit. It used to fire only on
+     * another enchant's Bleed ticks, so a chestplate was dead on any weapon without Bleed and,
+     * with the same 1s cooldown, the two triggers can still only heal once per second.
+     *
+     * <p>The gate order is the same cost order as the Bleed path: activation, the wearer's
+     * chestplate and health, the cooldown, and only then the roll and the cancellable use
+     * event. A full-health wearer never rolls.</p>
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBloodLustHit(final EntityDamageByEntityEvent event) {
+        if (this.registryUnpublished || SyntheticHit.isBleedTick() || EventUtils.isIgnoredEvent(event)) return;
+        if (!isDirectMelee(event.getCause()) || !(event.getFinalDamage() > 0.0)) return;
+
+        final CEnchantments enchant = CEnchantments.BLOODLUST;
+        final CEnchantment bloodLust = enchant.getEnchantment();
+
+        if (bloodLust == null || !bloodLust.isActivated()) return;
+        if (!(event.getDamager() instanceof Player player) || !Bukkit.isOwnedByCurrentRegion(player)) return;
+        if (!(event.getEntity() instanceof LivingEntity victim) || victim.getUniqueId().equals(player.getUniqueId())) return;
+        if (this.support.isFriendly(player, victim)) return;
+
+        final ItemStack chestplate = player.getEquipment().getChestplate();
+
+        if (chestplate == null || chestplate.isEmpty()) return;
+
+        final Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(chestplate);
+        final Integer level = enchantments.get(bloodLust);
+
+        if (level == null || level < 1) return;
+
+        final AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
+
+        if (attribute == null) return;
+
+        final double maxHealth = attribute.getValue();
+
+        if (player.getHealth() >= maxHealth) return;
+
+        final BloodLustSettings settings = TuningConfig.bloodLust();
+        final long now = System.currentTimeMillis();
+
+        if (!settings.ready(this.bloodLustCooldowns, player.getUniqueId(), now)) return;
+        if (!EnchantUtils.isEventActive(enchant, player, chestplate, enchantments, settings.chanceMultiplier())) return;
+        if (!settings.claim(this.bloodLustCooldowns, player.getUniqueId(), now)) return;
+
+        player.setHealth(Math.min(maxHealth, player.getHealth() + settings.heal()));
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

@@ -854,6 +854,8 @@ public class CrazyManager {
             for (Entry<CEnchantments, HashMap<PotionEffectType, Integer>> enchantments : armorEffects.entrySet()) {
                 if (!ench.containsKey(enchantments.getKey().getEnchantment())) continue;
                 int level = ench.get(enchantments.getKey().getEnchantment());
+                // Aquatic is a single level: its water breathing never scales with the level.
+                if (enchantments.getKey() == CEnchantments.MERMAID) level = 1;
                 if (!this.useUnsafeEnchantments && level > enchantments.getKey().getEnchantment().getMaxLevel()) level = enchantments.getKey().getEnchantment().getMaxLevel();
 
                 for (PotionEffectType type : enchantments.getValue().keySet()) {

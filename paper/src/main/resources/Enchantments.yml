@@ -224,10 +224,10 @@ Enchantments:
     Rarity: 'Simple'
     Sound: "ENTITY_PLAYER_LEVELUP"
     Name: '&7Aquatic'
-    MaxPower: 3
+    MaxPower: 1
     Enchantment-Type: 'Helmet'
     Info:
-      Name: '&e&lAquatic &7(&bI-&bIII&7)'
+      Name: '&e&lAquatic &7(&bI&7)'
       Description:
         - '&7Gives you water breathing'
         - '&7when you put it on.'
@@ -880,11 +880,11 @@ Enchantments:
     Info:
       Name: '&e&lBlood Lust &7(&bI-&bVI&7)'
       Description:
-        - '&7Landed Bleed damage on'
-        - '&7nearby enemies can heal'
-        - '&7you. Default: 0.5 HP within'
-        - '&73 blocks per axis, at most'
-        - '&7once per second.'
+        - '&7Your landed hits and Bleed'
+        - '&7ticks on nearby enemies can'
+        - '&7heal you 0.5 HP, at most'
+        - '&7once per second, within'
+        - '&73 blocks per axis.'
         - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aChestplate'
@@ -904,9 +904,9 @@ Enchantments:
     Info:
       Name: '&e&lRavenous &7(&bI-&bV&7)'
       Description:
-        - '&7Your hits while not full can change'
-        - '&7your food based on saturation and'
-        - '&7level. It can also lower it.'
+        - '&7Your hits while not full restore'
+        - '&c2 hunger&7 per level, up to a full'
+        - '&7bar. It never lowers your hunger.'
         - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
@@ -953,8 +953,9 @@ Enchantments:
       Name: '&e&lBerserk &7(&bI-&bIII&7)'
       Description:
         - '&7Hits have a chance to grant you'
-        - '&cStrength I&7 and Mining Fatigue II for'
-        - '&c5 seconds&7 plus &c1 second&7 per level.'
+        - '&cStrength&7 and Mining Fatigue at'
+        - '&7the same level, I-III, for &c5s&7 plus'
+        - '&c1s&7 per level.'
         - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxes'
@@ -1890,9 +1891,9 @@ Enchantments:
     Info:
       Name: '&e&lProtection &7(&bI-&bV&7)'
       Description:
-        - '&7Moving can give nearby'
-        - '&7allies Regeneration I for'
-        - '&73s. Range: 4 blocks plus'
+        - '&7Moving can give you and'
+        - '&7nearby allies Regeneration I'
+        - '&7for 3s. Range: 4 blocks plus'
         - '&7level, at most once per'
         - '&7second.'
         - '&7Stacking: Pieces share one cooldown; only one proc at a time.'
@@ -1938,8 +1939,8 @@ Enchantments:
     Info:
       Name: '&e&lCommander &7(&bI-&bV&7)'
       Description:
-        - '&7Moving can give nearby'
-        - '&7allies Haste II for 3s.'
+        - '&7Moving can give you and'
+        - '&7nearby allies Haste II for 3s.'
         - '&7Range: 4 blocks plus'
         - '&7level, at most once per'
         - '&7second.'
@@ -2042,11 +2043,9 @@ Enchantments:
     Info:
       Name: '&e&lWings &7(&bI&7)'
       Description:
-        - '&7Flight in eligible'
-        - '&7territories and worlds.'
-        - '&7Visible nearby enemies may'
-        - '&7ground you (except in'
-        - '&7unrestricted worlds).'
+        - '&7Flight in any world that is'
+        - '&7not blacklisted. A visible'
+        - '&7nearby enemy can ground you.'
         - '&7Stacking: One eligible armor slot; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aBoots'
@@ -2276,9 +2275,9 @@ Enchantments:
       Name: '&e&lTamer &7(&bI-&bV&7)'
       Description:
         - '&7A direct melee hit you land,'
-        - '&7or take from a player, can'
+        - '&7or take from any attacker, can'
         - '&7summon 1 wolf per level for'
-        - '&760s. Shared 2m cooldown.'
+        - '&760s. 2m cooldown for this enchant.'
         - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
@@ -2298,9 +2297,9 @@ Enchantments:
       Name: '&e&lGuardians &7(&bI-&bIII&7)'
       Description:
         - '&7A direct melee hit you land,'
-        - '&7or take from a player, can'
+        - '&7or take from any attacker, can'
         - '&7summon 1 golem per level'
-        - '&7for 60s. Shared 2m cooldown.'
+        - '&7for 60s. 2m cooldown for this enchant.'
         - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
@@ -2323,10 +2322,10 @@ Enchantments:
       Name: '&e&lInfestation &7(&bI-&bII&7)'
       Description:
         - '&7A direct melee hit you land,'
-        - '&7or take from a player, can'
+        - '&7or take from any attacker, can'
         - '&7summon 3 endermites and 3'
         - '&7silverfish per level for 60s.'
-        - '&7Shared 2m cooldown.'
+        - '&72m cooldown for this enchant.'
         - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
@@ -2346,9 +2345,9 @@ Enchantments:
       Name: '&e&lUndead Ruse &7(&bI-&bIII&7)'
       Description:
         - '&7A direct melee hit you land,'
-        - '&7or take from a player, can'
+        - '&7or take from any attacker, can'
         - '&7summon 2 zombies per level'
-        - '&7for 60s. Shared 2m cooldown.'
+        - '&7for 60s. 2m cooldown for this enchant.'
         - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
@@ -2371,9 +2370,9 @@ Enchantments:
       Name: '&e&lBee Keeper &7(&bI-&bII&7)'
       Description:
         - '&7A direct melee hit you land,'
-        - '&7or take from a player, can'
+        - '&7or take from any attacker, can'
         - '&7summon 1 bee per level for'
-        - '&760s. Shared 2m cooldown.'
+        - '&760s. 2m cooldown for this enchant.'
         - '&7Stacking: Each piece can summon its own allies on the same hit.'
         - ''
         - '&6Enchantable Items: &aArmor'
@@ -2536,10 +2535,10 @@ Enchantments:
     Info:
       Name: '&e&lRevenge &7(&bI&7)'
       Description:
-        - '&7Killing a player while holding this'
-        - '&7gives &cSpeed II&7, &cRegeneration I&7 and'
-        - '&cHaste II&7 to their nearby allies for'
-        - '&c5 seconds&7.'
+        - '&7When an ally dies near you while'
+        - '&7you hold this, you gain &cSpeed II&7,'
+        - '&cRegeneration I&7 and &cHaste II&7 for'
+        - '&c5 seconds&7. Radius: 10 blocks.'
         - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aSword'
@@ -2564,8 +2563,8 @@ Enchantments:
       Name: '&e&lBattle Cry &7(&bI-V&7)'
       Description:
         - '&7Hits can fling nearby non-allied'
-        - '&7entities. The direction varies with'
-        - '&7where they stand, not always away.'
+        - '&7entities away from you, with a'
+        - '&7small upward push.'
         - '&7Stacking: Main hand only; copies do not stack.'
         - ''
         - '&6Enchantable Items: &aAxe'
@@ -2878,8 +2877,8 @@ Enchantments:
     Rarity: 'Ultimate'
     Tuning:
       # DOC Only a damaging enemy arrow starts the window; blocked hits do not restart it.
-      # FORK Milliseconds per level on the highest worn piece (400/800/1200/1600 by default).
-      Interval-Per-Level-Millis: 400
+      # FORK Milliseconds per level on the highest worn piece (750/1500/2250/3000 by default).
+      Interval-Per-Level-Millis: 750
     Sound: "ENTITY_PLAYER_LEVELUP"
     Name: '&7Arrow Deflect'
     MaxPower: 4
@@ -2890,7 +2889,7 @@ Enchantments:
         - '&7After an enemy arrow'
         - '&7damages you, briefly blocks'
         - '&7further enemy arrows.'
-        - '&7Default: 0.4s per level on'
+        - '&7Default: 0.75s per level on'
         - '&7the highest worn piece.'
         - '&7Stacking: Highest worn level counts; copies do not add.'
         - ''
@@ -3223,7 +3222,7 @@ Enchantments:
     Sound: "ENTITY_PLAYER_LEVELUP"
     Name: '&7Skilling'
     MaxPower: 10
-    Enchantment-Type: 'Weapons-and-Tools'
+    Enchantment-Type: 'Tool'
     Info:
       Name: '&e&lSkilling &7(&bI-&bX&7)'
       Description:
@@ -3233,7 +3232,7 @@ Enchantments:
         - '&7Excavation and Fishing. Requires mcMMO.'
         - '&7Stacking: Higher level between hands; copies do not add.'
         - ''
-        - '&6Enchantable Items: &aWeapons and Tools'
+        - '&6Enchantable Items: &aAll Tools, never swords'
     Categories:
       - 'Unique'
   #Do not change this line.
@@ -3761,7 +3760,7 @@ Enchantments:
     Tuning:
       # DOC Always-on (no chance system). Direct melee only; never arrows, thorns, explosions, allies or self.
       # FORK Horizontal velocity added away from the attacker at levels I-IV.
-      Horizontal-Velocity: [0.35, 0.45, 0.55, 0.65]
+      Horizontal-Velocity: [1.05, 1.35, 1.65, 1.95]
       # FORK Vertical velocity added with every push.
       Vertical-Velocity: 0.1
       # FORK Seconds before the same wearer can be pushed again.

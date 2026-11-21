@@ -437,12 +437,12 @@ class ArmorEnchantLogicTest2 {
                 "MONITOR, because HIGHEST cannot see a fold that has not run yet");
     }
 
-    // ---- Ragdoll: Rare, IV, [0.35, 0.45, 0.55, 0.65] + 0.1 vertical, 1.0 s cooldown ----
+    // ---- Ragdoll: 3x knockback, IV, [1.05, 1.35, 1.65, 1.95] + 0.1 vertical, 1.0 s cooldown ----
 
     @Test
     void ragdollVelocityTableAndVerticalPart() {
         final RagdollSettings settings = RagdollSettings.DEFAULTS;
-        final double[] expected = {0.35, 0.45, 0.55, 0.65};
+        final double[] expected = {1.05, 1.35, 1.65, 1.95};
 
         for (int level = 1; level <= 4; level++) {
             assertEquals(expected[level - 1], settings.horizontalVelocity(level), EPS);
@@ -458,7 +458,7 @@ class ArmorEnchantLogicTest2 {
         assertEquals(0.0, settings.horizontalVelocity(0), EPS);
         assertTrue(settings.push(0, 1.0, 0.0).isNone(), "no level, no push");
         assertTrue(settings.push(2, 0.0, 0.0).isNone(), "overlapping entities get no NaN push");
-        assertEquals(-0.65, settings.push(4, -2.0, 0.0).x(), 1.0e-9, "pushed the other way when the damager is on the other side");
+        assertEquals(-1.95, settings.push(4, -2.0, 0.0).x(), 1.0e-9, "pushed the other way when the damager is on the other side");
     }
 
     @Test
@@ -684,7 +684,7 @@ class ArmorEnchantLogicTest2 {
         assertEquals("1.0", value(yaml, "CreeperArmor", "Heal"));
         assertEquals("3.0", value(yaml, "CreeperArmor", "Heal-Cooldown-Seconds"));
         assertEquals("[10.0, 20.0, 30.0]", value(yaml, "Hardened", "Skip-PP"));
-        assertEquals("[0.35, 0.45, 0.55, 0.65]", value(yaml, "Ragdoll", "Horizontal-Velocity"));
+        assertEquals("[1.05, 1.35, 1.65, 1.95]", value(yaml, "Ragdoll", "Horizontal-Velocity"));
         assertEquals("0.1", value(yaml, "Ragdoll", "Vertical-Velocity"));
         assertEquals("1.0", value(yaml, "Ragdoll", "Cooldown-Seconds"));
         assertEquals("[30.0, 50.0, 70.0, 90.0]", value(yaml, "Metaphysical", "Resist-PP"));

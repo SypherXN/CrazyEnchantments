@@ -29,9 +29,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AllyEnchantments implements Listener {
 
@@ -52,20 +54,19 @@ public class AllyEnchantments implements Listener {
     @NotNull
     private final AllyManager allyManager = this.starter.getAllyManager();
 
-    private final HashMap<UUID, Calendar> allyCoolDown = new HashMap<>();
+    // Keyed per player and enchant, so a Tamer proc cannot swallow the
+    // Bee Keeper proc that should have answered the same fight.
+    // Concurrent: written from the region thread of whichever player was hit.
+    private final Map<String, Calendar> allyCoolDown = new ConcurrentHashMap<>();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAllySpawn(EntityDamageByEntityEvent event) {
         if (SyntheticHit.isBleedTick() || EventUtils.isIgnoredEvent(event)) return;
 
         if (event.getEntity() instanceof Player player && event.getDamager() instanceof LivingEntity enemy) { // Player gets attacked
-            if (!inCoolDown(player)) {
-                if (enemy instanceof Player) { // Checks armor and spawn allies when getting attacked.
-                    checkAndSpawn(player, enemy);
-                }
-            } else {
-                this.allyManager.setEnemy(player, enemy);
-            }
+            // Being hit spawns allies too, whatever hit you.
+            this.allyManager.setEnemy(player, enemy);
+            checkAndSpawn(player, enemy);
         }
 
         if (event.getEntity() instanceof LivingEntity enemy && event.getDamager() instanceof Player player) { // Player attacks
@@ -74,10 +75,7 @@ public class AllyEnchantments implements Listener {
                 event.setCancelled(true);
                 return;
             }
-            if (inCoolDown(player)) {
-                this.allyManager.setEnemy(player, enemy);
-                return;
-            }
+            this.allyManager.setEnemy(player, enemy);
 
             // Checks armor and spawns allies when attacking
             checkAndSpawn(player, enemy);
@@ -85,43 +83,70 @@ public class AllyEnchantments implements Listener {
     }
 
     private void checkAndSpawn(Player player, LivingEntity enemy) {
-        for (ItemStack armor : player.getEquipment().getArmorContents()) {
-            Map<CEnchantment, Integer> enchants = this.bookSettings.getEnchantments(armor);
+        // Cooldowns are recorded once the whole scan is done, so several worn
+        // pieces of the same ally enchant can still each answer the same hit.
+        final ItemStack[] armor = player.getEquipment().getArmorContents();
+        final Set<String> fired = new HashSet<>();
+        final Set<CEnchantments> cooled = EnumSet.noneOf(CEnchantments.class);
+
+        for (int slot = 0; slot < armor.length; slot++) {
+            Map<CEnchantment, Integer> enchants = this.bookSettings.getEnchantments(armor[slot]);
 
             if (enchants.isEmpty()) continue;
 
-            checkAllyType(enemy, player, enchants, armor);
+            checkAllyType(enemy, player, enchants, armor[slot], slot, fired, cooled);
         }
+
+        cooled.forEach(enchant -> markCoolDown(player, enchant));
     }
 
-    private void checkAllyType(LivingEntity enemy, Player player, Map<CEnchantment, Integer> enchants, ItemStack item) {
+    private void checkAllyType(LivingEntity enemy, Player player, Map<CEnchantment, Integer> enchants, ItemStack item, int slot,
+                               Set<String> fired, Set<CEnchantments> cooled) {
         final var settings = TuningConfig.fork();
-        if (EnchantUtils.isEventActive(CEnchantments.TAMER, player, item, enchants)) {
+        if (canSummon(player, CEnchantments.TAMER, slot, fired) && EnchantUtils.isEventActive(CEnchantments.TAMER, player, item, enchants)) {
             int power = enchants.get(CEnchantments.TAMER.getEnchantment());
+            fired.add(pieceKey(CEnchantments.TAMER, slot));
+            cooled.add(CEnchantments.TAMER);
             spawnAllies(player, enemy, AllyType.WOLF, power * settings.tamer().countPerLevel(), settings.tamer().durationSeconds());
         }
 
-        if (EnchantUtils.isEventActive(CEnchantments.GUARDS, player, item, enchants)) {
+        if (canSummon(player, CEnchantments.GUARDS, slot, fired) && EnchantUtils.isEventActive(CEnchantments.GUARDS, player, item, enchants)) {
             int power = enchants.get(CEnchantments.GUARDS.getEnchantment());
+            fired.add(pieceKey(CEnchantments.GUARDS, slot));
+            cooled.add(CEnchantments.GUARDS);
             spawnAllies(player, enemy, AllyType.IRON_GOLEM, power);
         }
 
-        if (EnchantUtils.isEventActive(CEnchantments.BEEKEEPER, player, item, enchants)) {
+        if (canSummon(player, CEnchantments.BEEKEEPER, slot, fired) && EnchantUtils.isEventActive(CEnchantments.BEEKEEPER, player, item, enchants)) {
             int power = enchants.get(CEnchantments.BEEKEEPER.getEnchantment());
+            fired.add(pieceKey(CEnchantments.BEEKEEPER, slot));
+            cooled.add(CEnchantments.BEEKEEPER);
             spawnAllies(player, enemy, AllyType.BEE, power * settings.beeKeeper().countPerLevel(), settings.beeKeeper().durationSeconds());
         }
 
-        if (EnchantUtils.isEventActive(CEnchantments.NECROMANCER, player, item, enchants)) {
+        if (canSummon(player, CEnchantments.NECROMANCER, slot, fired) && EnchantUtils.isEventActive(CEnchantments.NECROMANCER, player, item, enchants)) {
             int power = enchants.get(CEnchantments.NECROMANCER.getEnchantment());
+            fired.add(pieceKey(CEnchantments.NECROMANCER, slot));
+            cooled.add(CEnchantments.NECROMANCER);
             spawnAllies(player, enemy, AllyType.ZOMBIE, power * 2);
         }
 
-        if (EnchantUtils.isEventActive(CEnchantments.INFESTATION, player, item, enchants)) {
+        if (canSummon(player, CEnchantments.INFESTATION, slot, fired) && EnchantUtils.isEventActive(CEnchantments.INFESTATION, player, item, enchants)) {
             int power = enchants.get(CEnchantments.INFESTATION.getEnchantment());
             final int count = power * settings.infestation().countPerLevel();
+            fired.add(pieceKey(CEnchantments.INFESTATION, slot));
+            cooled.add(CEnchantments.INFESTATION);
             spawnAllies(player, enemy, AllyType.ENDERMITE, count, settings.infestation().durationSeconds());
             spawnAllies(player, enemy, AllyType.SILVERFISH, count, settings.infestation().durationSeconds());
         }
+    }
+
+    private static String pieceKey(final CEnchantments enchant, final int slot) {
+        return enchant.getName() + "#" + slot;
+    }
+
+    private boolean canSummon(Player player, CEnchantments enchant, int slot, Set<String> fired) {
+        return !fired.contains(pieceKey(enchant, slot)) && !inCoolDown(player, enchant);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -186,11 +211,6 @@ public class AllyEnchantments implements Listener {
     }
 
     private void spawnAllies(Player player, LivingEntity enemy, AllyType allyType, int amount, int durationSeconds) {
-        Calendar coolDown = Calendar.getInstance();
-        coolDown.add(Calendar.MINUTE, 2);
-
-        this.allyCoolDown.put(player.getUniqueId(), coolDown);
-
         for (int i = 0; i < amount; i++) {
             AllyMob ally = new AllyMob(player, allyType);
             ally.spawnAlly(durationSeconds);
@@ -198,13 +218,26 @@ public class AllyEnchantments implements Listener {
         }
     }
 
-    private boolean inCoolDown(Player player) {
-        if (this.allyCoolDown.containsKey(player.getUniqueId())) {
+    private void markCoolDown(Player player, CEnchantments enchant) {
+        Calendar coolDown = Calendar.getInstance();
+        coolDown.add(Calendar.MINUTE, 2);
+
+        this.allyCoolDown.put(coolDownKey(player, enchant), coolDown);
+    }
+
+    private static String coolDownKey(Player player, CEnchantments enchant) {
+        return player.getUniqueId() + ":" + enchant.getName();
+    }
+
+    private boolean inCoolDown(Player player, CEnchantments enchant) {
+        final String key = coolDownKey(player, enchant);
+
+        if (this.allyCoolDown.containsKey(key)) {
             // Right now is before the player's cool-down ends.
-            if (Calendar.getInstance().before(this.allyCoolDown.get(player.getUniqueId()))) return true;
+            if (Calendar.getInstance().before(this.allyCoolDown.get(key))) return true;
 
             // Remove the player because their cool-down is over.
-            this.allyCoolDown.remove(player.getUniqueId());
+            this.allyCoolDown.remove(key);
         }
 
         return false;

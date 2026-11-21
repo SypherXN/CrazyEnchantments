@@ -27,13 +27,13 @@ class DefensiveArmorLogicTest {
     }
 
     @Test
-    void arrowDeflectIntervalsAreFourHundredMillisPerLevel() {
+    void arrowDeflectIntervalsAreSevenFiftyMillisPerLevel() {
         final ArrowDeflectSettings settings = ArrowDeflectSettings.DEFAULTS;
 
-        assertEquals(400L, settings.intervalMillis(1));
-        assertEquals(800L, settings.intervalMillis(2));
-        assertEquals(1_200L, settings.intervalMillis(3));
-        assertEquals(1_600L, settings.intervalMillis(4));
+        assertEquals(750L, settings.intervalMillis(1));
+        assertEquals(1_500L, settings.intervalMillis(2));
+        assertEquals(2_250L, settings.intervalMillis(3));
+        assertEquals(3_000L, settings.intervalMillis(4));
     }
 
     @Test
@@ -42,11 +42,11 @@ class DefensiveArmorLogicTest {
         assertFalse(settings.blocks(null, 0L));
 
         final long firstDeadline = settings.windowAfterHit(null, 0L, 2);
-        assertEquals(800_000_000L, firstDeadline);
-        assertTrue(settings.blocks(firstDeadline, 799_999_999L));
-        assertEquals(firstDeadline, settings.windowAfterHit(firstDeadline, 799_999_999L, 4));
-        assertFalse(settings.blocks(firstDeadline, 800_000_000L));
-        assertEquals(2_400_000_000L, settings.windowAfterHit(firstDeadline, 800_000_000L, 4));
+        assertEquals(1_500_000_000L, firstDeadline);
+        assertTrue(settings.blocks(firstDeadline, 1_499_999_999L));
+        assertEquals(firstDeadline, settings.windowAfterHit(firstDeadline, 1_499_999_999L, 4));
+        assertFalse(settings.blocks(firstDeadline, 1_500_000_000L));
+        assertEquals(4_500_000_000L, settings.windowAfterHit(firstDeadline, 1_500_000_000L, 4));
     }
 
     @Test

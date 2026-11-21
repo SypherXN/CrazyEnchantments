@@ -21,6 +21,7 @@ softdepend:
   - GriefPrevention
   - Towny
   - Factions
+  - FactionsUUID
   - Lands
   - StackMob
   - WildStacker

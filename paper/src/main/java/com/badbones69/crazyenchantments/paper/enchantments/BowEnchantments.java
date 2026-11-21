@@ -132,9 +132,15 @@ public class BowEnchantments implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBowShoot(final EntityShootBowEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (EventUtils.isIgnoredEvent(event) || EventUtils.isIgnoredUUID(event.getEntity().getUniqueId())) return;
-        if (!(event.getProjectile() instanceof AbstractArrow arrow) || arrow instanceof Trident) return;
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (EventUtils.isIgnoredEvent(event) || EventUtils.isIgnoredUUID(event.getEntity().getUniqueId())) {
+            return;
+        }
+        if (!(event.getProjectile() instanceof AbstractArrow arrow) || arrow instanceof Trident) {
+            return;
+        }
 
         final ItemStack bow = event.getBow();
 
@@ -146,7 +152,9 @@ public class BowEnchantments implements Listener {
         // impact location before it hurts anyone.
 
         Map<CEnchantment, Integer> enchants = this.enchantmentBookSettings.getEnchantments(bow);
-        if (enchants.isEmpty()) return;
+        if (enchants.isEmpty()) {
+            return;
+        }
 
         // Add the arrow to the list.
         this.bowUtils.addArrow(arrow, bow, enchants);
@@ -178,11 +186,17 @@ public class BowEnchantments implements Listener {
     public void onLand(ProjectileHitEvent event) {
         final Projectile entity = event.getEntity();
 
-        if (!(entity.getShooter() instanceof Player shooter)) return;
-        if (!(entity instanceof AbstractArrow entityArrow)) return;
+        if (!(entity.getShooter() instanceof Player shooter)) {
+            return;
+        }
+        if (!(entity instanceof AbstractArrow entityArrow)) {
+            return;
+        }
 
         // Cross-region rule: a remote shooter skips the whole landing.
-        if (!Bukkit.isOwnedByCurrentRegion(shooter) || !Bukkit.isOwnedByCurrentRegion(entityArrow)) return;
+        if (!Bukkit.isOwnedByCurrentRegion(shooter) || !Bukkit.isOwnedByCurrentRegion(entityArrow)) {
+            return;
+        }
 
         // Capture the impact point here: by the damage event the arrow may have moved.
         // A living victim still has its damage event to come; a block or a
@@ -194,11 +208,25 @@ public class BowEnchantments implements Listener {
                     hitEntity instanceof LivingEntity, entityArrow.getLocation().getY());
         }
 
-        if (!this.support.isCombatEnabled(entityArrow.getLocation())) return;
-
         EnchantedArrow enchantedArrow = this.bowUtils.getEnchantedArrow(entityArrow);
 
-        if (enchantedArrow == null) return;
+        if (enchantedArrow == null) {
+            return;
+        }
+
+        // Healing and Teleportation on an ally are handled here, at the hit, not in the damage
+        // event. A friendly-fire plugin cancels the arrow's damage to an ally (that cancel is the
+        // "bounce"), and both handlers below are ignoreCancelled, so they never saw the hit. They
+        // also sit before the combat gate on purpose: they hurt nobody, and allies stand in the
+        // territory where combat is off.
+        if (hitEntity instanceof LivingEntity ally && !ally.getUniqueId().equals(shooter.getUniqueId())
+                && this.support.isFriendly(shooter, ally)) {
+            applyAllyArrow(shooter, ally, enchantedArrow);
+        }
+
+        final boolean combat = this.support.isCombatEnabled(entityArrow.getLocation());
+
+        if (!combat) return;
 
         // Spawn webs related to STICKY_SHOT.
         this.bowUtils.spawnWebs(event.getHitEntity(), enchantedArrow);
@@ -263,46 +291,34 @@ public class BowEnchantments implements Listener {
         final SniperSettings.Shot drawnShot = this.drawnShots.remove(entityArrow.getUniqueId());
 
         EnchantedArrow enchantedArrow = this.bowUtils.getEnchantedArrow(entityArrow);
-        if (enchantedArrow == null) return;
+        if (enchantedArrow == null) {
+            return;
+        }
 
         // Cross-region rule: no bow effect may read a remote arrow, shooter or victim.
-        if (!Bukkit.isOwnedByCurrentRegion(entityArrow) || !Bukkit.isOwnedByCurrentRegion(entity)) return;
+        if (!Bukkit.isOwnedByCurrentRegion(entityArrow) || !Bukkit.isOwnedByCurrentRegion(entity)) {
+            return;
+        }
 
         final Entity arrowShooter = enchantedArrow.getShooter();
 
-        if (arrowShooter == null || !Bukkit.isOwnedByCurrentRegion(arrowShooter)) return;
+        if (arrowShooter == null || !Bukkit.isOwnedByCurrentRegion(arrowShooter)) {
+            return;
+        }
 
-        if (!this.support.isCombatEnabled(enchantedArrow.arrow().getLocation())) return;
+        final boolean combat = this.support.isCombatEnabled(enchantedArrow.arrow().getLocation());
+
+        if (!combat) return;
 
         // The damage entering this handler is the base the shared outgoing-bonus
         // budget is measured from; the first CE handler to ask fixes it for the event.
         final double baseDamage = event.getDamage();
 
-        // Damaged player is friendly.
-
-        if (EnchantUtils.isEventActive(CEnchantments.DOCTOR, arrowShooter, enchantedArrow.bow(), enchantedArrow.enchantments()) && this.support.isFriendly(arrowShooter, entity)) {
-            int heal = 1 + enchantedArrow.getLevel(CEnchantments.DOCTOR);
-
-            Optional.ofNullable(entity.getAttribute(Attribute.MAX_HEALTH)).ifPresentOrElse(attribute -> {
-                final double maxHealth = attribute.getValue();
-
-                final double entityHealth = entity.getHealth();
-
-                if (entityHealth < maxHealth) {
-                    if (entityHealth + heal < maxHealth) entity.setHealth(entityHealth + heal);
-                    if (entityHealth + heal >= maxHealth) entity.setHealth(maxHealth);
-                }
-            }, () -> this.fusion.log(Level.WARNING, "Player %s did not have the MAX_HEALTH attribute when using %s enchantment!", entity.getName(), "Healing"));
-        }
-
-        // Damaged player is an enemy.
         final Player shooter = arrowShooter instanceof Player player ? player : null;
 
-        if (this.support.isFriendly(arrowShooter, entity)) {
-            if (shooter != null) tryTeleportation(shooter, entity, enchantedArrow.bow(), enchantedArrow.enchantments());
-
-            return;
-        }
+        // Healing / Teleportation on an ally now run from onLand (the hit), so a cancelled ally hit still
+        // procs them; running them here too would double-apply. A friendly victim gets no enemy effects.
+        if (this.support.isFriendly(arrowShooter, entity)) return;
 
         this.bowUtils.spawnWebs(event.getEntity(), enchantedArrow);
 
@@ -400,7 +416,50 @@ public class BowEnchantments implements Listener {
 
         victim.addPotionEffect(new PotionEffect(type, ticks, effect.getAmplifier(),
                 effect.isAmbient(), effect.hasParticles(), effect.hasIcon()));
-    }    /**
+    }
+
+    /**
+     * Healing and Teleportation for an arrow that reached an ally. Runs from the hit event, so it never
+     * depends on the ally's damage going through. The caller has already checked friendliness.
+     */
+    private void applyAllyArrow(final Player shooter, final LivingEntity ally, final EnchantedArrow enchantedArrow) {
+        // Cross-region rule: shooter, ally and arrow must all belong to this region.
+        if (!Bukkit.isOwnedByCurrentRegion(shooter) || !Bukkit.isOwnedByCurrentRegion(ally)
+                || !Bukkit.isOwnedByCurrentRegion(enchantedArrow.arrow())) return;
+        if (!shooter.isOnline() || shooter.isDead() || ally.isDead()) return;
+
+        final ItemStack bow = enchantedArrow.bow();
+        final Map<CEnchantment, Integer> enchantments = enchantedArrow.enchantments();
+
+        // Operators get no guaranteed proc; isEventActive rolls the chance and honours <name>.deny.
+        if (EnchantUtils.isEventActive(CEnchantments.DOCTOR, shooter, bow, enchantments)) {
+            final int heal = 1 + enchantedArrow.getLevel(CEnchantments.DOCTOR);
+
+            // One tick later: a hit that is not cancelled applies its damage first, and healing before it
+            // would be wasted on a full-health ally.
+            try {
+                ally.getScheduler().run(this.plugin, task -> {
+                    if (ally.isDead()) return;
+
+                    final AttributeInstance max = ally.getAttribute(Attribute.MAX_HEALTH);
+
+                    if (max == null) {
+                        this.fusion.log(Level.WARNING, "Entity %s did not have the MAX_HEALTH attribute when using %s enchantment!", ally.getName(), "Healing");
+
+                        return;
+                    }
+
+                    ally.setHealth(Math.min(max.getValue(), ally.getHealth() + heal));
+                }, null);
+            } catch (final Throwable ignored) {
+                // The ally was removed or the scheduler is shutting down.
+            }
+        }
+
+        tryTeleportation(shooter, ally, bow, enchantments);
+    }
+
+    /**
      * Teleportation: an arrow that lands on an ally moves the shooter to the
      * nearest safe spot around that ally. Every precondition failing is a silent
      * no-op, and the per-shooter window is spent only by a real teleport.
@@ -446,10 +505,11 @@ public class BowEnchantments implements Listener {
                 }
 
                 // teleportAsync is the only Folia-safe teleport; the window is spent only when it succeeds.
-                shooter.teleportAsync(landing).thenAccept(success -> {
+                // whenComplete, not thenAccept: a failed teleport must still release the in-flight flag.
+                shooter.teleportAsync(landing).whenComplete((success, error) -> {
                     this.pendingTeleports.remove(shooterId);
 
-                    if (success) settings.claim(this.teleportCooldowns, shooterId, claimedAt);
+                    if (error == null && Boolean.TRUE.equals(success)) settings.claim(this.teleportCooldowns, shooterId, claimedAt);
                 });
             }, null);
         } catch (final Throwable ignored) {
@@ -461,18 +521,21 @@ public class BowEnchantments implements Listener {
         final World world = ally.getWorld();
 
         for (final TeleportationSettings.Offset offset : settings.offsets()) {
-            final Location candidate = ally.clone().add(offset.dx(), 0.0, offset.dz());
+            // An ally mid-jump has no floor at its own height, so also look one up and two down.
+            for (final int dy : new int[]{0, 1, -1, -2}) {
+                final Location candidate = ally.clone().add(offset.dx(), dy, offset.dz());
 
-            // A two-block search can cross a region border; never read another region's blocks.
-            if (!Bukkit.isOwnedByCurrentRegion(candidate)) continue;
-            if (candidate.getY() <= world.getMinHeight()) continue;
-            if (!landingIsSafe(candidate)) continue;
+                // A two-block search can cross a region border; never read another region's blocks.
+                if (!Bukkit.isOwnedByCurrentRegion(candidate)) continue;
+                if (candidate.getY() <= world.getMinHeight() + 1) continue;
+                if (!landingIsSafe(candidate)) continue;
 
-            final Location landing = candidate.getBlock().getLocation().add(0.5, 0.0, 0.5);
-            landing.setYaw(shooter.getLocation().getYaw());
-            landing.setPitch(shooter.getLocation().getPitch());
+                final Location landing = candidate.getBlock().getLocation().add(0.5, 0.0, 0.5);
+                landing.setYaw(shooter.getLocation().getYaw());
+                landing.setPitch(shooter.getLocation().getPitch());
 
-            return landing;
+                return landing;
+            }
         }
 
         return null;
@@ -582,27 +645,47 @@ public class BowEnchantments implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onLandedBowDamage(final EntityDamageByEntityEvent event) {
-        if (SyntheticHit.isBleedTick() || EventUtils.isIgnoredEvent(event) || event.getCause() != DamageCause.PROJECTILE) return;
+        if (SyntheticHit.isBleedTick() || EventUtils.isIgnoredEvent(event) || event.getCause() != DamageCause.PROJECTILE) {
+            return;
+        }
         // Cross-region rule: the arrow, the shooter and the victim must all be here.
-        if (!(event.getDamager() instanceof AbstractArrow arrow) || !Bukkit.isOwnedByCurrentRegion(arrow)) return;
-        if (!(arrow.getShooter() instanceof Player player) || !Bukkit.isOwnedByCurrentRegion(player)) return;
-        if (!(event.getEntity() instanceof LivingEntity target) || !Bukkit.isOwnedByCurrentRegion(target)) return;
-        if (isIgnored(arrow) || isIgnored(player) || isIgnored(target) || !player.isOnline() || target.isDead()) return;
+        if (!(event.getDamager() instanceof AbstractArrow arrow) || !Bukkit.isOwnedByCurrentRegion(arrow)) {
+            return;
+        }
+        if (!(arrow.getShooter() instanceof Player player) || !Bukkit.isOwnedByCurrentRegion(player)) {
+            return;
+        }
+        if (!(event.getEntity() instanceof LivingEntity target) || !Bukkit.isOwnedByCurrentRegion(target)) {
+            return;
+        }
+        if (isIgnored(arrow) || isIgnored(player) || isIgnored(target) || !player.isOnline() || target.isDead()) {
+            return;
+        }
 
         // An absorbed hit still lands, but lifesteal only counts damage that will remove health.
-        if (!(event.getFinalDamage() - event.getDamage(EntityDamageEvent.DamageModifier.ABSORPTION) > 0.0)) return;
+        final double effectiveDamage = event.getFinalDamage() - event.getDamage(EntityDamageEvent.DamageModifier.ABSORPTION);
+
+        if (!(effectiveDamage > 0.0)) return;
 
         final ItemStack bow = bowWeapon(arrow);
         final Location impact = arrow.getLocation();
-        if (bow == null || !this.support.isCombatEnabled(impact)) return;
+
+        final boolean combat = this.support.isCombatEnabled(impact);
+
+        if (bow == null || !combat) return;
 
         final Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(bow);
-        if (enchantments.isEmpty()) return;
+        if (enchantments.isEmpty()) {
+            return;
+        }
 
         // Fold eligible direct splash into this hit, never a second hit during the target's i-frames.
+        final List<Blast> blasts = rollExplosions(player, bow, enchantments);
+
         final double arrowDamage = event.getDamage();
-        final double combinedDamage = ExplosionHelper.explode(player, impact, rollExplosions(player, bow, enchantments),
+        final double combinedDamage = ExplosionHelper.explode(player, impact, blasts,
                 target, arrowDamage, this.support);
+
         // Bystander damage events can let another plugin move one of the original participants.
         if (!Bukkit.isOwnedByCurrentRegion(player) || !Bukkit.isOwnedByCurrentRegion(target)
                 || !Bukkit.isOwnedByCurrentRegion(arrow)) return;
@@ -756,18 +839,31 @@ public class BowEnchantments implements Listener {
 
         // Entity impacts use the damage event so protection and arrow cancellation win.
         if (SyntheticHit.isBleedTick() || EventUtils.isIgnoredEvent(event)
-                || event.getHitEntity() != null || event.getHitBlock() == null) return;
+                || event.getHitEntity() != null || event.getHitBlock() == null) {
+            return;
+        }
         // Cross-region rule: the arrow and the shooter must both be here.
-        if (!(event.getEntity() instanceof AbstractArrow arrow) || !Bukkit.isOwnedByCurrentRegion(arrow)) return;
-        if (!(arrow.getShooter() instanceof Player player) || !Bukkit.isOwnedByCurrentRegion(player)) return;
-        if (isIgnored(arrow) || isIgnored(player) || !player.isOnline()) return;
+        if (!(event.getEntity() instanceof AbstractArrow arrow) || !Bukkit.isOwnedByCurrentRegion(arrow)) {
+            return;
+        }
+        if (!(arrow.getShooter() instanceof Player player) || !Bukkit.isOwnedByCurrentRegion(player)) {
+            return;
+        }
+        if (isIgnored(arrow) || isIgnored(player) || !player.isOnline()) {
+            return;
+        }
 
         final ItemStack bow = bowWeapon(arrow);
         final Location impact = arrow.getLocation();
-        if (bow == null || !this.support.isCombatEnabled(impact)) return;
+
+        final boolean combat = this.support.isCombatEnabled(impact);
+
+        if (bow == null || !combat) return;
 
         final Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(bow);
-        ExplosionHelper.explode(player, impact, rollExplosions(player, bow, enchantments), null, 0.0, this.support);
+        final List<Blast> blasts = rollExplosions(player, bow, enchantments);
+
+        ExplosionHelper.explode(player, impact, blasts, null, 0.0, this.support);
     }
 
     private List<Blast> rollExplosions(final Player player, final ItemStack bow, final Map<CEnchantment, Integer> enchantments) {

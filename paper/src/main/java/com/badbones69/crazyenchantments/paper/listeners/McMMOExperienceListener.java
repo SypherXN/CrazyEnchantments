@@ -28,9 +28,10 @@ public final class McMMOExperienceListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onXpGain(final McMMOPlayerXpGainEvent event) {
-        // Direct gameplay only: generic API awards default to UNKNOWN; commands and shared awards have separate reasons.
+        // Direct combat only. mcMMO reports a party-shared award as SHARED_PVE/SHARED_PVP
+        // to every member, the attacker included, so those count as well.
         final XPGainReason reason = event.getXpGainReason();
-        if (reason != XPGainReason.PVE && reason != XPGainReason.PVP) return;
+        if (reason == null || !McMMOXpLogic.isDirectCombatReason(reason.name())) return;
 
         final PrimarySkillType skill = event.getSkill();
         if (skill == null) return;
