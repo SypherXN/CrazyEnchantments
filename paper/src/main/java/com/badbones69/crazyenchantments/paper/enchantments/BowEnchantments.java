@@ -160,7 +160,7 @@ public class BowEnchantments implements Listener {
         this.bowUtils.addArrow(arrow, bow, enchants);
 
         // Sniper needs the draw force at the moment of the shot; weak shots never headshot.
-        final boolean sniper = storedLevel(CEnchantments.SNIPER_HEADSHOT, enchants) > 0;
+        final boolean sniper = storedLevel(CEnchantments.SNIPER, enchants) > 0;
 
         if (sniper) {
             pruneBowState(nowMillis());
@@ -368,7 +368,7 @@ public class BowEnchantments implements Listener {
         if (!settings.fullyDrawn(shot.force())) return;
         if (!settings.headshot(shot.impactY(), victim.getBoundingBox().getMinY(), victim.getBoundingBox().getHeight())) return;
 
-        final int level = activeLevel(CEnchantments.SNIPER_HEADSHOT, shooter, enchantedArrow.bow(), enchantedArrow.enchantments());
+        final int level = activeLevel(CEnchantments.SNIPER, shooter, enchantedArrow.bow(), enchantedArrow.enchantments());
         if (level <= 0) return;
 
         DamageModifiers.applyOutgoingBonus(event, baseDamage, event.getDamage() * (settings.multiplier(level) - 1.0));

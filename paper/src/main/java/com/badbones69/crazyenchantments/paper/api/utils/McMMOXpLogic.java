@@ -10,28 +10,41 @@ public final class McMMOXpLogic {
     private static final Set<String> TRAINING_SKILLS = Set.of("SWORDS", "AXES", "ARCHERY", "UNARMED", "TAMING");
 
     /**
-     * The {@code XPGainReason} names of an award the player earned by playing.
+     * The {@code XPGainReason} names of an award the player earned by playing,
+     * for either enchant: gathering (Skilling) and combat (Training).
      *
-     * <p>mcMMO awards combat as {@code PVE}/{@code PVP}; once a party shares XP
-     * equally it substitutes {@code SHARED_PVE}/{@code SHARED_PVP} for <em>every</em>
-     * member, the attacker included, and skips that player's own unshared award
-     * (mcMMO 2.2.049: {@code McMMOPlayer.beginXpGain} →
-     * {@code ShareHandler.handleXpShare} / {@code getSharedXpGainReason}). All
-     * four are the same fight, so all four count. {@code COMMAND},
-     * {@code UNKNOWN} (generic API and other plugins) and {@code VAMPIRISM} (a
-     * second award for a PvP kill) stay out: boosting those would pay twice or
-     * pay for someone else's award.</p>
+     * <p>mcMMO 2.2.049 traced through the jar:</p>
+     * <ul>
+     *   <li>gathering: every XP site in {@code WoodcuttingManager},
+     *       {@code MiningManager}, {@code HerbalismManager},
+     *       {@code ExcavationManager} and {@code FishingManager} goes through
+     *       {@code SkillManager.applyXpGain(..., PVE, SELF)};</li>
+     *   <li>combat: {@code CombatUtils.processCombatXP} picks {@code PVE} for a
+     *       mob and {@code PVP} for a player;</li>
+     *   <li>a party sharing XP equally replaces both with
+     *       {@code SHARED_PVE}/{@code SHARED_PVP} for <em>every</em> member, the
+     *       attacker included, and skips that player's own unshared award
+     *       ({@code McMMOPlayer.beginXpGain} → {@code ShareHandler.handleXpShare}
+     *       / {@code getSharedXpGainReason}). Those are the same award, so they
+     *       count too.</li>
+     * </ul>
+     *
+     * <p>Excluded on purpose: {@code COMMAND} ({@code /addxp}), {@code UNKNOWN}
+     * (mcMMO's {@code ExperienceAPI} and other plugins) and {@code VAMPIRISM}
+     * ({@code EventUtils.handleVampirismEvent} pays a second award for the same
+     * PvP kill). Boosting those would pay twice or pay for someone else's
+     * award.</p>
      */
-    private static final Set<String> DIRECT_COMBAT_REASONS = Set.of("PVE", "PVP", "SHARED_PVE", "SHARED_PVP");
+    private static final Set<String> OWN_GAMEPLAY_REASONS = Set.of("PVE", "PVP", "SHARED_PVE", "SHARED_PVP");
 
     private McMMOXpLogic() {}
 
     /**
      * @param reason an {@code XPGainReason} name
-     * @return true when this award came from the player's own combat
+     * @return true when this award came from the player's own gathering or combat
      */
-    public static boolean isDirectCombatReason(final String reason) {
-        return DIRECT_COMBAT_REASONS.contains(reason);
+    public static boolean isOwnGameplayAward(final String reason) {
+        return OWN_GAMEPLAY_REASONS.contains(reason);
     }
 
     public static boolean isSkillingSkill(final String skill) {

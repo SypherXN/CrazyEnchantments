@@ -3,6 +3,7 @@ package com.badbones69.crazyenchantments.paper.commands.types.admin.debug;
 import com.badbones69.crazyenchantments.paper.api.enums.CEnchantments;
 import com.badbones69.crazyenchantments.paper.api.enums.keys.FileKeys;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.EnchantmentKeys;
 import com.badbones69.crazyenchantments.paper.commands.EnchantCommand;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
@@ -22,8 +23,16 @@ public class FixCommand extends EnchantCommand {
         final List<CEnchantments> brokenEnchantments = new ArrayList<>();
 
         final FileConfiguration file = FileKeys.ENCHANTMENTS.getConfiguration();
+        final boolean skipSniperPair = EnchantmentKeys.needsSniperKeyReview(file);
+
+        if (skipSniperPair) {
+            sender.sendMessage(ColorUtils.color("&eSkipped Sniper and Poison Shot. Review their block keys in "
+                    + "Enchantments.yml before repairing them; see the startup warning for details."));
+        }
 
         for (CEnchantments enchantment : CEnchantments.values()) {
+            if (skipSniperPair && (enchantment == CEnchantments.SNIPER
+                    || enchantment == CEnchantments.POISON_SHOT)) continue;
             if (!file.contains("Enchantments." + enchantment.getName())) brokenEnchantments.add(enchantment);
         }
 

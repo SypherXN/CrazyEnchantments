@@ -129,9 +129,9 @@ class CosmicReworkLogicTest {
         assertTrue(rocket.ready(0L, 25L * second, 2));
         assertFalse(rocket.ready(0L, 19L * second, 3));
         assertTrue(rocket.ready(0L, 20L * second, 3));
-        assertEquals(9.0, rocket.velocity(1));
-        assertEquals(10.0, rocket.velocity(2));
-        assertEquals(11.0, rocket.velocity(3));
+        assertEquals(4.5, rocket.velocity(1));
+        assertEquals(5.0, rocket.velocity(2));
+        assertEquals(5.5, rocket.velocity(3));
     }
 
     @Test
@@ -480,8 +480,8 @@ class CosmicReworkLogicTest {
     }
 
     @Test
-    void sniperHeadshotLoreNoLongerClaimsTheDisabledCap() throws IOException {
-        final String lore = String.valueOf(section(enchant("SniperHeadshot"), "Info").get("Description"));
+    void sniperLoreNoLongerClaimsTheDisabledCap() throws IOException {
+        final String lore = String.valueOf(section(enchant("Sniper"), "Info").get("Description"));
 
         assertFalse(lore.contains("capped"), lore);
         assertFalse(lore.contains("20 HP"), lore);

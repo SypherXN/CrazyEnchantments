@@ -62,25 +62,56 @@ class McMMOXpLogicTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"PVE", "PVP", "SHARED_PVE", "SHARED_PVP"})
-    void ownCombatAwardsCountWhetherOrNotAPartySharesTheXp(String reason) {
-        assertTrue(McMMOXpLogic.isDirectCombatReason(reason));
+    void ownGameplayAwardsCountForBothEnchantsWhetherOrNotAPartySharesTheXp(String reason) {
+        assertTrue(McMMOXpLogic.isOwnGameplayAward(reason));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"COMMAND", "UNKNOWN", "VAMPIRISM", "Pve", "", "shared_pve"})
     void foreignSecondHandOrMalformedReasonsAreNotBoosted(String reason) {
-        assertFalse(McMMOXpLogic.isDirectCombatReason(reason));
+        assertFalse(McMMOXpLogic.isOwnGameplayAward(reason));
     }
 
     @Test
-    void listenerAsksTheReasonPolicyInsteadOfComparingToPveAndPvpOnly() throws IOException {
+    void listenerRoutesTheSkillBeforeApplyingOneReasonPolicyToBothFamilies() throws IOException {
         final String listener = Files.readString(LISTENER);
 
-        assertTrue(listener.contains("!McMMOXpLogic.isDirectCombatReason(reason.name())"));
+        assertTrue(listener.contains("!McMMOXpLogic.isOwnGameplayAward(reason.name())"));
         // A party-shared award reaches every member as SHARED_*, so an exact
         // PVE/PVP comparison here silently disables the enchant for the party.
         assertFalse(Pattern.compile("reason\\s*(?:!=\\s*XPGainReason\\.(?:PVE|PVP)|==\\s*XPGainReason\\.(?:PVE|PVP))")
                 .matcher(listener).find());
+        // Gathering and combat arrive on the same event, so the reason gate must
+        // not come first: route the skill, then decide whether the award is ours.
+        final int skillRouting = listener.indexOf("McMMOXpLogic.isSkillingSkill(skillName)");
+        final int reasonGate = listener.indexOf("McMMOXpLogic.isOwnGameplayAward(reason.name())");
+        assertTrue(skillRouting > 0 && reasonGate > skillRouting, "the reason gate must follow skill routing");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"MINING,PICKAXE", "WOODCUTTING,AXE", "HERBALISM,HOE", "EXCAVATION,SHOVEL", "FISHING,ROD"})
+    void everySkillingSkillHasAGatheringToolItsEnchantTypeAccepts(String skill, String tool) throws IOException {
+        final Map<?, ?> types = types();
+        final String type = skillingType();
+        final List<String> tools = enchantableItems(types, type);
+
+        assertTrue(McMMOXpLogic.isSkillingSkill(skill));
+        assertFalse(McMMOXpLogic.isTrainingSkill(skill));
+        assertTrue(tools.stream().anyMatch(material -> material.endsWith("_" + tool)),
+                () -> skill + " gathers with a " + tool + ", which " + type + " must accept: " + tools);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"SWORDS,SWORD", "AXES,AXE", "ARCHERY,BOW"})
+    void everyItemBasedTrainingSkillHasAWeaponItsEnchantTypeAccepts(String skill, String weapon) throws IOException {
+        final Map<?, ?> types = types();
+        final String type = trainingType();
+        final List<String> weapons = enchantableItems(types, type);
+
+        assertTrue(McMMOXpLogic.isTrainingSkill(skill));
+        assertFalse(McMMOXpLogic.isSkillingSkill(skill));
+        assertTrue(weapons.stream().anyMatch(material -> material.equals(weapon) || material.endsWith("_" + weapon)),
+                () -> skill + " fights with a " + weapon + ", which " + type + " must accept: " + weapons);
     }
 
     @ParameterizedTest
@@ -172,11 +203,11 @@ class McMMOXpLogicTest {
 
     @Test
     void fishingRodCanCarrySkillingAndFishingIsAQualifyingSkill() throws IOException {
-        final Path typesFile = MODULE.resolve("src/main/resources/Enchantment-Types.yml");
-        final Map<?, ?> yaml = new Yaml().load(Files.readString(typesFile));
-        final Map<?, ?> type = (Map<?, ?>) ((Map<?, ?>) yaml.get("Types")).get("Weapons-and-Tools");
+        final String type = skillingType();
+        final List<String> tools = enchantableItems(types(), type);
 
-        assertTrue(((List<?>) type.get("Enchantable-Items")).contains("FISHING_ROD"));
+        assertTrue(tools.contains("FISHING_ROD"),
+                () -> "Skilling is declared on " + type + ", which must accept a FISHING_ROD: " + tools);
         assertTrue(McMMOXpLogic.isSkillingSkill("FISHING"));
     }
 
@@ -235,5 +266,37 @@ class McMMOXpLogicTest {
         assertEquals(1L, Pattern.compile("\\.setRawXpGained\\s*\\(").matcher(listener).results().count());
         assertFalse(Pattern.compile("\\bExperienceAPI\\b|\\bgetScheduler\\s*\\(|\\bcallEvent\\s*\\(|\\bsetCancelled\\s*\\(")
                 .matcher(listener).find());
+    }
+
+    /** The types from the packaged Enchantment-Types.yml the runtime reads. */
+    private static Map<?, ?> types() throws IOException {
+        final Map<?, ?> yaml = new Yaml().load(Files.readString(MODULE.resolve("src/main/resources/Enchantment-Types.yml")));
+
+        return (Map<?, ?>) yaml.get("Types");
+    }
+
+    /** The item type an enchant actually declares in Enchantments.yml. */
+    private static String declaredType(final String enchantment) throws IOException {
+        final Map<?, ?> yaml = new Yaml().load(Files.readString(MODULE.resolve("src/main/resources/Enchantments.yml")));
+        final Map<?, ?> enchant = (Map<?, ?>) ((Map<?, ?>) yaml.get("Enchantments")).get(enchantment);
+
+        return (String) enchant.get("Enchantment-Type");
+    }
+
+    private static String skillingType() throws IOException {
+        return declaredType("Skilling");
+    }
+
+    private static String trainingType() throws IOException {
+        return declaredType("Training");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> enchantableItems(final Map<?, ?> types, final String type) {
+        final Map<?, ?> section = (Map<?, ?>) types.get(type);
+
+        assertTrue(section != null, () -> "Enchantment-Types.yml has no '" + type + "' section");
+
+        return (List<String>) section.get("Enchantable-Items");
     }
 }

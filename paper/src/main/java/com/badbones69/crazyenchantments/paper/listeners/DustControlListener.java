@@ -99,7 +99,7 @@ public class DustControlListener implements Listener {
         final Gson gson = Methods.getGson();
 
         final DustData dustData = gson.fromJson(container.get(DataKeys.dust.getNamespacedKey(), PersistentDataType.STRING), DustData.class);
-        final EnchantedBook bookData = gson.fromJson(bookContainer.get(DataKeys.stored_enchantments.getNamespacedKey(), PersistentDataType.STRING), EnchantedBook.class); //Once Books have PDC
+        final EnchantedBook bookData = EnchantedBook.fromJson(bookContainer.get(DataKeys.stored_enchantments.getNamespacedKey(), PersistentDataType.STRING)); //Once Books have PDC
 
         if (bookData == null || dustData == null) return;
 

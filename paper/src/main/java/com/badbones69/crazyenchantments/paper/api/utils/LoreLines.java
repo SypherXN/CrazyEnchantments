@@ -152,6 +152,28 @@ public final class LoreLines {
     }
 
     /**
+     * Removes the first line that matches, so two identical lines (an
+     * enchant's own line and a pre-rename label that reads the same) cannot both
+     * be dropped by one removal. An ambiguous second line is left in place
+     * rather than guessed at.
+     *
+     * @param lore The lines to edit in place.
+     * @param match Finds the line to remove.
+     * @return True when a line was removed, false when none matched.
+     */
+    public static boolean removeFirst(final List<Component> lore, final Predicate<Component> match) {
+        for (int index = 0; index < lore.size(); index++) {
+            if (!match.test(lore.get(index))) continue;
+
+            lore.remove(index);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Inserts lines directly after the last enchant line, so a new enchant joins
      * the enchant block instead of landing below unrelated lore. With no enchant
      * line present the lines go at the end.

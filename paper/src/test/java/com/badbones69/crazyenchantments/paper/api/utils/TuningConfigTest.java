@@ -74,7 +74,7 @@ class TuningConfigTest {
         expected.put("Infernal", "Infernal");
         expected.put("Explosive", "Explosive");
         expected.put("Hellfire", "Hellfire");
-        expected.put("Sniper", "SniperHeadshot");
+        expected.put("Sniper", "Sniper");
         expected.put("Virus", "Virus");
         expected.put("Teleportation", "Teleportation");
         expected.put("Farcast", "Farcast");
@@ -261,7 +261,7 @@ class TuningConfigTest {
         legacy.put("CosmicEnchants.DamageModifiers.Bonus-Damage-Cap-HP", 7.0);
         final Map<String, Object> moved = new HashMap<>();
         moved.put("Enchantments.Bleed.Tuning.Cadence-Seconds", 2.5);
-        moved.put("Enchantments.SniperHeadshot.Tuning.Force-TTL-Seconds", 60.0);
+        moved.put("Enchantments.Sniper.Tuning.Force-TTL-Seconds", 60.0);
         moved.put("Enchantments.Pummel.Tuning.Duration-Seconds", List.of(1.0, 2.0));
         moved.put("Enchantments.Blacksmith.Tuning.Repair-Points", List.of(1, 2));
         final List<String> warnings = new ArrayList<>();
@@ -278,7 +278,7 @@ class TuningConfigTest {
 
     @Test
     void everyTrapSectionMapsToItsRenamedEnchant() {
-        assertEquals("SniperHeadshot", TuningConfig.sectionKeys().get("Sniper"));
+        assertEquals("Sniper", TuningConfig.sectionKeys().get("Sniper"));
         assertEquals("Deep Wounds", TuningConfig.sectionKeys().get("DeepWounds"));
         assertEquals("Blood Lust", TuningConfig.sectionKeys().get("BloodLust"));
         assertEquals("Creeper Armor", TuningConfig.sectionKeys().get("CreeperArmor"));
@@ -330,8 +330,8 @@ class TuningConfigTest {
         final TuningConfig.Rarities rarities = new TuningConfig.Rarities(2, warnings::add);
 
         assertEquals(TuningConfig.Rarities.CURRENT_FORMAT, rarities.format());
-        assertEquals("Legendary", rarities.rarity("legendary", "SniperHeadshot"));
-        assertEquals("Ultimate", rarities.rarity("Ultimate", "Sniper"));
+        assertEquals("Legendary", rarities.rarity("legendary", "Sniper"));
+        assertEquals("Ultimate", rarities.rarity("Ultimate", "Poison Shot"));
         assertEquals("Elite", rarities.category("Elite", "config.yml Categories"));
         assertEquals("Godlike", rarities.category("Godlike", "config.yml Categories"),
                 "a custom tier is not part of either vocabulary and keeps working");
@@ -425,13 +425,15 @@ class TuningConfigTest {
 
         // The trap, pinned deliberately: old Legendary is now Elite under the
         // migration format, and the two Sniper blocks are pinned by hand rather
-        // than mapped. Under the shipped Cosmic tiers SniperHeadshot (Cosmic
-        // "Sniper") is Legendary and the poison block has no counterpart.
-        final Map<?, ?> sniperHeadshot = assertInstanceOf(Map.class, enchantments().get("SniperHeadshot"), "SniperHeadshot");
-        assertEquals("Legendary", sniperHeadshot.get("Rarity"));
+        // than mapped. The headshot enchant owns the "Sniper" key (Cosmic
+        // "Sniper", Legendary); the poison enchant is "Poison Shot", which has
+        // no Cosmic counterpart.
         final Map<?, ?> sniper = assertInstanceOf(Map.class, enchantments().get("Sniper"), "Sniper");
-        assertEquals("poison shot", displayWord(sniper.get("Name")), "the Sniper key keeps its Poison Shot display name");
-        assertEquals("Ultimate", sniper.get("Rarity"));
+        assertEquals("Legendary", sniper.get("Rarity"));
+        assertEquals("sniper", displayWord(sniper.get("Name")), "the Sniper key is the headshot enchant");
+        final Map<?, ?> poisonShot = assertInstanceOf(Map.class, enchantments().get("Poison Shot"), "Poison Shot");
+        assertEquals("poison shot", displayWord(poisonShot.get("Name")), "the poison enchant keeps its display name");
+        assertEquals("Ultimate", poisonShot.get("Rarity"));
 
         final Map<?, ?> bleed = assertInstanceOf(Map.class, enchantments().get("Bleed"), "Bleed");
         assertEquals(List.of("Elite", "Legendary"), bleed.get("Categories"));

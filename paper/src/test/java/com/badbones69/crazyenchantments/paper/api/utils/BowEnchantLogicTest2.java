@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -223,8 +222,8 @@ class BowEnchantLogicTest2 {
 
     private static List<Registry> registry() {
         return List.of(
-                new Registry("SniperHeadshot", "Sniper", "&7Sniper", 5, "Ultimate", null, null,
-                        "SNIPER_HEADSHOT(\"SniperHeadshot\", \"Bow\"),"),
+                new Registry("Sniper", "Sniper", "&7Sniper", 5, "Ultimate", null, null,
+                        "SNIPER(\"Sniper\", \"Bow\"),"),
                 new Registry("Virus", "Virus", "&7Virus", 4, "Unique", 8, 4,
                         "VIRUS(\"Virus\", \"Bow\", 8, 4),"),
                 new Registry("Teleportation", "Teleportation", "&7Teleportation", 5, "Elite", 8, 4,
@@ -267,14 +266,15 @@ class BowEnchantLogicTest2 {
     }
 
     @Test
-    void sniperNeverRollsTheOldPoisonShotEnchant() throws IOException {
+    void sniperNeverRollsThePoisonShotEnchant() throws IOException {
         final String bow = read(JAVA + "enchantments/BowEnchantments.java");
 
-        assertTrue(bow.contains("CEnchantments.SNIPER_HEADSHOT"));
-        assertFalse(Pattern.compile("CEnchantments\\.SNIPER\\b").matcher(bow).find(),
-                "the old Sniper (Poison Shot) enchant must stay untouched");
+        assertTrue(bow.contains("CEnchantments.SNIPER"), "Sniper is the headshot enchant");
+        assertFalse(bow.contains("CEnchantments.POISON_SHOT"),
+                "the poison enchant must stay untouched by the headshot handlers");
 
-        assertEquals("&7Poison Shot", section(section(yaml("Enchantments.yml"), "Enchantments"), "Sniper").get("Name"));
+        assertEquals("&7Poison Shot", section(section(yaml("Enchantments.yml"), "Enchantments"), "Poison Shot").get("Name"));
+        assertEquals("&7Sniper", section(section(yaml("Enchantments.yml"), "Enchantments"), "Sniper").get("Name"));
     }
 
     @Test

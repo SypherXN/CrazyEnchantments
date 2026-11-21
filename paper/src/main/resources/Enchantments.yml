@@ -1824,7 +1824,7 @@ Enchantments:
       # FORK Being hit at or below this percent of max health launches the wearer.
       Trigger-PP: 30.0
       # FORK Upward velocity at levels I-III.
-      Velocity: [9.0, 10.0, 11.0]
+      Velocity: [4.5, 5.0, 5.5]
       # FORK Seconds before the same wearer can launch again, at levels I-III. Starts when a launch is accepted.
       Cooldown-Seconds: [30.0, 25.0, 20.0]
     Sound: "ENTITY_PLAYER_LEVELUP"
@@ -2717,7 +2717,7 @@ Enchantments:
     Categories:
       - 'Elite'
   #Do not change this line.
-  Sniper:
+  Poison Shot:
     Enabled: true
     Rarity: 'Ultimate'
     Sound: "ENTITY_PLAYER_LEVELUP"
@@ -3528,7 +3528,7 @@ Enchantments:
     Categories:
       - 'Ultimate'
   #Do not change this line.
-  SniperHeadshot:
+  Sniper:
     Enabled: true
     Rarity: 'Legendary'
     Tuning:

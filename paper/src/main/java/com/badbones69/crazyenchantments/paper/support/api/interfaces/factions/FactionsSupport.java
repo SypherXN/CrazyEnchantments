@@ -30,8 +30,10 @@ public abstract class FactionsSupport<FP, F, B, L> extends TerritorySupport<B, L
 
         this.isEnabled = true;
 
+        // Territory services are looked up by TerritorySupport.class in SupportUtils,
+        // so registering the faction provider under FactionsSupport made it unreachable.
         this.servicesManager.register(
-                FactionsSupport.class,
+                TerritorySupport.class,
                 this,
                 this.plugin,
                 ServicePriority.Normal

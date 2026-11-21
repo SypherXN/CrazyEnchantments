@@ -191,7 +191,7 @@ public class ScrollListener implements Listener {
 
         final PersistentDataContainerView container = item.getPersistentDataContainer();
 
-        final Enchant data = Methods.getGson().fromJson(container.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING), Enchant.class);
+        final Enchant data = Enchant.fromJson(container.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING));
 
         if (data == null) return item; // Only order if it has CE_Enchants
 

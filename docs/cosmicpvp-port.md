@@ -1,8 +1,10 @@
 # CosmicPvP enchant port (fork)
 
 This branch (`sakura-custom`) adds a CosmicPvP-style enchant set on top of the
-upstream CrazyEnchantments registry. Nothing upstream was removed or renamed;
-every addition is additive and gated behind its own config block or provider.
+upstream CrazyEnchantments registry. No upstream enchant was removed. One
+upstream identity was renamed: the headshot enchant owns the name **Sniper**
+today and upstream's Sniper (poison) enchant is now **Poison Shot** — see
+[Sniper and Poison Shot](#sniper-and-poison-shot).
 
 Balance decisions, per-enchant numbers, provenance (DOC vs FORK) and the
 cancelled Heroic/Soul/Mastery scope cut are recorded in
@@ -26,6 +28,11 @@ cancelled Heroic/Soul/Mastery scope cut are recorded in
 Each has an entry in `config.yml` under `CosmicEnchants` for its tunables, and a
 `Chance-System` in `Enchantments.yml` unless it is always-on. Chance rolls follow
 the upstream formula `base + increase * (level - 1)`.
+
+**Sniper** in the lists above is the headshot enchant. Upstream's Sniper (the
+poison shot) is **Poison Shot**; its block, tuning and stored item data follow
+that swap, and a live `Enchantments.yml` written before it is still read
+correctly (see [Sniper and Poison Shot](#sniper-and-poison-shot)).
 
 ## New enchantment types
 
@@ -86,3 +93,41 @@ rarity. To adopt the new default caps (1/2/5/10/50), copy
 Existing caps from 0 to 50 remain in effect. Missing or invalid caps
 (including values above 50) scale by the tier's XP-point shop price. If there
 is no eligible price, the legacy per-book formula applies, capped at 50%.
+
+### Sniper and Poison Shot
+
+This is the one upgrade the plugin reads for you. In a live `Enchantments.yml`
+written before the rename, `Sniper:` is the poison block and `SniperHeadshot:`
+the headshot block. Both are read under today's keys (`Poison Shot:` and
+`Sniper:`) in memory, each keeping its own block's settings, and the file on
+disk is never written. One warning names the two keys to rename when convenient.
+
+A file that cannot be resolved is not guessed at:
+
+- only a `Sniper:` block, with neither `SniperHeadshot:` nor `Poison Shot:` —
+  it could be the old poison block or the new headshot block, so neither enchant
+  is loaded (stored item data is untouched) and the warning says which block to
+  add or restore.
+- all three keys — the stray `Sniper:` block could be either reading, so it is
+  ignored; `Poison Shot:` is read as poison and `SniperHeadshot:` as the
+  headshot, and the warning says what to delete and rename.
+
+Names in free-form settings are **not** migrated automatically, because the same
+word can be a label or a kit entry. Update these by hand where they meant the
+poison enchant:
+
+- `GKitz.yml` item strings: a bare `Sniper:<level>` entry (for example
+  `..., Overload:0-5, Sniper:2, ...`) now grants the headshot enchant. Write
+  `PoisonShot:<level>` (or `Poison Shot:<level>`) for the poison one.
+- `Tinker.yml` `Tinker.Crazy-Enchantments.<name>` keys: an entry named `Sniper`
+  now prices the headshot enchant; rename it to `Poison Shot` if it was the
+  poison's. The shipped file has no entry for either.
+- Permissions: `crazyenchantments.Sniper.deny` now denies the headshot; the
+  poison enchant's node is `crazyenchantments.Poison Shot.deny` (with the space).
+- Commands: `/crazyenchantments add Sniper` adds the headshot, `PoisonShot`
+  adds the poison.
+- `config.yml` `CosmicEnchants.Sniper.*` is unchanged and still tunes the
+  headshot (`Enchantments.Sniper.Tuning`).
+
+`/crazyenchantments fix` skips both enchants while the file uses legacy or
+ambiguous keys. It can still repair unrelated enchants.

@@ -41,7 +41,14 @@ import java.util.Map;
 
 public class EnchantmentBookSettings {
 
-    private static final String SNIPER_ID = "Sniper";
+    /**
+     * The poison enchant's current name, and the label its lore carried before
+     * the display rename. The old label is also the headshot enchant's name
+     * today, so it is only ever read as poison where the poison level says so.
+     */
+    private static final String POISON_SHOT = "Poison Shot";
+
+    private static final String SNIPER = "Sniper";
 
     private final CrazyEnchantments plugin = JavaPlugin.getPlugin(CrazyEnchantments.class);
 
@@ -76,7 +83,7 @@ public class EnchantmentBookSettings {
 
         if (!view.has(DataKeys.stored_enchantments.getNamespacedKey())) return null;
 
-        EnchantedBook data = Methods.getGson().fromJson(view.get(DataKeys.stored_enchantments.getNamespacedKey(), PersistentDataType.STRING), EnchantedBook.class);
+        EnchantedBook data = EnchantedBook.fromJson(view.get(DataKeys.stored_enchantments.getNamespacedKey(), PersistentDataType.STRING));
 
         CEnchantment enchantment = null;
 
@@ -100,7 +107,7 @@ public class EnchantmentBookSettings {
     public ItemStack getNewScrambledBook(final ItemStack book) {
         final PersistentDataContainerView view = book.getPersistentDataContainer();
 
-        final EnchantedBook data = Methods.getGson().fromJson(view.get(DataKeys.stored_enchantments.getNamespacedKey(), PersistentDataType.STRING), EnchantedBook.class);
+        final EnchantedBook data = EnchantedBook.fromJson(view.get(DataKeys.stored_enchantments.getNamespacedKey(), PersistentDataType.STRING));
 
         CEnchantment enchantment = null;
 
@@ -132,7 +139,7 @@ public class EnchantmentBookSettings {
         if (!view.has(DataKeys.stored_enchantments.getNamespacedKey())) return false;
 
         final String dataString = view.get(DataKeys.stored_enchantments.getNamespacedKey(), PersistentDataType.STRING);
-        final EnchantedBook data = Methods.getGson().fromJson(dataString, EnchantedBook.class);
+        final EnchantedBook data = EnchantedBook.fromJson(dataString);
 
         for (final CEnchantment enchantment : getRegisteredEnchantments()) {
             if (enchantment.getName().equalsIgnoreCase(data.getName())) return true;
@@ -207,7 +214,7 @@ public class EnchantmentBookSettings {
 
         if (data == null) return Collections.emptyMap();
 
-        final Enchant enchants = Methods.getGson().fromJson(data, Enchant.class);
+        final Enchant enchants = Enchant.fromJson(data);
 
         if (enchants.isEmpty()) return Collections.emptyMap();
 
@@ -371,7 +378,7 @@ public class EnchantmentBookSettings {
     public int getLevel(@NotNull final ItemStack item, @NotNull final CEnchantment enchant) {
         final String data = item.getPersistentDataContainer().get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING);
 
-        int level = data == null ? 0 : Methods.getGson().fromJson(data, Enchant.class).getLevel(enchant.getName());
+        int level = data == null ? 0 : Enchant.fromJson(data).getLevel(enchant.getName());
 
         if (!useUnsafeEnchantments() && level > enchant.getMaxLevel()) level = enchant.getMaxLevel();
 
@@ -379,33 +386,57 @@ public class EnchantmentBookSettings {
     }
 
     /**
-     * G9: Sniper was renamed to Poison Shot. Items written before the rename
-     * still carry the old label, so removal matches both spellings. This is a
-     * single rename exception, not a general alias system.
+     * G9: the poison enchant used to display as "Sniper" and now shows as
+     * "Poison Shot". Items written before the display rename still carry the
+     * old label, so removal matches both spellings for that enchant only. This
+     * is a single rename exception, not a general alias system.
      */
     public static boolean matchesLore(final Component line, final CEnchantment enchant, final Enchant stored) {
-        final String plain = ColorUtils.toPlainText(line);
-
-        if (LoreLines.isEnchantLine(plain, ColorUtils.stripStringColour(enchant.getCustomName()))) return true;
-
-        return SNIPER_ID.equals(enchant.getName()) && isLegacySniperLine(plain, stored.getLevel(SNIPER_ID));
+        return matchesLore(ColorUtils.toPlainText(line), enchant.getName(), ColorUtils.stripStringColour(enchant.getCustomName()), stored);
     }
 
-    private static boolean isLegacySniperLine(final String plain, final Integer storedLevel) {
-        return storedLevel != null && plain.equals(SNIPER_ID + " " + NumberUtils.convertLevelString(storedLevel));
+    /**
+     * The colour-free body of {@link #matchesLore(Component, CEnchantment, Enchant)},
+     * so the rename rules can be pinned without a CEnchantment.
+     *
+     * @param plain The line's text with colour codes removed.
+     * @param enchantName The enchant's registry name.
+     * @param strippedCustomName The enchant's display name with colour codes removed.
+     * @param stored The item's stored enchantments, already migrated.
+     * @return True when the line belongs to the enchant.
+     */
+    static boolean matchesLore(final String plain, final String enchantName, final String strippedCustomName, final Enchant stored) {
+        // The headshot's display name is also the poison enchant's label before
+        // the display rename, so both enchants' lines read "Sniper <level>". When
+        // the item stores poison and not the headshot, such a line is the poison
+        // line and the headshot must not claim it.
+        if (SNIPER.equals(enchantName) && stored.hasEnchantment(POISON_SHOT) && !stored.hasEnchantment(SNIPER)) return false;
+
+        if (LoreLines.isEnchantLine(plain, strippedCustomName)) return true;
+
+        return POISON_SHOT.equals(enchantName) && isLegacyPoisonLine(plain, stored.getLevel(POISON_SHOT));
     }
 
-    private boolean rewriteLegacySniperLore(final List<Component> lore, final Enchant stored) {
-        final Integer level = stored.getLevel(SNIPER_ID);
+    private static boolean isLegacyPoisonLine(final String plain, final Integer storedLevel) {
+        return storedLevel != null && plain.equals(SNIPER + " " + NumberUtils.convertLevelString(storedLevel));
+    }
+
+    private boolean rewriteLegacyPoisonLore(final List<Component> lore, final Enchant stored) {
+        final Integer level = stored.getLevel(POISON_SHOT);
         if (level == null) return false;
 
-        final CEnchantment sniper = getRegisteredEnchantment(SNIPER_ID);
-        if (sniper == null) return false;
+        // "Sniper <level>" is the headshot enchant's own line today. When that
+        // enchant is on the item the line is its, so rewriting it would trade
+        // the headshot's line for a duplicate poison one.
+        if (stored.hasEnchantment(SNIPER)) return false;
+
+        final CEnchantment poison = getRegisteredEnchantment(POISON_SHOT);
+        if (poison == null) return false;
 
         boolean changed = false;
         for (int i = 0; i < lore.size(); i++) {
-            if (!isLegacySniperLine(ColorUtils.toPlainText(lore.get(i)), level)) continue;
-            lore.set(i, ColorUtils.legacyTranslateColourCodes(sniper.getCustomName() + " " + NumberUtils.convertLevelString(level)));
+            if (!isLegacyPoisonLine(ColorUtils.toPlainText(lore.get(i)), level)) continue;
+            lore.set(i, ColorUtils.legacyTranslateColourCodes(poison.getCustomName() + " " + NumberUtils.convertLevelString(level)));
             changed = true;
         }
         return changed;
@@ -427,7 +458,7 @@ public class EnchantmentBookSettings {
         final Enchant data;
 
         if (view.has(DataKeys.enchantments.getNamespacedKey())) {
-            data = Methods.getGson().fromJson(view.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING), Enchant.class);
+            data = Enchant.fromJson(view.get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING));
         } else {
             data = new Enchant(new HashMap<>());
         }
@@ -435,10 +466,10 @@ public class EnchantmentBookSettings {
         final List<Component> lore = itemStack.lore();
         boolean loreChanged = false;
         for (final CEnchantment enchant : enchants) {
-            if (lore != null) loreChanged |= lore.removeIf(line -> matchesLore(line, enchant, data));
+            if (lore != null) loreChanged |= LoreLines.removeFirst(lore, line -> matchesLore(line, enchant, data));
             data.removeEnchantment(enchant.getName());
         }
-        if (lore != null && (rewriteLegacySniperLore(lore, data) || loreChanged)) {
+        if (lore != null && (rewriteLegacyPoisonLore(lore, data) || loreChanged)) {
             itemStack.setData(DataComponentTypes.LORE, ItemLore.lore().addLines(lore).build());
         }
 

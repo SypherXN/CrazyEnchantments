@@ -1,15 +1,58 @@
 package com.badbones69.crazyenchantments.paper.api.enums.pdc;
 
+import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class Enchant {
 
+    private static final Gson gson = new Gson();
+
     private final HashMap<String, Integer> enchants;
+
+    /**
+     * The enchant-name vocabulary of this map. Gson fills it from the payload
+     * and leaves it 0 when the payload has none, which is data written before
+     * the Sniper rename. It is deliberately not initialised at the field: this
+     * class must never gain a no-args constructor, or Gson would hand old data
+     * the current version and read the old poison "Sniper" as the headshot.
+     */
+    private int version;
 
     public Enchant(HashMap<String, Integer> enchants) {
         this.enchants = enchants == null ? new HashMap<>() : enchants;
+        this.version = EnchantRenames.CURRENT_VERSION;
+    }
+
+    /**
+     * Reads stored enchant data, translating a payload written before the
+     * Sniper rename once. See {@link EnchantRenames}: a payload without a
+     * version holds the old names, and a translated map only becomes permanent
+     * when it is written back, because writing it also writes the version.
+     *
+     * @param json The raw {@code DataKeys.enchantments} value, or null.
+     * @return The map under today's names, or null when there is no data.
+     */
+    public static Enchant fromJson(final String json) {
+        final Enchant data = gson.fromJson(json, Enchant.class);
+
+        if (data == null) return null;
+        if (data.enchants == null) return new Enchant(new HashMap<>());
+        if (data.version >= EnchantRenames.CURRENT_VERSION) return data;
+
+        final Map<String, Integer> migrated = new HashMap<>();
+
+        // One pass over the stored keys: no rename may feed another. Merging by
+        // max keeps a level instead of silently dropping it if a hand-edited
+        // payload already holds both spellings.
+        data.enchants.forEach((name, level) -> migrated.merge(EnchantRenames.current(name), level, Math::max));
+
+        data.enchants.clear();
+        data.enchants.putAll(migrated);
+        data.version = EnchantRenames.CURRENT_VERSION;
+
+        return data;
     }
 
     /**

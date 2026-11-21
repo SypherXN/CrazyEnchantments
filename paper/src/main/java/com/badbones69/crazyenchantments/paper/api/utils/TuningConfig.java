@@ -62,10 +62,12 @@ public final class TuningConfig {
      * {@code Enchantments.<key>.Tuning}. The key must equal the CEnchantments
      * display name because {@code CrazyManager.load()} reads
      * {@code "Enchantments." + name}. The mapping is not derivable by name
-     * alone: Sniper is the new SniperHeadshot, DeepWounds is "Deep Wounds",
-     * BloodLust is "Blood Lust", CreeperArmor is "Creeper Armor" and AntiGank
-     * is "Anti Gank". DamageModifiers is global and stays in config.yml;
-     * KillAura shipped empty, so it has no Tuning block and no entry here.
+     * alone: the Cosmic section "Sniper" is the headshot enchant, whose key is
+     * now also "Sniper" (the poison enchant it used to name is "Poison Shot"),
+     * DeepWounds is "Deep Wounds", BloodLust is "Blood Lust", CreeperArmor is
+     * "Creeper Armor" and AntiGank is "Anti Gank". DamageModifiers is global
+     * and stays in config.yml; KillAura shipped empty, so it has no Tuning
+     * block and no entry here.
      */
     private static final Map<String, String> SECTIONS = Map.ofEntries(
             Map.entry("Bleed", "Bleed"),
@@ -102,7 +104,7 @@ public final class TuningConfig {
             Map.entry("Infernal", "Infernal"),
             Map.entry("Explosive", "Explosive"),
             Map.entry("Hellfire", "Hellfire"),
-            Map.entry("Sniper", "SniperHeadshot"),
+            Map.entry("Sniper", "Sniper"),
             Map.entry("Virus", "Virus"),
             Map.entry("Teleportation", "Teleportation"),
             Map.entry("Farcast", "Farcast"),

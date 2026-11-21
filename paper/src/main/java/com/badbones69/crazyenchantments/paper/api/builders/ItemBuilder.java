@@ -536,7 +536,7 @@ public class ItemBuilder {
         this.settings.removeEnchantments(itemStack, enchantments.keySet().stream().filter(currentEnchantments::containsKey).toList());
 
         final String data = itemStack.getPersistentDataContainer().get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING);
-        final Enchant enchantData = data != null ? Methods.getGson().fromJson(data, Enchant.class) : new Enchant(new HashMap<>());
+        final Enchant enchantData = data != null ? Enchant.fromJson(data) : new Enchant(new HashMap<>());
 
         List<Component> lore = itemStack.lore();
 

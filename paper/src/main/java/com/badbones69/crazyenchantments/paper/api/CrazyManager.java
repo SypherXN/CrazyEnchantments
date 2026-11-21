@@ -25,6 +25,7 @@ import com.badbones69.crazyenchantments.paper.api.builders.ItemBuilder;
 import com.badbones69.crazyenchantments.paper.api.bleed.BleedSystem;
 import com.badbones69.crazyenchantments.paper.api.utils.AttributeUtils;
 import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
+import com.badbones69.crazyenchantments.paper.api.utils.EnchantmentKeys;
 import com.badbones69.crazyenchantments.paper.api.utils.LoreLines;
 import com.badbones69.crazyenchantments.paper.api.utils.MetaphysicalSettings;
 import com.badbones69.crazyenchantments.paper.api.utils.NumberUtils;
@@ -179,7 +180,12 @@ public class CrazyManager {
     private void loadInternal() {
         final FileConfiguration config = FileKeys.CONFIG.getConfiguration();
         final FileConfiguration gkit = FileKeys.GKITZ.getConfiguration();
-        final FileConfiguration enchants = FileKeys.ENCHANTMENTS.getConfiguration();
+        // A live server keeps its own Enchantments.yml, which may still use the
+        // pre-rename Sniper pair. Resolve that pair once, in memory, so
+        // registration, tuning and validation all read the same vocabulary; the
+        // file on disk is never written.
+        final FileConfiguration enchants = EnchantmentKeys.normalize(FileKeys.ENCHANTMENTS.getConfiguration(),
+                message -> this.fusion.log(Level.WARNING, message));
 
         final FileConfiguration blocks = FileKeys.BLOCKLIST.getConfiguration();
         final FileConfiguration heads = FileKeys.HEADMAP.getConfiguration();
@@ -695,7 +701,7 @@ public class CrazyManager {
      */
     public void addEnchantments(final ItemStack itemStack, final Map<CEnchantment, Integer> enchantments) {
         String data = itemStack.getPersistentDataContainer().get(DataKeys.enchantments.getNamespacedKey(), PersistentDataType.STRING);
-        final Enchant enchantData = data != null ? Methods.getGson().fromJson(data, Enchant.class) : new Enchant(new HashMap<>());
+        final Enchant enchantData = data != null ? Enchant.fromJson(data) : new Enchant(new HashMap<>());
 
         final List<Component> lore = new ArrayList<>(itemStack.lore() != null ? itemStack.lore() : List.of());
 
