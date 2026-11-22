@@ -463,7 +463,7 @@ Categories: #You can make as many different categories as you want
     Slot: 1 #The Slot number the item will be in
     InGUI: true #Toggle if it's in the GUI or not.
     Lore: #The lore of the Item
-      - '&eCost: &6&l400 &6XP Points'
+      - '&eCost: &6&l1500 &6XP Points'
     Item: 'WHITE_STAINED_GLASS_PANE' #The id for the item
     # Item model settings
     Model:
@@ -472,7 +472,7 @@ Categories: #You can make as many different categories as you want
       # diamond_helmet
       Key: ""
     Glowing: true #If it has a glowing effect.
-    Cost: 400 #How much each book will cost to buy.
+    Cost: 1500 #How much each book will cost to buy.
     Currency: XP_Total #The currency you wish to use.
     Rarity: 1 #This allows the enchantments to be ordered with the Transmog Scrolls. The higher the number the rarer it is. Try and have each category have different rarities.
     LostBook: #Controls the Lost Book shop for this tier
@@ -516,7 +516,7 @@ Categories: #You can make as many different categories as you want
     Slot: 3
     InGUI: true
     Lore:
-      - '&eCost: &6&l800 &6XP Points'
+      - '&eCost: &6&l5000 &6XP Points'
     Item: 'LIME_STAINED_GLASS_PANE'
     # Item model settings
     Model:
@@ -525,7 +525,7 @@ Categories: #You can make as many different categories as you want
       # diamond_helmet
       Key: ""
     Glowing: true
-    Cost: 800
+    Cost: 5000
     Currency: XP_Total
     Rarity: 2
     LostBook:
@@ -569,7 +569,7 @@ Categories: #You can make as many different categories as you want
     Slot: 5
     InGUI: true
     Lore:
-      - '&eCost: &6&l2500 &6XP Points'
+      - '&eCost: &6&l20000 &6XP Points'
     Item: 'CYAN_STAINED_GLASS_PANE'
     # Item model settings
     Model:
@@ -578,7 +578,7 @@ Categories: #You can make as many different categories as you want
       # diamond_helmet
       Key: ""
     Glowing: true
-    Cost: 2500
+    Cost: 20000
     Currency: XP_Total
     Rarity: 3
     LostBook:
@@ -622,7 +622,7 @@ Categories: #You can make as many different categories as you want
     Slot: 9
     InGUI: true
     Lore:
-      - '&eCost: &6&l25000 &6XP Points'
+      - '&eCost: &6&l100000 &6XP Points'
     Item: 'ORANGE_STAINED_GLASS_PANE'
     # Item model settings
     Model:
@@ -631,7 +631,7 @@ Categories: #You can make as many different categories as you want
       # diamond_helmet
       Key: ""
     Glowing: true
-    Cost: 25000
+    Cost: 100000
     Currency: XP_Total
     Rarity: 10
     LostBook:
@@ -675,7 +675,7 @@ Categories: #You can make as many different categories as you want
     Slot: 7
     InGUI: true
     Lore:
-      - '&eCost: &6&l5000 &6XP Points'
+      - '&eCost: &6&l60000 &6XP Points'
     Item: 'YELLOW_STAINED_GLASS_PANE'
     # Item model settings
     Model:
@@ -684,7 +684,7 @@ Categories: #You can make as many different categories as you want
       # diamond_helmet
       Key: ""
     Glowing: true
-    Cost: 5000
+    Cost: 60000
     Currency: XP_Total
     Rarity: 4
     LostBook:
