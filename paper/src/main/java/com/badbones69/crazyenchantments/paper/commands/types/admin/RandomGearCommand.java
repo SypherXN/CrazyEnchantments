@@ -7,6 +7,8 @@ import com.badbones69.crazyenchantments.paper.api.utils.ColorUtils;
 import com.badbones69.crazyenchantments.paper.commands.EnchantCommand;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.Optional;
+import dev.triumphteam.cmd.core.annotations.Suggestion;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -50,19 +52,24 @@ public class RandomGearCommand extends EnchantCommand {
 
     @Command("randomgear")
     @Permission(value = "crazyenchantments.randomgear", def = PermissionDefault.OP)
-    @Syntax("/crazyenchantments randomgear <hand|material> <rarity|any|mixed> <count|min-max>")
-    public void execute(final Player player, final String source, final String rarity, final String count) {
-        // Inventory and item reads stay on the region that owns the player.
-        player.getScheduler().run(this.plugin, task -> roll(player, source, rarity, count), null);
+    @Syntax("/crazyenchantments randomgear <hand|material> <rarity|any|mixed> <count|min-max> [player]")
+    public void execute(final Player player, final String source, final String rarity, final String count,
+                        @Suggestion("players") @Optional final Player target) {
+        final Player destination = target == null ? player : target;
+
+        // The target's inventory and item are read, so run on the region that owns them.
+        destination.getScheduler().run(this.plugin,
+                task -> roll(player, destination, source, rarity, count), null);
     }
 
-    private void roll(final Player player, final String source, final String rarity, final String countArgument) {
+    private void roll(final Player sender, final Player target, final String source, final String rarity,
+                      final String countArgument) {
         final CountRange requested;
 
         try {
             requested = parseCount(countArgument);
         } catch (IllegalArgumentException exception) {
-            player.sendMessage(ColorUtils.color("&cInvalid count: &e" + countArgument
+            sender.sendMessage(ColorUtils.color("&cInvalid count: &e" + countArgument
                     + "&c. Use a number or min-max, e.g. 2-5."));
 
             return;
@@ -72,16 +79,17 @@ public class RandomGearCommand extends EnchantCommand {
         final ItemStack item;
 
         if (fromHand) {
-            item = player.getInventory().getItemInMainHand();
+            item = target.getInventory().getItemInMainHand();
 
             if (item.isEmpty()) {
-                player.sendMessage(Messages.DOESNT_HAVE_ITEM_IN_HAND.getMessage());
+                sender.sendMessage(target == sender ? Messages.DOESNT_HAVE_ITEM_IN_HAND.getMessage()
+                        : ColorUtils.color("&c" + target.getName() + " is not holding an item."));
 
                 return;
             }
 
             if (item.getAmount() != 1) {
-                player.sendMessage(Messages.NEED_TO_UNSTACK_ITEM.getMessage());
+                sender.sendMessage(Messages.NEED_TO_UNSTACK_ITEM.getMessage());
 
                 return;
             }
@@ -89,7 +97,7 @@ public class RandomGearCommand extends EnchantCommand {
             final Material material = Material.matchMaterial(source);
 
             if (material == null || material.isAir() || !material.isItem()) {
-                player.sendMessage(ColorUtils.color("&cUnknown material: &e" + source));
+                sender.sendMessage(ColorUtils.color("&cUnknown material: &e" + source));
 
                 return;
             }
@@ -108,7 +116,7 @@ public class RandomGearCommand extends EnchantCommand {
             category = findTier(canonicalRarity(rarity));
 
             if (category == null) {
-                player.sendMessage(ColorUtils.color("&cUnknown rarity: &e" + rarity
+                sender.sendMessage(ColorUtils.color("&cUnknown rarity: &e" + rarity
                         + "&c. Use Simple, Unique, Elite, Ultimate, Legendary, Common, any, or mixed."));
 
                 return;
@@ -121,7 +129,7 @@ public class RandomGearCommand extends EnchantCommand {
             existing.add(candidate(enchantment));
         }
 
-        final int free = freeSlots(player, item);
+        final int free = freeSlots(target, item);
 
         final Map<String, CEnchantment> byKey = new LinkedHashMap<>();
         final Selection selection;
@@ -143,7 +151,7 @@ public class RandomGearCommand extends EnchantCommand {
             }
 
             if (pool.isEmpty()) {
-                player.sendMessage(ColorUtils.color("&cNo enabled tiered enchantments fit "
+                sender.sendMessage(ColorUtils.color("&cNo enabled tiered enchantments fit "
                         + item.getType().name() + "."));
 
                 return;
@@ -165,7 +173,7 @@ public class RandomGearCommand extends EnchantCommand {
             }
 
             if (pool.isEmpty()) {
-                player.sendMessage(ColorUtils.color("&cNo enabled "
+                sender.sendMessage(ColorUtils.color("&cNo enabled "
                         + (any ? "" : category.getIdentity() + " ")
                         + "enchantments fit " + item.getType().name() + "."));
 
@@ -176,7 +184,7 @@ public class RandomGearCommand extends EnchantCommand {
         }
 
         if (selection.failure != null) {
-            player.sendMessage(ColorUtils.color("&cCannot roll that request: &7" + selection.failure));
+            sender.sendMessage(ColorUtils.color("&cCannot roll that request: &7" + selection.failure));
 
             return;
         }
@@ -203,19 +211,25 @@ public class RandomGearCommand extends EnchantCommand {
         this.crazyManager.addEnchantments(item, additions);
 
         if (fromHand) {
-            this.methods.setItemInHand(player, item);
+            this.methods.setItemInHand(target, item);
         } else {
-            final Map<Integer, ItemStack> leftovers = player.getInventory().addItem(item);
+            final Map<Integer, ItemStack> leftovers = target.getInventory().addItem(item);
 
             if (!leftovers.isEmpty()) {
-                player.sendMessage(Messages.INVENTORY_FULL.getMessage());
+                sender.sendMessage(Messages.INVENTORY_FULL.getMessage());
 
                 return;
             }
         }
 
-        player.sendMessage(ColorUtils.color("&aRolled &e" + selection.rolls.size()
-                + (mixed ? "&a mixed enchant(s): " : "&a enchant(s): ") + report));
+        sender.sendMessage(ColorUtils.color("&aRolled &e" + selection.rolls.size()
+                + (mixed ? "&a mixed enchant(s): " : "&a enchant(s): ")
+                + (target == sender ? "" : "&afor &e" + target.getName() + "&a: ") + report));
+
+        if (target != sender) {
+            target.sendMessage(ColorUtils.color("&aYou were given random enchanted gear by &e"
+                    + sender.getName() + "&a."));
+        }
     }
 
     /**
