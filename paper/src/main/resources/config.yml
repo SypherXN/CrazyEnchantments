@@ -5,8 +5,8 @@
 ###################################################################
 Settings:
   Prefix: '&8[&aCrazyEnchantments&8]: ' #The prefix in the messages
-  Toggle-Metrics: true #Turn on and off if your server stats are sent to https://bstats.org/ - Requires a restart!
-  Player-Info-Backup-Message: true #Toggle this on and off if you wish to see when the player's data gets backed up.
+  Toggle-Metrics: false #Turn on and off if your server stats are sent to https://bstats.org/ - Requires a restart!
+  Player-Info-Backup-Message: false #Toggle this on and off if you wish to see when the player's data gets backed up.
   Reset-Players-Max-Health: true #This is for some servers that get a health duplication glitch from plugins like CombatTagPlus(v1.2.3 down)
   Refresh-Potion-Effects-On-World-Change: false #In the odd chance potion effects disappear on world change.
   InvName: '&4&l&nCrazy Enchanter' #The name of the /CE inventory
@@ -460,7 +460,7 @@ Settings:
 Categories: #You can make as many different categories as you want
   Simple: #Name of the category
     Name: '&f&l&nCommon' #Name in the GUI
-    Slot: 1 #The Slot number the item will be in
+    Slot: 0
     InGUI: true #Toggle if it's in the GUI or not.
     Lore: #The lore of the Item
       - '&eCost: &6&l1500 &6XP Points'
@@ -513,7 +513,7 @@ Categories: #You can make as many different categories as you want
         Min: 1
   Unique:
     Name: '&a&l&nUnique'
-    Slot: 3
+    Slot: 2
     InGUI: true
     Lore:
       - '&eCost: &6&l5000 &6XP Points'
@@ -566,10 +566,10 @@ Categories: #You can make as many different categories as you want
         Min: 2
   Elite:
     Name: '&b&l&nElite'
-    Slot: 5
+    Slot: 4
     InGUI: true
     Lore:
-      - '&eCost: &6&l20000 &6XP Points'
+      - '&eCost: &6&l25000 &6XP Points'
     Item: 'CYAN_STAINED_GLASS_PANE'
     # Item model settings
     Model:
@@ -619,7 +619,7 @@ Categories: #You can make as many different categories as you want
         Min: 3
   Legendary:
     Name: '&6&l&nLegendary'
-    Slot: 9
+    Slot: 8
     InGUI: true
     Lore:
       - '&eCost: &6&l100000 &6XP Points'
@@ -631,7 +631,7 @@ Categories: #You can make as many different categories as you want
       # diamond_helmet
       Key: ""
     Glowing: true
-    Cost: 70000
+    Cost: 100000
     Currency: XP_Total
     Rarity: 10
     LostBook:
@@ -672,10 +672,10 @@ Categories: #You can make as many different categories as you want
         Min: 1
   Ultimate: #FORK category added for the CosmicPvP port (Heavy, Tank, Marksman)
     Name: '&e&l&nUltimate'
-    Slot: 7
+    Slot: 6
     InGUI: true
     Lore:
-      - '&eCost: &6&l60000 &6XP Points'
+      - '&eCost: &6&l70000 &6XP Points'
     Item: 'YELLOW_STAINED_GLASS_PANE'
     # Item model settings
     Model:
@@ -684,7 +684,7 @@ Categories: #You can make as many different categories as you want
       # diamond_helmet
       Key: ""
     Glowing: true
-    Cost: 100000
+    Cost: 70000
     Currency: XP_Total
     Rarity: 4
     LostBook:
