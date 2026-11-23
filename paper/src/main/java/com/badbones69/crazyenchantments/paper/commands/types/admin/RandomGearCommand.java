@@ -11,6 +11,7 @@ import dev.triumphteam.cmd.core.annotations.Optional;
 import dev.triumphteam.cmd.core.annotations.Suggestion;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionDefault;
@@ -53,17 +54,32 @@ public class RandomGearCommand extends EnchantCommand {
     @Command("randomgear")
     @Permission(value = "crazyenchantments.randomgear", def = PermissionDefault.OP)
     @Syntax("/crazyenchantments randomgear <hand|material> <rarity|any|mixed> <count|min-max> [player]")
-    public void execute(final Player player, final String source, final String rarity, final String count,
+    public void execute(final CommandSender player, final String source, final String rarity, final String count,
                         @Suggestion("players") @Optional final Player target) {
-        final Player destination = target == null ? player : target;
+        // Console and RCON run reward commands, so the sender may not be a player.
+        final Player destination;
+
+        if (player instanceof Player self) {
+            destination = target == null ? self : target;
+        } else {
+            if (target == null) {
+                player.sendMessage(ColorUtils.color("&cConsole must name a player: "
+                        + "&e/crazyenchantments randomgear <hand|material> <rarity> <count> <player>"));
+
+                return;
+            }
+
+            destination = target;
+        }
 
         // The target's inventory and item are read, so run on the region that owns them.
         destination.getScheduler().run(this.plugin,
                 task -> roll(player, destination, source, rarity, count), null);
     }
 
-    private void roll(final Player sender, final Player target, final String source, final String rarity,
+    private void roll(final CommandSender sender, final Player target, final String source, final String rarity,
                       final String countArgument) {
+        final boolean self = sender instanceof Player asPlayer && asPlayer.equals(target);
         final CountRange requested;
 
         try {
@@ -82,7 +98,7 @@ public class RandomGearCommand extends EnchantCommand {
             item = target.getInventory().getItemInMainHand();
 
             if (item.isEmpty()) {
-                sender.sendMessage(target == sender ? Messages.DOESNT_HAVE_ITEM_IN_HAND.getMessage()
+                sender.sendMessage(self ? Messages.DOESNT_HAVE_ITEM_IN_HAND.getMessage()
                         : ColorUtils.color("&c" + target.getName() + " is not holding an item."));
 
                 return;
@@ -224,9 +240,9 @@ public class RandomGearCommand extends EnchantCommand {
 
         sender.sendMessage(ColorUtils.color("&aRolled &e" + selection.rolls.size()
                 + (mixed ? "&a mixed enchant(s): " : "&a enchant(s): ")
-                + (target == sender ? "" : "&afor &e" + target.getName() + "&a: ") + report));
+                + (self ? "" : "&afor &e" + target.getName() + "&a: ") + report));
 
-        if (target != sender) {
+        if (!self) {
             target.sendMessage(ColorUtils.color("&aYou were given random enchanted gear by &e"
                     + sender.getName() + "&a."));
         }

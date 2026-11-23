@@ -70,13 +70,21 @@ public final class ExplosionHelper {
     public static double explode(final Player source, final Location impact, final List<Blast> blasts,
                                  final LivingEntity directTarget, final double arrowDamage, final SupportUtils support,
                                  final Predicate<LivingEntity> included) {
+        final boolean combat = support.isCombatEnabled(impact);
+
         if (blasts.isEmpty() || SyntheticHit.isSynthetic() || !Bukkit.isOwnedByCurrentRegion(source)
-                || !Bukkit.isOwnedByCurrentRegion(impact)) return arrowDamage;
-        if (!source.isOnline() || EventUtils.isIgnoredUUID(source.getUniqueId())
-                || !support.isCombatEnabled(impact)) return arrowDamage;
+                || !Bukkit.isOwnedByCurrentRegion(impact)) {
+            return arrowDamage;
+        }
+        if (!source.isOnline() || EventUtils.isIgnoredUUID(source.getUniqueId()) || !combat) {
+            return arrowDamage;
+        }
 
         final World world = impact.getWorld();
-        if (!world.equals(source.getWorld())) return arrowDamage;
+
+        if (!world.equals(source.getWorld())) {
+            return arrowDamage;
+        }
 
         world.spawnParticle(Particle.EXPLOSION, impact, 1);
         world.playSound(impact, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);

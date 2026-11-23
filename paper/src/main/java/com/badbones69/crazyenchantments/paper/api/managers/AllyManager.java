@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,12 +74,19 @@ public class AllyManager {
             for (final AllyMob ally : this.allyMobs) {
                 final LivingEntity entity = ally.getAlly();
 
-                new FoliaScheduler(this.plugin, null, entity) {
-                    @Override
-                    public void run() {
-                        entity.remove();;
-                    }
-                }.runNextTick();
+                try {
+                    new FoliaScheduler(this.plugin, null, entity) {
+                        @Override
+                        public void run() {
+                            entity.remove();;
+                        }
+                    }.runNextTick();
+                } catch (final IllegalPluginAccessException ignored) {
+                    // Called from onDisable: the plugin is already disabled, so the
+                    // scheduler refuses new work. Remove the ally directly instead of
+                    // aborting the rest of the shutdown.
+                    entity.remove();
+                }
             }
 
             this.allyMobs.clear();

@@ -1094,12 +1094,9 @@ public class ArmorEnchantments implements Listener {
             Map<CEnchantment, Integer> enchantments = this.enchantmentBookSettings.getEnchantments(item);
 
             if (EnchantUtils.isEventActive(CEnchantments.SELFDESTRUCT, player, item, enchantments)) {
+                // FORK Self Destruct now only blasts the surroundings. It used to wipe every
+                // death drop except protection-crystal items, which destroyed ordinary gear.
                 this.methods.explode(player);
-
-                List<ItemStack> items = event.getDrops().stream().filter(drop -> ProtectionCrystalSettings.isProtected(drop.getPersistentDataContainer()) && this.protectionCrystalSettings.isProtectionSuccessful(player)).toList();
-
-                event.getDrops().clear();
-                event.getDrops().addAll(items);
             }
 
             if (EnchantUtils.isEventActive(CEnchantments.RECOVER, player, item, enchantments)) {

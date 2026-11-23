@@ -91,30 +91,17 @@ public class ShopListener implements Listener {
 
                 if (this.methods.isInventoryFull(player)) return;
 
-                CEBook book = this.crazyManager.getRandomEnchantmentBook(category, new Random());
-                if (book == null) {
-                    player.sendMessage(ColorUtils.getPrefix("&cThe category &6" + category.getName() + " &chas no enchantments assigned to it."));
-                    return;
-                }
-
-                this.crazyManager.getCEPlayer(player).ifPresent(cePlayer -> {
-                    if (buyBook(player, category.getCurrency(), category.getCost(), book.buildBook())) {
-                        this.plugin.getServer().getPluginManager().callEvent(
-                                new BuyBookEvent(cePlayer, category.getCurrency(), category.getCost(), book));
-                    }
-                });
+                // FORK The shop sells the category's lost book, not a pre-rolled enchantment:
+                // the player applies it to gear themselves, so the price buys the tier, not a random roll.
+                this.crazyManager.getCEPlayer(player).ifPresent(cePlayer ->
+                        buyBook(player, category.getCurrency(), category.getCost(),
+                                category.getLostBook().getLostBook(category).build()));
 
                 return;
             }
 
-            LostBook lostBook = category.getLostBook();
-
-            if (lostBook.isInGUI() && item.isSimilar(lostBook.getDisplayItem().build())) {
-                if (this.methods.isInventoryFull(player)) return;
-
-                buyBook(player, lostBook.getCurrency(), lostBook.getCost(), lostBook.getLostBook(category).build());
-                return;
-            }
+            // FORK the separate lost-book tile no longer exists: the category tile above
+            // hands out that category's lost book, so there is nothing left to sell here.
         }
 
         for (ShopOption option : ShopOption.values()) {
